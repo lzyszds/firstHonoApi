@@ -16,7 +16,7 @@ import { nanoid } from 'nanoid';
 const userService = new UserService()
 
 
-export default class UserController {
+class UserController {
   //获取用户列表
   async getUserList(c: Context) {
     const { search = "", pages = "1", limit = "10" } = c.req.query()
@@ -252,3 +252,4 @@ export default class UserController {
     return c.json(result);
   }
 }
+export default new UserController()

@@ -16,7 +16,7 @@ import { nanoid } from "nanoid";
 class ArticleService {
 
   public async findAll(c: Context) {
-    let { search, pages, limit } = c.req.query();
+    let { search = "", pages = "1", limit = "10" } = c.req.query();
     const total: number = await ArticleMapper.getArticleListTotal(search);
 
     const data: Articles[] = await ArticleMapper.findAll(search, pages, limit);

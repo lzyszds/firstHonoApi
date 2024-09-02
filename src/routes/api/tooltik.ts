@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import toolkitController from '../../controllers/toolkitController';
 interface Routes {
+  [key: string]: { [key: string]: (c: any) => any };
   get: { [key: string]: (c: any) => any };
   post: { [key: string]: (c: any) => any };
 }
@@ -21,9 +22,13 @@ const routes: Routes = {
 }
 
 
-for (const key in routes.get) {
-  router.get(key, routes.get[key]);
+for (const method in routes) {
+  for (const path in routes[method]) {
+    //@ts-ignore
+    router[method](path, routes[method][path]);
+  }
 }
+
 
 
 export default router
