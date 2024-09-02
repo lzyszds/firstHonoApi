@@ -1,6 +1,6 @@
 import ApiConfig from "../domain/ApiCongfigType";
 import { AdminHomeType, ProcessAdminHomeType } from "../domain/AdminHomeType";
-import ToolkotMapper from "../models/toolkot";
+import ToolkotMapper from "../models/toolkit";
 import ArticleMapper from "../models/article";
 import path from "path";
 import fs from "fs";

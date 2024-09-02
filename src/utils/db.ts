@@ -68,6 +68,7 @@ const db: Database = {
             ErrorHandle(error, reject);
             resolve(results);
             //输出完整的sql查询语句
+            // console.log(`lzy  sql:`, connection.format(sql, params));
           });
 
         });

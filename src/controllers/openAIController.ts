@@ -6,29 +6,24 @@ import openAI from "../services/openAIService";
 class AiController {
 
   //GPT3.5开放ai
-  public getAifox(c: Context) {
-    // c.status = 200;
-    // // 处理流式请求
-    // c.respond = false; // 禁用 Koa 的内置响应处理
-    // c.type = 'text/plain'; // 设置响应头为文本类型
+  async getAifox(c: Context) {
     return openAI.getAifox(c)
   }
 
   //获取ai key列表
-  public getAiKeysList(c: Context) {
-    return openAI.getAiKeysList(c);
+  async getAiKeysList(c: Context) {
+    return c.json(await openAI.getAiKeysList(c));
   }
 
   //新增ai key
-  public addAiKey(c: Context) {
-    return openAI.addAiKey(c);
+  async addAiKey(c: Context) {
+    return c.json(await openAI.addAiKey(c));
   }
 
   //删除ai key
-  public deleteAiKey(c: Context) {
-    return openAI.deleteAiKey(c);
+  async deleteAiKey(c: Context) {
+    return c.json(await openAI.deleteAiKey(c));
   }
-
 
 }
 

@@ -312,11 +312,8 @@ const uploadFileLimit = async (
 };
 
 
-/**
- * 
- * @param file 上传的文件
- * @param MAX_FILE_SIZE 上传文件的大小限制 单位 KB
-  */
+//睡眠
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 
 export {
@@ -334,4 +331,5 @@ export {
   writeJsonFile,  // 写入 JSON 文件
   appendToFile,   // 追加内容到文件的函数
   uploadFileLimit,  // 上传文件大小和类型限制
+  sleep,  // 睡眠
 };

@@ -8,7 +8,8 @@ import dayjs from "dayjs";
 import handleAiFox from "@/utils/handleAiFox";
 import { Context } from "hono";
 import { streamText, streamSSE } from 'hono/streaming'
-import logger from "@/middleware/logger";
+import { sleep } from "bun";
+import CONFIG from "../../config";
 
 /*
     * 获取ai的key方法
@@ -39,9 +40,6 @@ class openAI {
   // GPT-3.5 OpenAI
   public async getAifox(c: Context) {
 
-    let strConnect = '';
-    let strAll = '';
-    let partialData = ''; // 声明 partialData 变量
     // 获取文章 ID
     const aid: any = c.req.query().aid || 21;
     let articleInfo: any;
@@ -54,15 +52,16 @@ class openAI {
     }
 
     const [key, keyName] = await SelkeysBasedOnUsageFrequency();
-    const url: string = 'https://api.chatanywhere.com.cn/v1/chat/completions/';
 
     let result: any;
 
     const getResultData = async () => {
       try {
-        result = await handleAiFox.getAiList(url, articleInfo.content, key);
+        const { data } = await handleAiFox.getAiList(articleInfo.content, key);
+        result = data.choices[0].message.content;
+        // 将结果写入文件
+        await handleAiFox.writeAiTextStore(result, aid);
       } catch (error) {
-        // console.log(`lzy  error:`, error)
         return await getResultData()
       }
     }
@@ -70,36 +69,13 @@ class openAI {
     // 更新 AI 使用次数
     await AiMapper.updateAiUc(keyName, dayjs().format('YYYY-MM-DD') + "%");
 
-    const textDecoder = new TextDecoder();
-
-    return streamText(c, async (stream) => {
-      const reader = result.body.getReader();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) {
-          break;
-        }
-        const chunk = textDecoder.decode(value);
-        const lines = chunk.split('data: ');
-        for (let line of lines) {
-          if (line.includes("[DONE]")) continue; // 如果包含 "[DONE]" 字符串则跳过该行
-          const str = line
-          console.log(`lzy  str:`, str)
-          if (!str) break;
-          try {
-            const resJson: any = JSON.parse(str);
-            if (!resJson) {
-              break;
-            } else {
-              stream.write(resJson.choices[0].delta.content);
-            }
-          } finally {
-
-          }
-        }
+    return streamSSE(c, async (stream) => {
+      for (let item of result) {
+        console.log(`lzy  item:`, item)
+        await stream.writeSSE({ data: item });
+        await stream.sleep(CONFIG.aiServiceConfig.sleepTime);
       }
-    })
-
+    },)
   }
   //获取ai列表
   public async getAiList(c: Context): Promise<ApiConfig<DataTotal<AiUc>>> {
@@ -118,34 +94,34 @@ class openAI {
   //获取指定Ai的key
   public async getAiKeysList(c: Context): Promise<ApiConfig<AiUcKeys[]>> {
     const apiConfig = new ApiConfig<AiUcKeys[]>();
-    let { search, pages, limit } = ctx.query;
-    search = search || ''
-    pages = pages || 1
-    limit = limit || 10
-
-    const list = await AiMapper.findAiKey('%' + search + '%', Number(pages), Number(limit));
-    apiConfig.success(list)
-    return apiConfig
+    let { search = "", pages = "1", limit = "10" } = c.req.query();
+    const list = await AiMapper.findAiKey(search, Number(pages), Number(limit));
+    return apiConfig.success(list)
   }
 
   //新增Ai的key
   public async addAiKey(c: Context): Promise<ApiConfig<string>> {
     const apiConfig = new ApiConfig<string>();
-    const { keyName, keyValue } = ctx.request.body;
+    const { keyName, keyValue } = c.req.query();
     const list = await AiMapper.addAiKey(keyName, keyValue);
-    apiConfig.success(list)
-    return apiConfig
+    if (list.affectedRows > 0) {
+      return apiConfig.success("新增成功")
+    } else {
+      return apiConfig.fail("新增失败")
+    }
   }
 
   //删除Ai的key
   public async deleteAiKey(c: Context): Promise<ApiConfig<any>> {
     const apiConfig = new ApiConfig<any>();
-    const { id } = ctx.request.body;
+    const { id } = c.req.query();
     const list = await AiMapper.deleteAiKey(id);
     if (list.affectedRows > 0) {
-      apiConfig.success("删除成功")
+      return apiConfig.success("删除成功")
+    } else {
+      return apiConfig.fail("删除失败")
     }
-    return apiConfig
+
   }
 
 

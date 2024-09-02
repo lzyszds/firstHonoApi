@@ -23,17 +23,17 @@ db.query('SELECT 1', [])
 
 
 // 请求日志中间件
-app.use('*', async (c, next) => {
-  logger.info(`Received ${c.req.method} request to ${c.req.url}`)
-  await next()
-  logger.info(`Responded with status ${c.res.status}`)
-})
+// app.use('*', async (c, next) => {
+//   logger.info(`Received ${c.req.method} request to ${c.req.url}`)
+//   await next()
+//   logger.info(`Responded with status ${c.res.status}`)
+// })
 
 
 
 
-// 首页
-app.get('/', (c) => c.text('Hello Hono!'))
+// // 首页
+// app.get('/', (c) => c.text('Hello Hono!'))
 
 // 404页面
 app.notFound((c) => {

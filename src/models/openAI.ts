@@ -18,8 +18,9 @@ class AiMapper {
   public async findAiList(pages: number = 1, limit: number = 10): Promise<AiUc[]> {
     let sql: string = `
                 SELECT *
-                FROM wb_aiuc  
-                LIMIT ?, ? 
+                FROM wb_aiuc
+                ORDER BY id DESC
+                LIMIT ?, ?;
             `;
     return await db.query(sql, [(pages - 1) * limit, limit])
   }

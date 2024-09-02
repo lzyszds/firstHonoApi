@@ -6,3 +6,9 @@
 {"level":"error","message":"undefined is not an object (evaluating 'e.code')","service":"hono-service","timestamp":"2024-09-02 03:04:43"}
 {"level":"error","message":"undefined is not an object (evaluating 'e.code')","service":"hono-service","timestamp":"2024-09-02 03:05:07"}
 {"level":"error","message":"No such file or directory","service":"hono-service","timestamp":"2024-09-02 03:29:31"}
+{"level":"error","message":"Context is not finalized. You may forget returning Response object or `await next()`","service":"hono-service","timestamp":"2024-09-02 20:42:18"}
+{"level":"error","message":"Context is not finalized. You may forget returning Response object or `await next()`","service":"hono-service","timestamp":"2024-09-02 20:43:47"}
+{"level":"error","message":"Context is not finalized. You may forget returning Response object or `await next()`","service":"hono-service","timestamp":"2024-09-02 20:44:27"}
+{"level":"error","message":"Context is not finalized. You may forget returning Response object or `await next()`","service":"hono-service","timestamp":"2024-09-02 20:45:13"}
+{"level":"error","message":"Context is not finalized. You may forget returning Response object or `await next()`","service":"hono-service","timestamp":"2024-09-02 20:45:49"}
+{"level":"error","message":"Context is not finalized. You may forget returning Response object or `await next()`","service":"hono-service","timestamp":"2024-09-02 20:47:21"}

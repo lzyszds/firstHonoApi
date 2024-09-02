@@ -47,6 +47,12 @@ export default {
         token3: 'JBLdpwspK6s67u1P5levoDgdRxkFHhQcG6jX5q1ONRpRNUREZTPzW2kqpI7',
         name: 'lzyszds',
     },
+
+    //ai服务配置
+    aiServiceConfig: {
+        url: 'https://api.chatanywhere.tech/v1/chat/completions/', //ai服务地址
+        sleepTime: 10 //流式传输发送的时间间隔
+    }
 }
 
 

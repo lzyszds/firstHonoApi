@@ -1,13 +1,12 @@
 import { Context, Hono } from 'hono';
 import usersRouter from './api/users';
-import toolkitRouter from './api/tooltik';
+import toolkitRouter from './api/toolkit';
 import articleRouter from './api/article';
 import commentRouter from './api/comment';
 import systemRouter from './api/system';
 import openAIRouter from './api/openAI';
 
 const app = new Hono();
-
 interface Routes {
   [key: string]: Hono;
 }
