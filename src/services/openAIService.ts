@@ -71,7 +71,6 @@ class openAI {
 
     return streamSSE(c, async (stream) => {
       for (let item of result) {
-        console.log(`lzy  item:`, item)
         await stream.writeSSE({ data: item });
         await stream.sleep(CONFIG.aiServiceConfig.sleepTime);
       }
