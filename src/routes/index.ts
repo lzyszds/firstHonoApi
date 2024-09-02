@@ -4,7 +4,7 @@ import toolkitRouter from './api/tooltik';
 import articleRouter from './api/article';
 import commentRouter from './api/comment';
 import systemRouter from './api/system';
-
+import openAIRouter from './api/openAI';
 
 const app = new Hono();
 
@@ -18,6 +18,7 @@ const routes: Routes = {
   '/article': articleRouter,
   '/comment': commentRouter,
   '/system': systemRouter,
+  '/openAI': openAIRouter,
 }
 
 // 注册子路由

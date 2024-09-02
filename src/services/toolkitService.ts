@@ -10,14 +10,15 @@ import Config from "../../config";
 import { WeatherDataType, WeatherDataTypeResponse } from "../domain/ToolkitType";
 import dayjs from "dayjs";
 import axios from "axios";
+import { Context } from "hono";
 
 class CommonService {
-  public async getWeather(ctx: any): Promise<ApiConfig<WeatherDataType>> {
+  public async getWeather(c: Context): Promise<ApiConfig<WeatherDataType>> {
     // 创建一个 ApiConfig 对象
     const apiConfig: ApiConfig<WeatherDataType> = new ApiConfig();
     try {
-      //获取当前请求的IP地址
-      let ipAddress = ctx.req.header('x-real-ip')
+      //获取当前请求的IP地址 
+      let ipAddress = c.req.header('x-real-ip') || ""
 
       // 创建一个 IP2Region 对象
       const query: IP2Region = new IP2Region();
