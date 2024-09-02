@@ -4,7 +4,7 @@ import { User, UserRole, UserAny } from '../domain/User'
 import { OkPacket } from 'mysql';
 
 
-export class UserService {
+class UserService {
 
   // 根据id查找用户
   async findById(id: string): Promise<UserRole> {
@@ -47,3 +47,5 @@ export class UserService {
     return await userModel.deleteUser(id);
   }
 }
+
+export default new UserService();

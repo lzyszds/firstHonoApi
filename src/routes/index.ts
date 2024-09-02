@@ -3,6 +3,7 @@ import usersRouter from './api/users';
 import toolkitRouter from './api/tooltik';
 import articleRouter from './api/article';
 import commentRouter from './api/comment';
+import systemRouter from './api/system';
 
 
 const app = new Hono();
@@ -16,6 +17,7 @@ const routes: Routes = {
   '/toolkit': toolkitRouter,
   '/article': articleRouter,
   '/comment': commentRouter,
+  '/system': systemRouter,
 }
 
 // 注册子路由

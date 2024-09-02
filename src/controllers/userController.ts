@@ -1,6 +1,6 @@
 // src/controllers/userController.ts
 import { Context } from 'hono'
-import { UserService } from '../services/userService'
+import userService from '../services/userService'
 import ApiConfig, { DataTotal } from '../domain/ApiCongfigType'
 import { User, UserRole } from '../domain/User'
 import fs from 'fs';
@@ -11,9 +11,6 @@ import { comparePasswords, hashPassword } from '../utils/passwordUtils';
 import dayjs from 'dayjs';
 import { generateToken } from '@/utils/authUtils';
 import { nanoid } from 'nanoid';
-
-// 实例化UserService
-const userService = new UserService()
 
 
 class UserController {
