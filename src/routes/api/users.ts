@@ -36,4 +36,4 @@ router.post('/deleteUser', userController.deleteUser);
 //上传头像
 router.post('/uploadHeadImg', userController.uploadHeadImg);
 
-export { router as usersRouter };
+export default router

@@ -5,14 +5,11 @@ import ApiConfig, { DataTotal } from '../domain/ApiCongfigType'
 import { User, UserRole } from '../domain/User'
 import fs from 'fs';
 import path from 'path';
-import { randomUnique, checkObj } from "../utils/helpers";
+import { randomUnique, checkObj, uploadFileLimit } from "../utils/helpers";
 import { getCookie, setCookie } from 'hono/cookie';
 import { comparePasswords, hashPassword } from '../utils/passwordUtils';
 import dayjs from 'dayjs';
 import { generateToken } from '@/utils/authUtils';
-import upload from '@/utils/upload';
-import multer from 'multer';
-import fileUploadOptions from '@/utils/upload';
 import { nanoid } from 'nanoid';
 
 // 实例化UserService
@@ -233,14 +230,16 @@ export default class UserController {
 
   //上传用户头像
   async uploadHeadImg(c: Context) {
+    let result = "" as any;
     const formData = await c.req.parseBody();
 
     // 假设文件字段名是 'file'
     const file = formData['file'] as File;
 
-    if (!file) {
-      return c.json({ error: '未上传文件' }, 400);
-    }
+    // 允许上传的文件类型
+    const ALLOWED_FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml'];
+
+    result = uploadFileLimit(file, 2, ALLOWED_FILE_TYPES);
 
     // 使用 nanoid 生成唯一文件名
     const filename = nanoid() + path.extname(file.name);
@@ -249,9 +248,7 @@ export default class UserController {
     // 将文件保存到本地
     const buffer = await file.arrayBuffer();
     fs.writeFileSync(uploadPath, Buffer.from(buffer));
-
-    return c.json({
-      message: '文件上传成功', filename
-    });
+    result = { message: '文件上传成功', filename }
+    return c.json(result);
   }
 }

@@ -6,7 +6,7 @@ import { OkPacket } from 'mysql';
 
 const joinSQL = new JoinSQL();
 
-export default class UserModel {
+class UserModel {
 
   // 根据id查找用户
   async findById(id: string): Promise<UserRole> {
@@ -96,3 +96,5 @@ export default class UserModel {
     return await db.query(sql, [id]);
   }
 }
+
+export default new UserModel();

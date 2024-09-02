@@ -2,6 +2,7 @@ import fs from "fs";
 import * as https from "https";
 import path from "node:path";
 import dayjs from "dayjs";
+import sharp from "sharp";
 const rootPath = path.resolve(__dirname, '../../');
 
 /**
@@ -248,6 +249,75 @@ const appendToFile = (content: string, filePath: string) => {
   }
 };
 
+/**
+ *  上传图片时先将图片压缩至250kb以内 并限制上传文件大小和类型
+ *  @param file 上传的文件
+ *  @param MAX_FILE_SIZE 上传文件的大小限制 单位 MB
+ *  @param ALLOWED_FILE_TYPES 允许上传的文件类型
+ *  @param REDUCE_SIZE 压缩后的文件大小限制 单位 MB
+*/
+const uploadFileLimit = async (
+  file: any,
+  MAX_FILE_SIZE: number,
+  ALLOWED_FILE_TYPES: string[],
+  REDUCE_SIZE: number = 0.25,
+) => {
+  if (file.size === 0) {
+    return '未上传文件';
+  }
+
+  if (file.size > MAX_FILE_SIZE * 1024 * 1024) {
+    return '文件大小超过限制: ' + MAX_FILE_SIZE + ' MB';
+  }
+
+  if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+    return '文件类型不被允许';
+  }
+
+  REDUCE_SIZE = REDUCE_SIZE * 1024; // 转换为 KB
+
+  if (file.size > REDUCE_SIZE) {
+    try {
+      const buffer = await file.arrayBuffer(); // 转换为 ArrayBuffer
+      const nodeBuffer = Buffer.from(buffer);  // 转换为 Node.js 的 Buffer
+
+      // 使用 sharp 压缩图片
+      let compressedBuffer = await sharp(nodeBuffer)
+        .jpeg({ quality: 100 }) // 调整质量以压缩图片
+        .toBuffer();
+
+      // 如果压缩后的文件仍然超过 REDUCE_SIZE，继续调整质量压缩
+      if (compressedBuffer.length > REDUCE_SIZE) {
+        let quality = 80;
+        while (compressedBuffer.length > REDUCE_SIZE && quality > 10) {
+          quality -= 10;
+          //如果质量小于50，直接返回
+          if (quality < 50) {
+            return compressedBuffer
+          }
+          compressedBuffer = await sharp(compressedBuffer)
+            .jpeg({ quality })
+            .toBuffer();
+        }
+      }
+
+      return compressedBuffer;
+    } catch (error) {
+      console.error('压缩图片时发生错误:', error);
+      return '压缩图片失败';
+    }
+  }
+
+  return file;
+};
+
+
+/**
+ * 
+ * @param file 上传的文件
+ * @param MAX_FILE_SIZE 上传文件的大小限制 单位 KB
+  */
+
 
 export {
   mapGather,  // 将对象转换成键值数组
@@ -263,4 +333,5 @@ export {
   readJsonFile,   // 读取 JSON 文件
   writeJsonFile,  // 写入 JSON 文件
   appendToFile,   // 追加内容到文件的函数
+  uploadFileLimit,  // 上传文件大小和类型限制
 };

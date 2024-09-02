@@ -1,9 +1,8 @@
 // src/services/userService.ts
-import UserModel from '../models/user'
+import userModel from '../models/user'
 import { User, UserRole, UserAny } from '../domain/User'
 import { OkPacket } from 'mysql';
 
-const userModel = new UserModel()
 
 export class UserService {
 
