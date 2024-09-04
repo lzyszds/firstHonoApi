@@ -18,40 +18,39 @@ class ArticleMapper {
   public findAll(search: string = "%%", pages: string | number = 1, limit: string | number = 10) {
     return new Promise<any>(async (resolve, reject) => {
       let sql: string = `
-            SELECT a.aid, a.create_date, a.title,  a.modified_date, a.cover_img, a.comments_count, a.partial_content, a.access_count, wb_users.uname, wb_users.head_img
-            FROM wb_articles AS a
-            JOIN wb_users ON a.uid = wb_users.uid
-            WHERE a.title LIKE ?  OR a.partial_content LIKE ? 
-            ORDER BY aid DESC
-            LIMIT ?, ? 
-        `;
+        SELECT a.aid, a.create_date, a.title, a.modified_date, a.cover_img, a.comments_count, a.partial_content, a.access_count, wb_users.uname, wb_users.head_img
+        FROM wb_articles AS a
+        JOIN wb_users ON a.uid = wb_users.uid
+        WHERE a.title LIKE ? OR a.partial_content LIKE ? 
+        ORDER BY aid DESC
+        LIMIT ?, ? 
+      `;
       const offset: number = (Number(pages) - 1) * Number(limit);
       try {
         const result = await db.query(sql, [search, search, offset, Number(limit)]);
-        if (result.length === 0) resolve([])
-        else {
-          result.forEach((item: any, index: number) => {
-            //将时间转换为时间戳
-          })
+        if (result.length === 0) {
+          resolve([]);
+        } else {
+          const tagPromises = result.map((item: any) => {
+            let sqlChild: string = `
+              SELECT wb_articlestype.name
+              FROM wb_articles_types
+              JOIN wb_articlestype ON wb_articles_types.type_id = wb_articlestype.type_id
+              WHERE wb_articles_types.aid = ?
+            `;
+            return db.query(sqlChild, [item.aid]).then(a => {
+              item.tags = a.map((tagItem: any) => tagItem.name);
+              return item;
+            });
+          });
+
+          const finalResult = await Promise.all(tagPromises);
+          resolve(finalResult);
         }
-        result.forEach((item: any, index: number) => {
-          //根据文章aid查询文章类型
-          let sqlChild: string = `
-                    SELECT wb_articlestype.name
-                    FROM wb_articles_types
-                    JOIN wb_articlestype ON wb_articles_types.type_id = wb_articlestype.type_id
-                    WHERE wb_articles_types.aid = ?
-                `
-          //获取文章类型
-          db.query(sqlChild, [item.aid]).then(a => {
-            item.tags = a.map((item: any) => item.name)
-            if (index === result.length - 1) resolve(result)
-          })
-        })
       } catch (e) {
-        reject(e)
+        reject(e);
       }
-    })
+    });
   }
 
   //获取文章信息

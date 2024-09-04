@@ -61,7 +61,7 @@ class UserController {
 
   //登陆
   async login(c: Context) {
-    const { username, password } = c.req.query();
+    const { username, password } = await c.req.json()
     let result = "" as any;
     //检查用户名和密码是否为空
     if (!username || !password) {
@@ -119,7 +119,7 @@ class UserController {
 
   //新增用户账号
   async addUser(c: Context) {
-    const params = c.req.query();
+    const params = await c.req.json()
     console.log(`lzy  params:`, params)
     let result = "" as any;
     //检查 用户名、密码、权限、创建时间、最后登录时间、个性签名、头像、是否启用 是否为空
@@ -168,7 +168,7 @@ class UserController {
 
   //修改用户信息
   async updateUser(c: Context) {
-    const params = c.req.query();
+    const params = await c.req.json()
     let result = "" as any;
     // 创建一个 ApiConfig 对象
     const apiConfig: ApiConfig<string> = new ApiConfig<string>();
@@ -198,7 +198,7 @@ class UserController {
 
   //删除用户
   async deleteUser(c: Context) {
-    const params = c.req.query();
+    const params = await c.req.json()
     let result = "" as any;
     // 创建一个 ApiConfig 对象
     const apiConfig: ApiConfig<string> = new ApiConfig<string>();

@@ -1934,3 +1934,17 @@
 {"level":"warn","message":"404 Not Found: http://localhost:2024/api/firstHonoApi/api/openAI/getAifox?aid=28&aid=28","service":"hono-service","timestamp":"2024-09-03 02:07:44"}
 {"level":"warn","message":"404 Not Found: http://localhost:2024/api/firstHonoApi/api/openAI/getAifox?aid=28&aid=28","service":"hono-service","timestamp":"2024-09-03 02:07:47"}
 {"level":"warn","message":"404 Not Found: http://localhost:2024/api/firstHonoApi/api/openAI/getAifox?aid=28","service":"hono-service","timestamp":"2024-09-03 02:08:08"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/common/getAdminHomeData","service":"hono-service","timestamp":"2024-09-03 16:12:10"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/common/getAdminHomeData","service":"hono-service","timestamp":"2024-09-03 16:12:16"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/api/user/getUserInfoToken","service":"hono-service","timestamp":"2024-09-03 16:17:01"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/api/user/getRandHeadImg","service":"hono-service","timestamp":"2024-09-03 16:36:17"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/api/article/getArticleInfo/28","service":"hono-service","timestamp":"2024-09-03 16:37:32"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/api/article/getArticleInfo","service":"hono-service","timestamp":"2024-09-03 16:39:14"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/api/article/getArticleDetail/26","service":"hono-service","timestamp":"2024-09-03 16:40:24"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/api/article/getArticleDetail/28","service":"hono-service","timestamp":"2024-09-03 16:40:28"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/static/undefined","service":"hono-service","timestamp":"2024-09-03 17:05:59"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/static/undefined","service":"hono-service","timestamp":"2024-09-03 17:06:17"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/static/undefined","service":"hono-service","timestamp":"2024-09-03 17:06:28"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/static/undefined","service":"hono-service","timestamp":"2024-09-03 17:08:07"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/static/undefined","service":"hono-service","timestamp":"2024-09-04 13:06:55"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/api/static/img/articleImages/11eba250-312c-4cec-8eec-0a4a85c8f6ad.png","service":"hono-service","timestamp":"2024-09-04 13:26:46"}

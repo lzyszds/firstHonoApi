@@ -39,7 +39,7 @@ class ArticleService {
   }
 
   public async addArticle(c: Context) {
-    const params = c.req.query();
+    const params = await c.req.json()
 
     let { title, content, cover_img, main, tags, partial_content } = params
     if (checkObj(params, ["title", "content", "cover_img", "main", "tags", "partial_content"])) {
@@ -74,7 +74,7 @@ class ArticleService {
 
   //添加文章类型
   public async addArticleType(c: Context) {
-    const params = c.req.query();
+    const params = await c.req.json()
     if (checkObj(params, ["name"])) {
       const apiConfig: ApiConfig<string> = new ApiConfig();
       return apiConfig.fail("参数错误");
@@ -90,7 +90,7 @@ class ArticleService {
 
   //删除文章类型
   public async deleteArticleType(c: Context) {
-    const params = c.req.query();
+    const params = await c.req.json()
     if (checkObj(params, ["id"])) {
       const apiConfig: ApiConfig<string> = new ApiConfig();
       return apiConfig.fail("参数错误");
@@ -130,7 +130,7 @@ class ArticleService {
 
   //更新文章
   public async updateArticle(c: Context) {
-    const params = c.req.query();
+    const params = await c.req.json()
 
     //实例化apiConfig
     const apiConfig: ApiConfig<string> = new ApiConfig();
@@ -205,7 +205,7 @@ class ArticleService {
 
   //删除文章
   public async deleteArticle(c: Context) {
-    const params = c.req.query();
+    const params = await c.req.json()
 
     if (checkObj(params, ["id"])) {
       const apiConfig: ApiConfig<string> = new ApiConfig();

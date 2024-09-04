@@ -36,7 +36,7 @@ class SystemService {
   public async addSystemConfig(c: any): Promise<ApiConfig<any>> {
     const apiConfig: ApiConfig<any> = new ApiConfig();
     try {
-      const { config_key, config_value, config_desc } = c.req.query();
+      const { config_key, config_value, config_desc } = await c.req.json()
       if (checkObj(c.req.query(), ['config_key', 'config_value', 'config_desc'])) {
         return apiConfig.fail('参数不能为空 config_key,config_value,config_desc')
       }
@@ -51,7 +51,7 @@ class SystemService {
   public async updateSystemConfig(c: any): Promise<ApiConfig<string>> {
     const apiConfig: ApiConfig<any> = new ApiConfig();
     try {
-      const { config_key, config_value, config_id } = c.req.query();
+      const { config_key, config_value, config_id } = await c.req.json()
       if (checkObj(c.req.query(), ['config_key', 'config_value', 'config_id'])) {
         return apiConfig.fail('参数不能为空 config_key,config_value,config_id')
       }
@@ -78,7 +78,7 @@ class SystemService {
   public async addFooterInfo(c: any): Promise<ApiConfig<string>> {
     const apiConfig: ApiConfig<string> = new ApiConfig();
     try {
-      const { footer_type, footer_content, footer_url, footer_order } = c.req.query();
+      const { footer_type, footer_content, footer_url, footer_order } = await c.req.json()
       if (checkObj(c.req.query(), ['footer_type', 'footer_content', 'footer_url', 'footer_order'])) {
         return apiConfig.fail('参数不能为空 footer_type,footer_content,footer_url,footer_order')
       }
@@ -119,8 +119,8 @@ class SystemService {
   public async updateFooterInfo(c: any): Promise<ApiConfig<string>> {
     const apiConfig: ApiConfig<string> = new ApiConfig();
     try {
-      const { children } = c.req.query();
-      if (checkObj(c.req.query(), ['children'])) {
+      const { children } = await c.req.json()
+      if (checkObj(await c.req.json(), ['children'])) {
         return apiConfig.fail('参数不能为空 children')
       }
       // 使用 flat 方法简化数组操作

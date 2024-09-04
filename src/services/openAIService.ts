@@ -101,7 +101,7 @@ class openAI {
   //新增Ai的key
   public async addAiKey(c: Context): Promise<ApiConfig<string>> {
     const apiConfig = new ApiConfig<string>();
-    const { keyName, keyValue } = c.req.query();
+    const { keyName, keyValue } = await c.req.json()
     const list = await AiMapper.addAiKey(keyName, keyValue);
     if (list.affectedRows > 0) {
       return apiConfig.success("新增成功")
@@ -113,14 +113,13 @@ class openAI {
   //删除Ai的key
   public async deleteAiKey(c: Context): Promise<ApiConfig<any>> {
     const apiConfig = new ApiConfig<any>();
-    const { id } = c.req.query();
+    const { id } = await c.req.json()
     const list = await AiMapper.deleteAiKey(id);
     if (list.affectedRows > 0) {
       return apiConfig.success("删除成功")
     } else {
       return apiConfig.fail("删除失败")
     }
-
   }
 
 

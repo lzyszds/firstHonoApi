@@ -36,7 +36,7 @@ class CommentService {
       const imgs = fs.readdirSync(path.join(__dirname, '../../public/img/comments'));
 
       // 获取前端传入的参数
-      let { content, aid, replyId, groundId, email, name, imgIndex } = c.req.query();
+      let { content, aid, replyId, groundId, email, name, imgIndex } = await c.req.json()
       // 获取用户ip
       const userIp = c.req.header('x-real-ip') || ""
       //根据用户ip获取用户地址
@@ -71,7 +71,7 @@ class CommentService {
   public async deleteComment(c: Context) {
     const apiConfig: ApiConfig<string> = new ApiConfig();
     try {
-      const { ids } = c.req.query();
+      const { ids } = await c.req.json()
       // 删除评论
       await CommentMapper.deleteComment(ids);
       return apiConfig.success("删除成功");
