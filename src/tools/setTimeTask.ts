@@ -3,6 +3,7 @@ import { sqlBackupsTask } from './sqlBackupsTask';
 import { getGithubInfo } from "./getGIthubInfo";
 import { addAiUc } from './aiConfigUc';
 import { sendEmailWarn } from './emailPost';
+import { createTask, destroyTask } from '@/utils/taskScheduler';
 
 
 export default () => {
@@ -22,12 +23,16 @@ export default () => {
         0 0 0 0 0 * 每年
         0 10 23 * * * 23点10分0秒
     */
-    schedule.scheduleJob('0 0 0 * * *', getGithubInfo)    //新增 每日github贡献图数据库
-    schedule.scheduleJob('0 0 0 * * *', addAiUc)          //每日ai摘要key的使用次数记录表
-    schedule.scheduleJob('0 0 12 * * *', getGithubInfo)   //获取github数据 用于获取github贡献图 12点获取
-    schedule.scheduleJob('0 05 18 * * *', getGithubInfo)  //获取github数据 用于获取github贡献图 18点获取
-    schedule.scheduleJob('0 55 22 * * *', sendEmailWarn)  //发送邮件提醒 用于提醒每日是否有在github上提交代码
-    schedule.scheduleJob('0 0 0 * * *', sqlBackupsTask)   // 备份数据库定时任务计划 每天凌晨1点执行
+    createTask('dailyEmail', '0 38 17 * * *', sendEmailWarn); //发送邮件提醒 用于提醒每日是否有在github上提交代码
+    createTask('dailySqlBackups', '0 0 1 * * *', sqlBackupsTask);//每日备份数据库
+    createTask('dailyGithub', '0 0 0 * * *', getGithubInfo);//每日获取github数据
+    createTask('dailyAiUc', '0 0 0 * * *', addAiUc);//每日ai摘要key的使用次数记录表
+    
+    // schedule.scheduleJob('0 0 0 * * *', getGithubInfo)    //新增 每日github贡献图数据库
+    // schedule.scheduleJob('0 0 0 * * *', addAiUc)          //每日ai摘要key的使用次数记录表
+    // schedule.scheduleJob('0 0 12 * * *', getGithubInfo)   //获取github数据 用于获取github贡献图 12点获取
+    // schedule.scheduleJob('0 05 18 * * *', getGithubInfo)  //获取github数据 用于获取github贡献图 18点获取
+    // schedule.scheduleJob('0 0 0 * * *', sqlBackupsTask)   // 备份数据库定时任务计划 每天凌晨1点执行
 }
 
 

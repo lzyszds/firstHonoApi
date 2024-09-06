@@ -20,8 +20,9 @@ export async function sendEmailWarn() {
         count = item.contributionCount
       }
     })
-
-    emailTools.mail(isToday ? `今天已经提交了${count}次` : '今天还没有提交哦!')
+    // 今天有提交 不发邮件
+    if (isToday) return
+    emailTools.mail()
     emailTools.transporter.sendMail(emailTools.mail(), (err: any, info: any) => {
       if (err) {
         console.log(err);

@@ -4,6 +4,7 @@ import { authMiddleware } from './middleware/auth'
 import logger from './middleware/logger';
 import db from './utils/db'
 import routes from './routes';
+import setTimeTask from './tools/setTimeTask';
 
 const app = new Hono()
 
@@ -47,6 +48,7 @@ app.onError((err, c) => {
   return c.text('出错了看看怎么解决吧！', 500)
 })
 
+setTimeTask()
 export default {
   port: 2024,
   fetch: app.fetch,

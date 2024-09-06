@@ -5,6 +5,7 @@ import articleRouter from './api/article';
 import commentRouter from './api/comment';
 import systemRouter from './api/system';
 import openAIRouter from './api/openAI';
+import plantaskRouter from './api/plantask';
 
 const app = new Hono();
 interface Routes {
@@ -18,6 +19,7 @@ const routes: Routes = {
   '/comment': commentRouter,
   '/system': systemRouter,
   '/openAI': openAIRouter,
+  '/plantask': plantaskRouter,
 }
 
 // 注册子路由

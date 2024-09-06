@@ -156,6 +156,7 @@ const checkObj = (obj: any, keys: string[], onlyOneExists?: string[]): boolean =
   if (!obj) return true
   for (let key of keys) {
     // 如果属性为空（null、undefined、空字符串或空数组），则：
+    console.log(obj,[key]);
     if (obj[key] === null || obj[key] === undefined || obj[key] === '' || obj[key].length === 0) {
       return true
     } else {
@@ -165,6 +166,7 @@ const checkObj = (obj: any, keys: string[], onlyOneExists?: string[]): boolean =
         // 遍历 `onlyOneExists` 数组，检查其中是否有属性存在且非空：
         let flag = false
         for (let onlyOneExist of onlyOneExists) {
+          console.log(obj[onlyOneExist]);
           if (obj[onlyOneExist] !== null && obj[onlyOneExist] !== undefined && obj[onlyOneExist] !== '' && obj[onlyOneExist].length > 0) {
             flag = true
             break
