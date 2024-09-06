@@ -14,7 +14,7 @@ export default {
     // 数据库连接设置
     dbConfig: {
         connectionLimit: 10,
-        host: '39.108.89.65',
+        host: 'localhost',
         port: 3306,
         user: 'root',
         password: 'a395878870',

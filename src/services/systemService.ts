@@ -51,8 +51,9 @@ class SystemService {
   public async updateSystemConfig(c: any): Promise<ApiConfig<string>> {
     const apiConfig: ApiConfig<any> = new ApiConfig();
     try {
-      const { config_key, config_value, config_id } = await c.req.json()
-      if (checkObj(c.req.query(), ['config_key', 'config_value', 'config_id'])) {
+      const params = await c.req.json()
+      const { config_key, config_value, config_id } = params;
+      if (checkObj(params, ['config_key', 'config_value', 'config_id'])) {
         return apiConfig.fail('参数不能为空 config_key,config_value,config_id')
       }
       const data = await SystemMapper.updateSystemConfig(config_key, config_value, config_id);
