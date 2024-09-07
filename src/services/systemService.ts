@@ -157,7 +157,7 @@ class SystemService {
     try {
       const data = await SystemMapper.getSystemConfig('admin');
       const gifValue = data.filter((item: any) => item.config_key === "load_animation_gif")[0].config_value
-      const imgBuffer = fs.readFileSync(path.resolve(__dirname, '../../static' + gifValue));
+      const imgBuffer = fs.readFileSync(path.resolve(__dirname, '../../' + gifValue));
       return imgBuffer
     } catch (e) {
       return e

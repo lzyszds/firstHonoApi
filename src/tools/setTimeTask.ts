@@ -4,6 +4,8 @@ import { getGithubInfo } from "./getGIthubInfo";
 import { addAiUc } from './aiConfigUc';
 import { sendEmailWarn } from './emailPost';
 import { createTask, destroyTask } from '@/utils/taskScheduler';
+import path from 'path';
+import fse from 'fs-extra';
 
 
 export default () => {
@@ -21,7 +23,10 @@ export default () => {
         0 0 0 0 0 * 每年
         0 10 23 * * * 23点10分0秒
     */
-    createTask('dailyEmail', '0 38 17 * * *', sendEmailWarn); //发送邮件提醒 用于提醒每日是否有在github上提交代码
+
+    fse.readJSON(path.join(__dirname, "../../static/config/email.json")).then(res => {
+        createTask('dailyEmail', res.planTime, sendEmailWarn); //发送邮件提醒 用于提醒每日是否有在github上提交代码
+    })
     createTask('dailySqlBackups', '0 0 1 * * *', sqlBackupsTask);//每日备份数据库
     createTask('dailyGithub', '0 0 0 * * *', getGithubInfo);//每日获取github数据
     createTask('dailyAiUc', '0 0 0 * * *', addAiUc);//每日ai摘要key的使用次数记录表

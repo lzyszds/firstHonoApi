@@ -7,7 +7,6 @@ const tasks = new Map();
 function createTask(taskId: string, cronExpression: string, taskFunction: () => void) {
   const job = schedule.scheduleJob(cronExpression, taskFunction);
   tasks.set(taskId, job);
-  console.log(`Task ${taskId} created with schedule: ${cronExpression}`);
   return job;
 }
 

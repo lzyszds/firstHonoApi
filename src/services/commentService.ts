@@ -8,6 +8,7 @@ import { getCurrentUnixTime, parseUserAgent } from "../utils/helpers";
 import CommentMapper from "../models/comment";
 import { CommentType } from "../domain/CommentType";
 import { Context } from "hono";
+import logger from "@/middleware/logger";
 
 class CommentService {
 
@@ -33,7 +34,7 @@ class CommentService {
 
     try {
       // 遍历文件夹下的所有图片
-      const imgs = fs.readdirSync(path.join(__dirname, '../../public/img/comments'));
+      const imgs = fs.readdirSync(path.join(__dirname, '../../static/img/comments'));
 
       // 获取前端传入的参数
       let { content, aid, replyId, groundId, email, name, imgIndex } = await c.req.json()
@@ -63,6 +64,7 @@ class CommentService {
       await CommentMapper.addArticleCommentCount(aid);
       return apiConfig.success("评论成功");
     } catch (err) {
+      logger.error(err)
       return apiConfig.fail("评论失败");
     }
   }
