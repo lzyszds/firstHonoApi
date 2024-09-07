@@ -23,7 +23,7 @@ class PlantaskService {
      public async updateEmailTaskConfig(c: Context) {
           // { "myEmail": "", "myName": "", "service": "", "auth_pass": "", "subject": "", "toEmail": "", "content": "", "planTime": "" }
           const apiConfig = new ApiConfig<any>()
-          const params = await c.req.query()
+          const params = await c.req.json()
           if (!params.planTime) params.planTime = '0 55 22 * * *'
           try {
                const emailJsonPath = path.join(__dirname, '../../static/config/email.json')
