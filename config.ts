@@ -31,14 +31,13 @@ export default {
         '/comment/getArticleTypeList',
         '/comment/addComment',
         '/comment/getNewComment',
-        '/common/ipConfig',
-        '/common/getGithubInfo',
-        '/common/openai',
-        '/common/getPoetry',
+        '/toolkit/ipConfig',
+        '/toolkit/getGithubInfo',
+        '/toolkit/getPoetry',
         '/system/getSystemConfig',
         '/system/getFooterInfo',
         '/system/getLazyLoadImage',
-        '/aiService/getAifox',
+        '/openAI/getAifox',
     ],
     //github api密钥 配置
     githubUserConfig: {

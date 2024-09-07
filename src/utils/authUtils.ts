@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken';
 import { UserAny } from "../domain/User";
 
 // 用于签名JWT的密钥，保持私密
-const secretKey = 'your_secret_key';
+const secretKey = '395878870lzyszds878870';
 
 // 生成JWT
 function generateToken(userData: UserAny, expiresIn = '1h') {
