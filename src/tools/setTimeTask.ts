@@ -7,8 +7,6 @@ import { createTask, destroyTask } from '@/utils/taskScheduler';
 
 
 export default () => {
-    //node定时任务
-    const schedule = require('node-schedule');
     /*
         30 * * * *: 每小时的第30分钟执行一次
         0 /2 * * *: 每2小时执行一次
@@ -27,7 +25,7 @@ export default () => {
     createTask('dailySqlBackups', '0 0 1 * * *', sqlBackupsTask);//每日备份数据库
     createTask('dailyGithub', '0 0 0 * * *', getGithubInfo);//每日获取github数据
     createTask('dailyAiUc', '0 0 0 * * *', addAiUc);//每日ai摘要key的使用次数记录表
-    
+
     // schedule.scheduleJob('0 0 0 * * *', getGithubInfo)    //新增 每日github贡献图数据库
     // schedule.scheduleJob('0 0 0 * * *', addAiUc)          //每日ai摘要key的使用次数记录表
     // schedule.scheduleJob('0 0 12 * * *', getGithubInfo)   //获取github数据 用于获取github贡献图 12点获取

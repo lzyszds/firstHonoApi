@@ -22,8 +22,8 @@ export default {
     },
     //拦截器白名单
     interceptorWhiteList: [
-        '/user/login',
-        '/user/getRandHeadImg',
+        '/users/login',
+        '/users/getRandHeadImg',
         '/article/getRandArticleImg',
         '/article/getArticleList',
         '/comment/getArticleComment',
