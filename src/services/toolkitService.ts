@@ -84,8 +84,31 @@ class CommonService {
     const apiConfig: ApiConfig<any> = new ApiConfig<any>();
     try {
       const filePath = path.resolve(__dirname, '../../static/json/getGithubInfo.json');
-      const data = fs.readFileSync(filePath, 'utf-8');
-      return apiConfig.success(JSON.parse(data).data)
+
+      const rawData = fs.readFileSync(filePath, 'utf-8');
+      let data: any = JSON.parse(rawData).data,
+        totalCount = 0,
+        month: any[] = []
+      const { contributionsCollection } = data.user
+      const { weeks, totalContributions } = contributionsCollection.contributionCalendar
+      totalCount = totalContributions
+      const months: string[] = [
+        "一月", "二月", "三月", "四月", "五月", "六月",
+        "七月", "八月", "九月", "十月", "十一月", "十二月"
+      ]
+      weeks.forEach((item: any, index: any) => {
+        const date = dayjs(item.firstDay).format('MM')
+        if (!month.includes(months[parseInt(date) - 1])) {
+          month.push({ text: months[parseInt(date) - 1], index: index * 19 + 30 })
+        }
+      });
+
+
+      return apiConfig.success({
+        totalCount,
+        month,
+        weeks,
+      })
     } catch (e: any) {
       console.log(e)
       return apiConfig.fail(e.message)
