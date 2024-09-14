@@ -36,11 +36,11 @@ class SystemService {
   public async addSystemConfig(c: any): Promise<ApiConfig<any>> {
     const apiConfig: ApiConfig<any> = new ApiConfig();
     try {
-      const { config_key, config_value, config_desc } = await c.req.json()
-      if (checkObj(c.req.query(), ['config_key', 'config_value', 'config_desc'])) {
+      const params = await c.req.json()
+      if (checkObj(params, ['config_key', 'config_value', 'config_desc'])) {
         return apiConfig.fail('参数不能为空 config_key,config_value,config_desc')
       }
-      const data = await SystemMapper.addSystemConfig(config_key, config_value, config_desc);
+      const data = await SystemMapper.addSystemConfig(params);
       return apiConfig.success(data.affectedRows === 1 ? '新增成功' : '新增失败')
     } catch (e: any) {
       return apiConfig.fail(e)
@@ -52,11 +52,11 @@ class SystemService {
     const apiConfig: ApiConfig<any> = new ApiConfig();
     try {
       const params = await c.req.json()
-      const { config_key, config_value, config_id } = params;
+
       if (checkObj(params, ['config_key', 'config_value', 'config_id'])) {
         return apiConfig.fail('参数不能为空 config_key,config_value,config_id')
       }
-      const data = await SystemMapper.updateSystemConfig(config_key, config_value, config_id);
+      const data = await SystemMapper.updateSystemConfig(params);
       return apiConfig.success(data.affectedRows === 1 ? '更新成功' : '更新失败')
     } catch (e: any) {
       return apiConfig.fail(e)
@@ -79,11 +79,11 @@ class SystemService {
   public async addFooterInfo(c: any): Promise<ApiConfig<string>> {
     const apiConfig: ApiConfig<string> = new ApiConfig();
     try {
-      const { footer_type, footer_content, footer_url, footer_order } = await c.req.json()
+      const params = await c.req.json()
       if (checkObj(c.req.query(), ['footer_type', 'footer_content', 'footer_url', 'footer_order'])) {
         return apiConfig.fail('参数不能为空 footer_type,footer_content,footer_url,footer_order')
       }
-      const data = await SystemMapper.addFooterInfo(footer_type, footer_content, footer_url, footer_order);
+      const data = await SystemMapper.addFooterInfo(params);
       return apiConfig.success(data.affectedRows === 1 ? '新增成功' : '新增失败')
     } catch (e: any) {
       return apiConfig.fail(e)
