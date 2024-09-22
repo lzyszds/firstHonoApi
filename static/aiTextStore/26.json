@@ -176,5 +176,9 @@
   "规范的 Git 提交日志格式有助于更方便浏览项目历史信息、保证提交内容独立性、便于自动生成 CHANGELOG。消息格式包括 type、scope、subject，限制首行50字符，body和footer每行不超过72字符。语言选择取决于项目，英文适用于开源项目，中文适用于内部项目。message中的type与changelog的type不一一对应，且需注意使用祈使句和一般现在时。签名区可记录参与者信息，Issues引用和破坏性变动需在footer中声明。",
   "规范化 Git 提交日志的格式有以下几个好处：更方便浏览项目历史信息、保证提交内容独立性、便于自动生成 CHANGELOG。提交信息应包括 type、scope、subject，且长度有限制。在开源项目中推荐使用英文，内部项目可选用本地语言。提交信息中可包含签名、引用 Issues、破坏性变动等信息。分支命名格式为{type}-{issue id}-the-thing-you-do，tag 命名应遵循语义化版本号。",
   "对 Git 提交日志（message）的格式进行规范约束有以下好处：更方便浏览项目历史信息、保证提交内容独立性、便于自动生成 CHANGELOG。提交信息应包括 type、scope、subject，遵循字数限制和语言选择规范。此外，可在 footer 中记录代码评审过程、作者签名等，引用 Issues 和声明破坏性变动。分支命名应遵循{type}-{issue id}-the-thing-you-do格式，tag 命名应遵循v{semver}语义化版本号。",
-  "对 Git 提交日志（message）的格式进行规范约束有以下好处：更方便浏览项目历史信息、保证提交内容独立性、便于自动生成 CHANGELOG。规范包括 message 格式、字数限制、语言选择、header、body、footer。Header包括type、scope、subject；Body描述详细内容；Footer记录代码评审等信息。建议使用英文，避免中文乱码问题。Footer可引用Issues、声明破坏性变动。分支命名遵循{type}-{issue id}-the-thing-you-do格式。Tag命名为v{semver}，推荐使用附注标签。"
+  "对 Git 提交日志（message）的格式进行规范约束有以下好处：更方便浏览项目历史信息、保证提交内容独立性、便于自动生成 CHANGELOG。规范包括 message 格式、字数限制、语言选择、header、body、footer。Header包括type、scope、subject；Body描述详细内容；Footer记录代码评审等信息。建议使用英文，避免中文乱码问题。Footer可引用Issues、声明破坏性变动。分支命名遵循{type}-{issue id}-the-thing-you-do格式。Tag命名为v{semver}，推荐使用附注标签。",
+  "规范化 Git 提交日志格式有助于更方便浏览项目历史、保证提交独立性、自动生成 CHANGELOG。消息格式包括 type、scope、subject，限制字符数有利于阅读和信息获取。语言选择取决于项目，英文适用于开源项目，中文适用于内部项目。提交信息中可包含签名、引用 Issues、破坏性变动声明。分支命名应遵循{type}-{issue id}-the-thing-you-do格式，tag应符合语义化版本号规范。",
+  "规范的 Git 提交日志格式有助于更方便、快捷地浏览和了解项目历史信息，保证提交内容独立性，便于自动生成 CHANGELOG。提交日志应包括 type、scope、subject，遵循字数限制和语言选择规范。此外，可在 footer 添加作者签名、引用 Issues、破坏性变动等信息。分支命名应包括 type、issue id、操作内容，多版本分支命名应使用版本号。Git tag 命名应遵循语义化版本号规范。",
+  "对 Git 提交日志（message）的格式进行规范约束是为了更方便、快捷地浏览和了解项目的历史信息，保证提交内容的独立性，便于自动生成 CHANGELOG。规范包括限制字数，选择语言，定义类型、范围和主题等。签名区记录参与者信息，引用 Issues 和破坏性变动等元信息。分支命名规范和 Git tag 命名规范也有助于项目管理和版本控制。",
+  "规范化 Git 提交日志格式有以下好处：更方便浏览项目历史信息、确保提交内容独立性、便于自动生成 CHANGELOG。提交信息应包括 type、scope、subject，遵循字数限制和语言选择。body和footer可选，footer可用于记录评审过程等。分支命名应遵循{type}-{issue id}-the-thing-you-do格式，多版本分支命名可使用版本号。标签命名应语义化，推荐使用附注标签。"
 ]
