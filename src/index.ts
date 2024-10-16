@@ -1,6 +1,7 @@
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
 import { authMiddleware } from './middleware/auth'
+import camelCaseMiddleware from './middleware/camelcase'
 import logger from './middleware/logger';
 import db from './utils/db'
 import routes from './routes';
@@ -13,6 +14,10 @@ app.use('/static/*', serveStatic({ root: './' }))
 
 //导入中间件
 app.use('/api/*', authMiddleware) // 认证中间件
+app.use('/api/*', camelCaseMiddleware) // 认证中间件
+
+
+
 
 // 注册子路由
 app.route('/api', routes)
@@ -29,9 +34,6 @@ db.query('SELECT 1', [])
 //   await next()
 //   logger.info(`Responded with status ${c.res.status}`)
 // })
-
-
-
 
 // // 首页
 // app.get('/', (c) => c.text('Hello Hono!'))
