@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import AiMapper from "../models/openAI";
 // 新增每日ai摘要key的使用次数记录表
 export async function addAiUc() {
