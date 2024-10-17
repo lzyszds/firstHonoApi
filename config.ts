@@ -32,6 +32,7 @@ export default {
         '/comment/getArticleTypeList',
         '/comment/addComment',
         '/comment/getNewComment',
+        '/comment/getCommentAvatar',
         '/toolkit/ipConfig',
         '/toolkit/getGithubInfo',
         '/toolkit/getPoetry',

@@ -15,7 +15,8 @@ const routes: Routes = {
     '/getAllComment': commentController.getAllComment,
     // 获取最新评论
     '/getNewComment': commentController.getNewComment,
-
+    // 获取评论可选头像
+    '/getCommentAvatar': commentController.getCommentAvatar,
   },
   post: {
     // 新增评论

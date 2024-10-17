@@ -13,6 +13,11 @@ class CommentController {
     return c.json(await CommentService.getAllComment(c));
   }
 
+  //获取评论可选头像
+  async getCommentAvatar(c: Context) {
+    return c.json(await CommentService.getCommentAvatar(c));
+  }
+
   //新增评论
   async addComment(c: Context) {
     return c.json(await CommentService.addComment(c));

@@ -1948,3 +1948,41 @@
 {"level":"warn","message":"404 Not Found: http://localhost:2024/static/undefined","service":"hono-service","timestamp":"2024-09-03 17:08:07"}
 {"level":"warn","message":"404 Not Found: http://localhost:2024/static/undefined","service":"hono-service","timestamp":"2024-09-04 13:06:55"}
 {"level":"warn","message":"404 Not Found: http://localhost:2024/api/static/img/articleImages/11eba250-312c-4cec-8eec-0a4a85c8f6ad.png","service":"hono-service","timestamp":"2024-09-04 13:26:46"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/staticundefined","service":"hono-service","timestamp":"2024-10-16 11:22:34"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/staticundefined","service":"hono-service","timestamp":"2024-10-16 11:22:34"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:25:04"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:26:19"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:32:55"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:34:33"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:34:51"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:36:03"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:37:17"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:39:21"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:40:08"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:41:26"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:42:17"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:44:16"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:44:47"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/","service":"hono-service","timestamp":"2024-10-16 11:45:23"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/favicon.ico","service":"hono-service","timestamp":"2024-10-16 11:45:24"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:48:57"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:50:18"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:51:12"}
+{"level":"error","message":"JSON Parse error: Unexpected EOF","service":"hono-service","timestamp":"2024-10-16 11:51:38"}
+{"level":"error","message":"JSON Parse error: Unexpected EOF","service":"hono-service","timestamp":"2024-10-16 11:52:14"}
+{"level":"error","message":"Failed to parse JSON","service":"hono-service","timestamp":"2024-10-16 11:52:25"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 11:55:20"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 12:12:01"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 12:13:26"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 12:15:43"}
+{"level":"error","message":"Failed to parse JSON","service":"hono-service","timestamp":"2024-10-16 12:16:00"}
+{"level":"error","message":"Failed to parse JSON","service":"hono-service","timestamp":"2024-10-16 12:16:30"}
+{"level":"error","message":"Failed to parse JSON","service":"hono-service","timestamp":"2024-10-16 12:16:53"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 12:23:24"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 12:23:49"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 12:25:20"}
+{"level":"error","message":"JSON Parse error: Unexpected identifier \"data\"","service":"hono-service","timestamp":"2024-10-16 12:29:31"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/staticundefined","service":"hono-service","timestamp":"2024-10-17 12:08:19"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/staticundefined","service":"hono-service","timestamp":"2024-10-17 12:09:07"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/static/images/theme_ntp_background.png","service":"hono-service","timestamp":"2024-10-17 14:17:49"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/favicon.ico","service":"hono-service","timestamp":"2024-10-17 14:17:50"}

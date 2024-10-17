@@ -28,6 +28,19 @@ class CommentService {
     return apiConfig.success({ total: data.length, data });
   }
 
+  //获取评论可选头像
+  public async getCommentAvatar(c: Context) {
+    console.log();
+    const pathPrefix = '/static/img/comments'
+    // 获取当前服务器的主机名和协议
+    const app = c.req.url.split('://')[0] + '://' + c.req.url.split('://')[1].split('/')[0];
+    // 遍历文件夹下的所有图片
+    const imgs = fs.readdirSync(path.join(__dirname, '../..' + pathPrefix));
+    return imgs.map(res => {
+      return app + pathPrefix + '/' + res
+    });
+  }
+
   //新增评论
   public async addComment(c: Context) {
     const apiConfig: ApiConfig<string> = new ApiConfig();
