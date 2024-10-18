@@ -49,10 +49,10 @@ class CommentService {
       const imgs = fs.readdirSync(path.join(__dirname, '../../static/img/comments'));
 
       // 获取前端传入的参数
-      let { content, aid, replyId, groundId, email, name, imgIndex } = await c.req.json()
+      let { content, aid, replyId, replyPeople, groundId, email, name, imgIndex } = await c.req.json()
       // 获取用户ip
       const userIp = c.req.header('x-real-ip') || ""
-      //根据用户ip获取用户地址
+      // 根据用户ip获取用户地址
       // 创建一个 IP2Region 对象
       const query: IP2Region = new IP2Region();
       // 查询 IP 地址的归属地
@@ -60,10 +60,9 @@ class CommentService {
 
       //获取评论人的系统信息
       const agent = c.req.header('user-agent');
-      
+
       //获取设备系统
       let { browserSystem, deviceSystem } = parseUserAgent(agent);
-      console.log(browserSystem.indexOf('Unknown'))
 
       if (browserSystem.indexOf('Unknown') != -1) {
         browserSystem = "未知"
@@ -79,7 +78,7 @@ class CommentService {
       // 添加评论进数据库
       await CommentMapper.addComment({
         content, aid, replyId, groundId, email, name, userIp: res?.province + "" + res?.city, img, nowDate,
-        deviceSystem, browserSystem
+        deviceSystem, browserSystem, replyPeople
       });
       //评论成功后，文章评论数加1
       await CommentMapper.addArticleCommentCount(aid);

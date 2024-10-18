@@ -38,13 +38,14 @@ class CommentMapper {
       img,
       nowDate,
       deviceSystem,
-      browserSystem
+      browserSystem,
+      replyPeople
     } = params;
     let sql: string = `
-            INSERT INTO wb_comments (content, article_id, reply_id, ground_id , email, user_name, user_ip, head_img, create_date,deviceSystem,browserSystem)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO wb_comments (content, article_id, reply_id, ground_id , email, user_name, user_ip, head_img, create_date,deviceSystem,browserSystem,reply_people)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
         `;
-    return await db.query(sql, [content, aid, replyId, groundId, email, name, userIp, img, nowDate, deviceSystem, browserSystem]);
+    return await db.query(sql, [content, aid, replyId, groundId, email, name, userIp, img, nowDate, deviceSystem, browserSystem, replyPeople]);
   }
 
   //新增文章评论数
