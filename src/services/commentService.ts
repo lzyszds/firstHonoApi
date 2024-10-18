@@ -30,7 +30,6 @@ class CommentService {
 
   //获取评论可选头像
   public async getCommentAvatar(c: Context) {
-    console.log();
     const pathPrefix = '/static/img/comments'
     // 获取当前服务器的主机名和协议
     const app = c.req.url.split('://')[0] + '://' + c.req.url.split('://')[1].split('/')[0];
@@ -61,8 +60,17 @@ class CommentService {
 
       //获取评论人的系统信息
       const agent = c.req.header('user-agent');
+      
       //获取设备系统
-      const { browserSystem, deviceSystem } = parseUserAgent(agent);
+      let { browserSystem, deviceSystem } = parseUserAgent(agent);
+      console.log(browserSystem.indexOf('Unknown'))
+
+      if (browserSystem.indexOf('Unknown') != -1) {
+        browserSystem = "未知"
+      }
+      if (deviceSystem.indexOf('Unknown') != -1) {
+        deviceSystem = "未知"
+      }
       replyId = replyId || "0";
       groundId = groundId || "0";
       //@ts-ignore 头像地址

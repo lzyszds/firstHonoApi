@@ -82,7 +82,6 @@ class UserController {
 
       //修改用户最后登录时间
       const last_login_date = dayjs().format('YYYY-MM-DD HH:mm:ss')
-      console.log(last_login_date)
       await userService.updateUser({ uid: user.uid, last_login_date })
 
       // 返回一个成功的 ApiConfig 对象，包含提示信息
@@ -120,7 +119,6 @@ class UserController {
   //新增用户账号
   async addUser(c: Context) {
     const params = await c.req.json()
-    console.log(`lzy  params:`, params)
     let result = "" as any;
     //检查 用户名、密码、权限、创建时间、最后登录时间、个性签名、头像、是否启用 是否为空
     if (checkObj(params, ["uname", "username", "signature", "head_img"])) {
@@ -244,6 +242,7 @@ class UserController {
 
     // 将文件保存到本地
     const buffer = await file.arrayBuffer();
+    //@ts-ignore
     fs.writeFileSync(uploadPath, Buffer.from(buffer));
     result = { message: '文件上传成功', filename }
     return c.json(result);
