@@ -27,7 +27,7 @@ class CommentMapper {
 
   //新增评论
   public async addComment(params: any) {
-    const {
+    let {
       content,
       aid,
       replyId,
@@ -41,6 +41,8 @@ class CommentMapper {
       browserSystem,
       replyPeople
     } = params;
+
+    if (replyId == 0) replyPeople = ""
     let sql: string = `
             INSERT INTO wb_comments (content, article_id, reply_id, ground_id , email, user_name, user_ip, head_img, create_date,deviceSystem,browserSystem,reply_people)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)
