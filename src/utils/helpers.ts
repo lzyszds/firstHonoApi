@@ -155,6 +155,7 @@ const getCurrentUnixTime = (): number => {
 const checkObj = (obj: any, keys: string[], onlyOneExists?: string[]): boolean => {
   if (!obj) return true
   for (let key of keys) {
+
     // 如果属性为空（null、undefined、空字符串或空数组），则：
     if (obj[key] === null || obj[key] === undefined || obj[key] === '' || obj[key].length === 0) {
       return true

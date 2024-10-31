@@ -14,9 +14,7 @@ app.use('/static/*', serveStatic({ root: './' }))
 
 //导入中间件
 app.use('/api/*', authMiddleware) // 认证中间件
-app.use('/api/*', camelCaseMiddleware) // 认证中间件
-
-
+app.use('/api/*', camelCaseMiddleware) //  驼峰命名中间件 
 
 
 // 注册子路由
