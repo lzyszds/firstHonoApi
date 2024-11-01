@@ -1,8 +1,9 @@
 // src/models/user.ts
 import db from '../utils/db';
-import type { User, UserAny, UserRole } from "../domain/User";
+import type { GetUserListParams, User, UserAny, UserRole } from "../domain/User";
 import JoinSQL from '../utils/JoinSQL';
 import { OkPacket } from 'mysql';
+import { handleParamsWildcard } from '@/utils/helpers';
 
 const joinSQL = new JoinSQL();
 
@@ -28,27 +29,34 @@ class UserModel {
   }
 
   // 获取符合搜索条件的记录总数
-  async getUserListTotal(search: string): Promise<number> {
+  async getUserListTotal(search: GetUserListParams): Promise<number> {
+    const { whereValue, params } = handleParamsWildcard(search)
     // 实现获取记录总数逻辑...
     let sql: string = `
             SELECT COUNT(*) as total 
             FROM wb_users 
-            WHERE uname LIKE ? OR username LIKE ? OR power LIKE ? OR signature LiKE ?
+            ${whereValue}
         `;
-    const total = await db.query(sql, [search, search, search, search]);
+    const total = await db.query(sql, params);
     return total[0].total;
   }
 
   // 获取符合搜索条件的记录,获取分页的用户列表
-  async getUserList(search: string, pages: string, limit: string): Promise<UserRole[]> {
+  async getUserList(search: GetUserListParams, pages: string, limit: string): Promise<UserRole[]> {
     const offset: number = (Number(pages) - 1) * Number(limit);
+    const { whereValue, params } = handleParamsWildcard(search)
     let sql: string = `
             SELECT *
             FROM wb_users 
-            WHERE uname LIKE ? OR username LIKE ? OR power LIKE ? OR signature LiKE ? 
+            ${whereValue}
             ORDER BY uid LIMIT ?, ?
-        `;
-    return await db.query(sql, [search, search, search, search, offset, Number(limit)]);
+    `;
+
+    return await db.query(sql, [
+      ...params,
+      offset,
+      Number(limit)
+    ]);
   }
 
   // 根据token获取用户信息
@@ -89,11 +97,8 @@ class UserModel {
 
   // 删除用户
   public async deleteUser(id: string): Promise<OkPacket> {
-    let sql: string = `
-            DELETE FROM wb_users 
-            WHERE uid = ?
-        `;
-    return await db.query(sql, [id]);
+    let sql: string = `DELETE FROM wb_users WHERE uid in (?) `;
+    return await db.query(sql, [id.split(",")]);
   }
 }
 

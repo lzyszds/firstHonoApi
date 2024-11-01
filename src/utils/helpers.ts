@@ -3,6 +3,7 @@ import * as https from "https";
 import path from "node:path";
 import dayjs from "dayjs";
 import sharp from "sharp";
+import { log } from "node:console";
 const rootPath = path.resolve(__dirname, '../../');
 
 /**
@@ -317,6 +318,20 @@ const uploadFileLimit = async (
 //睡眠
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+// 处理通配符参数 给参数添加 % %
+const handleParamsWildcard = (obj: any) => {
+  const params = []
+  let whereValue = ''
+  for (let key in obj) {
+    if (obj[key]) {
+      obj[key] = `%${obj[key]}%`
+      whereValue += (!whereValue ? 'where ' : 'and ') + `${key} like ? `
+      params.push(obj[key])
+    }
+  }
+  return { whereValue, params }
+}
+
 
 export {
   mapGather,  // 将对象转换成键值数组
@@ -334,4 +349,5 @@ export {
   appendToFile,   // 追加内容到文件的函数
   uploadFileLimit,  // 上传文件大小和类型限制
   sleep,  // 睡眠
+  handleParamsWildcard, // 处理通配符参数
 };

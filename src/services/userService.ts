@@ -1,6 +1,6 @@
 // src/services/userService.ts
 import userModel from '../models/user'
-import { User, UserRole, UserAny } from '../domain/User'
+import { User, UserRole, UserAny, GetUserListParams } from '../domain/User'
 import { OkPacket } from 'mysql';
 
 
@@ -13,12 +13,12 @@ class UserService {
 
 
   //  获取符合搜索条件的记录总数
-  async getUserListTotal(search: string): Promise<number> {
+  async getUserListTotal(search: GetUserListParams): Promise<number> {
     return await userModel.getUserListTotal(search);
   }
 
   // 获取符合搜索
-  async getUserList(search: string, pages: string, limit: string): Promise<UserRole[]> {
+  async getUserList(search: GetUserListParams, pages: string, limit: string): Promise<UserRole[]> {
     return await userModel.getUserList(search, pages, limit);
   }
 

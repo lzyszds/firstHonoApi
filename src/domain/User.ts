@@ -54,10 +54,18 @@ interface User {
 }
 
 
-
+/* 查询列表接口参数 */
+interface GetUserListParams {
+    [key: string]: any;  // 添加索引签名，使得所有字符串键都可以被访问
+    username: string,
+    uname: string,
+    power: string | number,
+    signature: string
+}
 
 export {
     User,
     UserRole,
-    UserAny
+    UserAny,
+    GetUserListParams
 }

@@ -2,7 +2,7 @@
 import { Context } from "hono";
 import userService from "../services/userService";
 import ApiConfig, { DataTotal } from "../domain/ApiCongfigType";
-import { User, UserRole } from "../domain/User";
+import { GetUserListParams, User, UserRole } from "../domain/User";
 import fs from "fs";
 import path from "path";
 import { randomUnique, checkObj, uploadFileLimit } from "../utils/helpers";
@@ -15,7 +15,8 @@ import { nanoid } from "nanoid";
 class UserController {
   //获取用户列表
   async getUserList(c: Context) {
-    const { search = "", pages = "1", limit = "10" } = c.req.query();
+    const { name = '', username = '', power = '', signature = '', pages = "1", limit = "10" } = c.req.query();
+    const search: GetUserListParams = { username, uname: name, power, signature }
     const total = await userService.getUserListTotal(search);
     const userList = await userService.getUserList(search, pages, limit);
     const apiConfig: ApiConfig<DataTotal<UserRole>> = new ApiConfig<

@@ -60,8 +60,8 @@ const db: Database = {
         pool.getConnection(function (err: MysqlError, connection: PoolConnection) {
           // 处理错误
           ErrorHandle(err, reject);
-
           connection.query(sql, params, (error: MysqlError | null, results: any, fields: any) => {
+            
             // 释放连接
             connection.release();
             // 处理错误
@@ -76,7 +76,7 @@ const db: Database = {
         ErrorHandle(e, reject);
       }
     });
-  }
+  },
 }
 
 function ErrorHandle(err: MysqlError | null, reject: Function) {
