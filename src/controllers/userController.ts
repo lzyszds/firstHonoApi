@@ -231,6 +231,9 @@ class UserController {
       result = apiConfig.fail("请传入要删除的用户id");
     } else {
       try {
+        if (typeof params.uid !== "string") {
+          params.uid = params.uid + ''
+        }
         // 调用 userMapper.deleteUser 方法获取用户信息
         const deleteIfOk = await userService.deleteUser(params.uid);
         if (deleteIfOk.affectedRows > 0) {
