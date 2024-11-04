@@ -145,45 +145,47 @@ const getCurrentUnixTime = (): number => {
 };
 
 /**
- * 检查给定的对象是否包含指定的键，或者只有一个存在的键，如果存在的键的值为空，则返回真。
+ * 检查给定的对象是否满足特定条件
  *
- * @param {any}        obj            需要检查的对象
- * @param {string[]}   keys           需要检查的键的列表
- * @param {string[]}   onlyOneExists  只需要存在一个的键的列表，是可选参数
- *
- * @return {boolean}   如果对象不包含指定的键，或者指定的键的值为空，则返回真；否则返回假。
+ * @param obj - 需要检查的对象
+ * @param keys - 需要检查的键的列表
+ * @param onlyOneExists - 只需要存在一个的键的列表（可选）
+ * @returns 如果对象不满足条件则返回 true，否则返回 false
  */
-const checkObj = (obj: any, keys: string[], onlyOneExists?: string[]): boolean => {
-  if (!obj) return true
-  for (let key of keys) {
+function checkObj(obj: Record<string, any>, keys: string[], onlyOneExists?: string[]): boolean {
+  // 如果对象为空，返回 true
+  if (!obj || Object.keys(obj).length === 0) return true;
 
-    // 如果属性为空（null、undefined、空字符串或空数组），则：
-    if (obj[key] === null || obj[key] === undefined || obj[key] === '' || obj[key].length === 0) {
-      return true
-    } else {
-      // 如果设置了 `onlyOneExists` 数组，则：
-      if (onlyOneExists) {
-
-        // 遍历 `onlyOneExists` 数组，检查其中是否有属性存在且非空：
-        let flag = false
-        for (let onlyOneExist of onlyOneExists) {
-          console.log(obj[onlyOneExist]);
-          if (obj[onlyOneExist] !== null && obj[onlyOneExist] !== undefined && obj[onlyOneExist] !== '' && obj[onlyOneExist].length > 0) {
-            flag = true
-            break
-          }
-        }
-
-        // 如果 `flag` 为 false（表示 `onlyOneExists` 中的所有属性都为空），则返回 false
-        if (!flag) return false
-
-        // 否则，返回 true
-      } else {
-        return false
-      }
-    }
+  // 检查必需的键
+  for (const key of keys) {
+    if (!(key in obj)) return true; // 如果必需的键不存在，返回 true
+    if (isEmpty(obj[key])) return true; // 如果必需的键的值为空，返回 true
   }
-  return false
+
+  // 如果设置了 onlyOneExists
+  if (onlyOneExists && onlyOneExists.length > 0) {
+    // 检查 onlyOneExists 中是否至少有一个非空值
+    const hasNonEmptyValue = onlyOneExists.some(key => key in obj && !isEmpty(obj[key]));
+    return !hasNonEmptyValue; // 如果没有非空值，返回 true
+  }
+
+  return false; // 如果所有检查都通过，返回 false
+}
+
+/**
+ * 检查值是否为空
+ * 
+ * @param value - 需要检查的值
+ * @returns 如果值为空则返回 true，否则返回 false
+ */
+function isEmpty(value: any): boolean {
+  return (
+    value === null ||
+    value === undefined ||
+    value === '' ||
+    (Array.isArray(value) && value.length === 0) ||
+    (typeof value === 'object' && Object.keys(value).length === 0)
+  );
 }
 
 //提取出你需要的信息，比如浏览器名称、版本号以及操作系统等
