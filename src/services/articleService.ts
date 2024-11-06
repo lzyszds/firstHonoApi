@@ -50,12 +50,15 @@ class ArticleService {
       cover_img = `/img/coverRomImg/${getCookie(c, 'randArticleImg')}`;
     }
 
+    /* 随机 生成文章访问量 500 - 1000 */
+    const access_count = Math.floor(Math.random() * (1000 - 500 + 1)) + 500;
+
     //根据token获取uid
     const { uid } = (await UserMapper.getUserInfoToken(c.req.header("authorization")!))[0];
     //获取文章发布时间 2021-08-01 12:00:00
     const create_date = new Date().toLocaleString();
     const queryData = await ArticleMapper.addArticle({
-      title, content, cover_img, main, partial_content, uid, create_date
+      title, content, cover_img, main, partial_content, uid, create_date, access_count
     });
     //实例化apiConfig
     const apiConfig: ApiConfig<string> = new ApiConfig();
