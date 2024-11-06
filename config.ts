@@ -14,9 +14,9 @@ export default {
     // 数据库连接设置
     dbConfig: {
         connectionLimit: 10,
-        host: '39.108.89.65',
+        host: '101.201.171.168',
         port: 3306,
-        user: 'root',
+        user: 'lzy_admin',
         password: 'a395878870',
         database: 'lzy_admin'
     },
