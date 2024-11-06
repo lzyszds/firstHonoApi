@@ -174,13 +174,15 @@ class ArticleService {
    *  6. 返回上传成功
    * */
   public async uploadArticleImg(c: Context) {
+
+
     //实例化apiConfig
     const apiConfig: ApiConfig<string> = new ApiConfig();
     let result = "" as any;
     const formData = await c.req.parseBody();
 
     // 假设文件字段名是 'file'
-    let file = formData['articleImages'] as File;
+    let file = formData['upload-image'] as File;
     let buffer = await file.arrayBuffer();
 
     // 允许上传的文件类型
@@ -193,12 +195,14 @@ class ArticleService {
     }
 
     // 使用 nanoid 生成唯一文件名
-    const filename = nanoid() + path.extname(file.name);
-    const uploadPath = path.join(__dirname, '../../static/img/articleImages', filename);
+    const filename = nanoid() + path.extname(file.name) + '.webp';
+    const articleImagesPath = `/static/img/articleImages/`
+    const uploadPath = path.join(__dirname, '../..', articleImagesPath + filename);
 
 
+    //@ts-ignore
     fs.writeFileSync(uploadPath, Buffer.from(buffer));
-    result = { message: '文件上传成功', filename }
+    result = { message: '文件上传成功', filename: articleImagesPath + filename }
 
     return apiConfig.success(result);
   }
