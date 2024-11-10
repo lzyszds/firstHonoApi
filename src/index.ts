@@ -6,6 +6,14 @@ import logger from './middleware/logger';
 import db from './utils/db'
 import routes from './routes';
 import setTimeTask from './tools/setTimeTask';
+import redis from './utils/redis'; // 导入 Redis 客户端
+
+// 扩展 Context 类型
+declare module 'hono' {
+  interface Context {
+    redis: typeof redis;
+  }
+}
 
 const app = new Hono()
 
@@ -16,6 +24,13 @@ app.use('/static/*', serveStatic({ root: './' }))
 app.use('/api/*', authMiddleware) // 认证中间件
 app.use('/api/*', camelCaseMiddleware) //  驼峰命名中间件 
 
+
+
+
+app.use('/api/*', (c, next) => {
+  c.redis = redis;
+  return next()
+});
 
 // 注册子路由
 app.route('/api', routes)
@@ -47,6 +62,11 @@ app.onError((err, c) => {
   logger.error(err.message)
   return c.text('出错了看看怎么解决吧！', 500)
 })
+
+
+
+
+
 
 setTimeTask()
 export default {

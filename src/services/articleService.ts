@@ -16,18 +16,38 @@ import { nanoid } from "nanoid";
 class ArticleService {
 
   public async findAll(c: Context) {
+    const apiConfig: ApiConfig<ArticleData<Articles[]>> = new ApiConfig();
     let { search = "", pages = "1", limit = "10" } = c.req.query();
+
+    const cacheKey = `articles_page_${pages}_limit_${limit}`
+
+    // 现在可以通过 c.redis 访问 Redis 客户端 
+    const cachedData = await c.redis.get(cacheKey);
+    if (cachedData) {
+      // 如果缓存存在，直接返回缓存数据
+      return apiConfig.success(JSON.parse(cachedData));
+    }
+
     const total: number = await ArticleMapper.getArticleListTotal(search);
 
     const data: Articles[] = await ArticleMapper.findAll(search, pages, limit);
-    const apiConfig: ApiConfig<ArticleData<Articles[]>> = new ApiConfig();
-    return apiConfig.success({ total: total, data });
+    const result = { total: total, data }
+    await c.redis.setex(cacheKey, 600, JSON.stringify(result));
+    return apiConfig.success(result);
   }
 
   public async findArticleInfo(c: Context) {
-    const { id } = c.req.query();
-    const data: Articles = await ArticleMapper.findArticleInfo(id);
     const apiConfig: ApiConfig<Articles> = new ApiConfig();
+    const { id } = c.req.query();
+    const cacheKey = `articles_info_${id}`
+    // 现在可以通过 c.redis 访问 Redis 客户端 
+    const cachedData = await c.redis.get(cacheKey);
+    if (cachedData) {
+      // 如果缓存存在，直接返回缓存数据
+      return apiConfig.success(JSON.parse(cachedData));
+    }
+
+    const data: Articles = await ArticleMapper.findArticleInfo(id);
     return apiConfig.success(data);
   }
 
@@ -38,6 +58,7 @@ class ArticleService {
     return apiConfig.success({ total: data.length, data });
   }
 
+  /* 文章添加 */
   public async addArticle(c: Context) {
     const params = await c.req.json()
 
@@ -72,6 +93,9 @@ class ArticleService {
         await ArticleMapper.addArticleTypeByAid(type[0].type_id, queryData.insertId);
       }
     }
+
+    c.redis.clearArticlesCache("articles_page")
+    c.redis.clearArticlesCache("articles_info")
     return apiConfig.success("文章添加成功");
   }
 
@@ -156,8 +180,10 @@ class ArticleService {
         }
       }
     }
-    return apiConfig.success("文章修改成功");
 
+    c.redis.clearArticlesCache("articles_page")
+    c.redis.clearArticlesCache("articles_info")
+    return apiConfig.success("文章修改成功");
   }
 
 
@@ -221,6 +247,9 @@ class ArticleService {
     const result = await ArticleMapper.deleteArticle(params.id)
     const apiConfig: ApiConfig<string> = new ApiConfig();
     if (result.affectedRows === 1) {
+      /* 删除缓存 */
+      c.redis.clearArticlesCache("articles_page")
+      c.redis.clearArticlesCache("articles_info")
       return apiConfig.success("文章删除成功");
     } else {
       return apiConfig.fail(result);

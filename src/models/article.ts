@@ -18,77 +18,61 @@ class ArticleMapper {
   public findAll(search: string = "%%", pages: string | number = 1, limit: string | number = 10) {
     return new Promise<any>(async (resolve, reject) => {
       let sql: string = `
-        SELECT a.*, wb_users.uname, wb_users.head_img
+        SELECT a.*, wb_users.uname, wb_users.head_img, GROUP_CONCAT(wb_articlestype.name) AS tags
         FROM wb_articles AS a
         JOIN wb_users ON a.uid = wb_users.uid
-        WHERE a.title LIKE ? OR a.partial_content LIKE ? 
-        ORDER BY aid DESC
-        LIMIT ?, ? 
+        LEFT JOIN wb_articles_types ON a.aid = wb_articles_types.aid
+        LEFT JOIN wb_articlestype ON wb_articles_types.type_id = wb_articlestype.type_id
+        WHERE a.title LIKE ? OR a.partial_content LIKE ?
+        GROUP BY a.aid
+        ORDER BY a.aid DESC
+        LIMIT ?, ?
       `;
       const offset: number = (Number(pages) - 1) * Number(limit);
       try {
         const result = await db.query(sql, [search, search, offset, Number(limit)]);
-        if (result.length === 0) {
-          resolve([]);
-        } else {
-          const tagPromises = result.map((item: any) => {
-            let sqlChild: string = `
-              SELECT wb_articlestype.name
-              FROM wb_articles_types
-              JOIN wb_articlestype ON wb_articles_types.type_id = wb_articlestype.type_id
-              WHERE wb_articles_types.aid = ?
-            `;
-            return db.query(sqlChild, [item.aid]).then(a => {
-              item.tags = a.map((tagItem: any) => tagItem.name);
-              return item;
-            });
-          });
-
-          const finalResult = await Promise.all(tagPromises);
-          resolve(finalResult);
-        }
+        resolve(result); // 直接返回合并后的结果
       } catch (e) {
         reject(e);
       }
     });
   }
 
-  //获取文章信息
-  public async findArticleInfo(id: string) {
-    return new Promise<any>(async (resolve, reject) => {
-      //更新文章访问量
-      const sqlAccess: string = `
-                UPDATE wb_articles
-                SET access_count = access_count + 1
-                WHERE aid = ?
-            `
-      await db.query(sqlAccess, [id]);
-      let sql: string = `
-                SELECT a.aid, a.create_date, a.title, a.content,a.main, a.modified_date, a.cover_img, a.comments_count,
-                a.partial_content, a.access_count, wb_users.uname, wb_users.head_img, wb_users.signature
-                FROM wb_articles AS a
-                JOIN wb_users ON a.uid = wb_users.uid
-                WHERE a.aid = ?
-            `;
-      const result = await db.query(sql, [id]);
-      if (result.length === 0) {
-        resolve(null)
-      } else {
-        //根据文章aid查询文章类型
-        let sqlChild: string = `
-                    SELECT wb_articlestype.name
-                    FROM wb_articles_types
-                    JOIN wb_articlestype ON wb_articles_types.type_id = wb_articlestype.type_id
-                    WHERE wb_articles_types.aid = ?
-                `
-        //获取文章类型
-        db.query(sqlChild, [id]).then(a => {
-          result[0].tags = a.map((item: any) => item.name)
-          resolve(result[0])
-        })
-      }
-    })
 
+  //获取文章信息
+  public async findArticleInfo(id: string): Promise<any> {
+    try {
+      const sql = `
+        UPDATE wb_articles
+        SET access_count = access_count + 1
+        WHERE aid = ?;
+  
+        SELECT 
+          a.aid, a.create_date, a.title, a.content, a.main, a.modified_date, 
+          a.cover_img, a.comments_count, a.partial_content, a.access_count + 1 AS access_count, 
+          u.uname, u.head_img, u.signature,
+          GROUP_CONCAT(at.name) AS tags
+        FROM wb_articles AS a
+        JOIN wb_users AS u ON a.uid = u.uid
+        LEFT JOIN wb_articles_types AS art ON a.aid = art.aid
+        LEFT JOIN wb_articlestype AS at ON art.type_id = at.type_id
+        WHERE a.aid = ?
+        GROUP BY a.aid;
+      `;
+  
+      const [updateResult, [articleInfo]] = await db.query(sql, [id, id]);
+  
+      if (!articleInfo) {
+        return null;
+      }
+  
+      articleInfo.tags = articleInfo.tags ? articleInfo.tags.split(',') : [];
+  
+      return articleInfo;
+    } catch (error) {
+      console.error('Error in findArticleInfo:', error);
+      throw error;
+    }
   }
 
   // //更新文章访问量
