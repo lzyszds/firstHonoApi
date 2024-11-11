@@ -80,8 +80,6 @@ class CommentService {
         content, aid, replyId, groundId, email, name, userIp: res?.province + "" + res?.city, img, nowDate,
         deviceSystem, browserSystem, replyPeople
       });
-      //评论成功后，文章评论数加1
-      await CommentMapper.addArticleCommentCount(aid);
       return apiConfig.success("评论成功");
     } catch (err) {
       logger.error(err)

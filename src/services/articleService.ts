@@ -12,12 +12,13 @@ import { Context } from "hono";
 import { getCookie, setCookie } from "hono/cookie";
 import logger from '../middleware/logger';
 import { nanoid } from "nanoid";
+import { random } from 'radash'
 
 class ArticleService {
 
   public async findAll(c: Context) {
     const apiConfig: ApiConfig<ArticleData<Articles[]>> = new ApiConfig();
-    let { search = "", pages = "1", limit = "10" } = c.req.query();
+    let { search = "", pages = 1, limit = 10 } = c.req.query();
 
     const cacheKey = `articles_page_${pages}_limit_${limit}`
 
@@ -72,7 +73,7 @@ class ArticleService {
     }
 
     /* 随机 生成文章访问量 500 - 1000 */
-    const access_count = Math.floor(Math.random() * (1000 - 500 + 1)) + 500;
+    const access_count = random(500, 1000)
 
     //根据token获取uid
     const { uid } = (await UserMapper.getUserInfoToken(c.req.header("authorization")!))[0];

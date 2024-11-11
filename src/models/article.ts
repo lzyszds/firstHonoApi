@@ -15,28 +15,47 @@ class ArticleMapper {
   }
 
   //获取文章列表
-  public findAll(search: string = "%%", pages: string | number = 1, limit: string | number = 10) {
-    return new Promise<any>(async (resolve, reject) => {
-      let sql: string = `
-        SELECT a.*, wb_users.uname, wb_users.head_img, GROUP_CONCAT(wb_articlestype.name) AS tags
-        FROM wb_articles AS a
-        JOIN wb_users ON a.uid = wb_users.uid
-        LEFT JOIN wb_articles_types ON a.aid = wb_articles_types.aid
-        LEFT JOIN wb_articlestype ON wb_articles_types.type_id = wb_articlestype.type_id
-        WHERE a.title LIKE ? OR a.partial_content LIKE ?
-        GROUP BY a.aid
-        ORDER BY a.aid DESC
-        LIMIT ?, ?
-      `;
-      const offset: number = (Number(pages) - 1) * Number(limit);
-      try {
-        const result = await db.query(sql, [search, search, offset, Number(limit)]);
-        resolve(result); // 直接返回合并后的结果
-      } catch (e) {
-        reject(e);
-      }
-    });
+  public async findAll(search: string = "%%", pages: number | string, limit: number | string): Promise<any> {
+    pages = Number(pages);
+    limit = Number(limit);
+    const sql = `
+      SELECT 
+        a.*, 
+        wb_users.uname, 
+        wb_users.head_img, 
+        GROUP_CONCAT(DISTINCT wb_articlestype.name) AS tags,  -- 使用 DISTINCT 来避免重复标签
+        (
+          SELECT COUNT(*) 
+          FROM wb_comments 
+          WHERE wb_comments.article_id = a.aid
+        ) AS comment_count  -- 子查询来统计每篇文章的评论数
+      FROM 
+        wb_articles AS a
+      INNER JOIN 
+        wb_users ON a.uid = wb_users.uid
+      LEFT JOIN 
+        wb_articles_types ON a.aid = wb_articles_types.aid
+      LEFT JOIN 
+        wb_articlestype ON wb_articles_types.type_id = wb_articlestype.type_id
+      WHERE 
+        a.title LIKE ? OR a.partial_content LIKE ?
+      GROUP BY 
+        a.aid
+      ORDER BY 
+        a.aid DESC
+      LIMIT ?, ?
+    `;
+    const offset = (pages - 1) * limit;
+
+    try {
+      // 使用参数数组直接传递分页和搜索参数
+      const result = await db.query(sql, [`%${search}%`, `%${search}%`, offset, limit]);
+      return result; // 返回查询结果
+    } catch (e) {
+      throw e; // 直接抛出异常
+    }
   }
+
 
 
   //获取文章信息
@@ -59,15 +78,15 @@ class ArticleMapper {
         WHERE a.aid = ?
         GROUP BY a.aid;
       `;
-  
+
       const [updateResult, [articleInfo]] = await db.query(sql, [id, id]);
-  
+
       if (!articleInfo) {
         return null;
       }
-  
+
       articleInfo.tags = articleInfo.tags ? articleInfo.tags.split(',') : [];
-  
+
       return articleInfo;
     } catch (error) {
       console.error('Error in findArticleInfo:', error);
