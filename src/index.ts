@@ -1,7 +1,8 @@
 import { Hono } from 'hono'
 import { serveStatic } from 'hono/bun'
 import { authMiddleware } from './middleware/auth'
-import camelCaseMiddleware from './middleware/camelcase'
+import { camelCaseMiddleware } from './middleware/camelcase'
+import { corsAllMiddleware } from './middleware/cors';
 import logger from './middleware/logger';
 import db from './utils/db'
 import routes from './routes';
@@ -21,9 +22,10 @@ const app = new Hono()
 app.use('/static/*', serveStatic({ root: './' }))
 
 //导入中间件
+// 配置CORS中间件
+app.use('/api/*', corsAllMiddleware)
 app.use('/api/*', authMiddleware) // 认证中间件
 app.use('/api/*', camelCaseMiddleware) //  驼峰命名中间件 
-
 
 
 

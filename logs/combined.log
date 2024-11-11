@@ -1986,3 +1986,8 @@
 {"level":"warn","message":"404 Not Found: http://localhost:2024/staticundefined","service":"hono-service","timestamp":"2024-10-17 12:09:07"}
 {"level":"warn","message":"404 Not Found: http://localhost:2024/static/images/theme_ntp_background.png","service":"hono-service","timestamp":"2024-10-17 14:17:49"}
 {"level":"warn","message":"404 Not Found: http://localhost:2024/favicon.ico","service":"hono-service","timestamp":"2024-10-17 14:17:50"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/favicon.ico","service":"hono-service","timestamp":"2024-11-11 20:45:31"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/api/users/getAllHeadImg","service":"hono-service","timestamp":"2024-11-11 21:14:45"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/protected","service":"hono-service","timestamp":"2024-11-11 21:16:11"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024/protected","service":"hono-service","timestamp":"2024-11-11 21:16:22"}
+{"level":"warn","message":"404 Not Found: http://localhost:2024//static/img/articleImages/upload-image1690221059187.png","service":"hono-service","timestamp":"2024-11-11 22:43:39"}

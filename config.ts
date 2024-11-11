@@ -11,6 +11,14 @@ export default {
     weatherKey: "78182b9b39355dc0ae4ce91dae7f0bbf",
     //根据当前文件名字的后缀名字来判断当前是开发环境还是生产环境 开发环境为.ts 生产环境为.js
     env: path.extname(__filename) === '.ts' ? 'development' : 'production',
+
+    cors: {
+        origin: ['http://localhost:1026', 'http://101.201.171.168:1026', 'http://101.201.171.168:1027'],
+        methods: ['GET', 'POST', 'PUT', 'DELETE'],
+        allowedHeaders: ['Content-Type', 'Authorization'],
+        credentials: true,
+    },
+
     // 数据库连接设置
     dbConfig: {
         connectionLimit: 10,
@@ -24,6 +32,7 @@ export default {
     interceptorWhiteList: [
         '/users/login',
         '/users/getRandHeadImg',
+        '/users/getAllHeadImg',
         '/article/getRandArticleImg',
         '/article/getArticleList',
         '/comment/getArticleComment',

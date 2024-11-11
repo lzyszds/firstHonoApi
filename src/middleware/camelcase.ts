@@ -24,7 +24,7 @@ function convertToCamelCase(obj: any): any {
 
 
 
-export default async (c: Context, next: () => Promise<void>) => {
+export const camelCaseMiddleware = async (c: Context, next: () => Promise<void>) => {
   await next();
 
   const response = c.res;
