@@ -61,14 +61,16 @@ class ArticleMapper {
   //获取文章信息
   public async findArticleInfo(id: string): Promise<any> {
     try {
-      const sql = `
-        UPDATE wb_articles
+
+      const updateSql = `UPDATE wb_articles
         SET access_count = access_count + 1
-        WHERE aid = ?;
-  
+        WHERE aid = ?`
+      await db.query(updateSql, [id])
+
+      const sql = `
         SELECT 
           a.aid, a.create_date, a.title, a.content, a.main, a.modified_date, 
-          a.cover_img, a.comments_count, a.partial_content, a.access_count + 1 AS access_count, 
+          a.cover_img, a.partial_content,  
           u.uname, u.head_img, u.signature,
           GROUP_CONCAT(at.name) AS tags
         FROM wb_articles AS a
@@ -79,15 +81,16 @@ class ArticleMapper {
         GROUP BY a.aid;
       `;
 
-      const [updateResult, [articleInfo]] = await db.query(sql, [id, id]);
+      const [result] = await db.query(sql, [id, id]);
 
-      if (!articleInfo) {
+
+      if (!result) {
         return null;
       }
 
-      articleInfo.tags = articleInfo.tags ? articleInfo.tags.split(',') : [];
+      result.tags = result.tags ? result.tags.split(',') : [];
 
-      return articleInfo;
+      return result;
     } catch (error) {
       console.error('Error in findArticleInfo:', error);
       throw error;
