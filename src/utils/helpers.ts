@@ -210,11 +210,7 @@ function parseUserAgent(userAgent: any) {
   }
 
   // 操作系统信息
-  if (userAgent.indexOf("Windows NT 10.0") != -1) os = "Windows 10";
-  else if (userAgent.indexOf("Windows NT 6.2") != -1) os = "Windows 8";
-  else if (userAgent.indexOf("Windows NT 6.1") != -1) os = "Windows 7";
-  else if (userAgent.indexOf("Windows NT 6.0") != -1) os = "Windows Vista";
-  else if (userAgent.indexOf("Windows NT 5.1") != -1) os = "Windows XP";
+  if (userAgent.indexOf("Windows") != -1) os = "Windows";
   else if (userAgent.indexOf("Macintosh") != -1) os = "MacOS";
   else if (userAgent.indexOf("Linux") != -1) os = "Linux";
   else if (userAgent.indexOf("Android") != -1) os = "Android";
