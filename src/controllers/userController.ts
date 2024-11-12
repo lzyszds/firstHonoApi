@@ -72,7 +72,7 @@ class UserController {
     // 返回一个成功的 ApiConfig 对象，包含图片的路径
     const apiConfig: ApiConfig<string[]> = new ApiConfig<string[]>();
     const result = apiConfig.success(
-      files.map((item) => "/img/updateImg/" + item)
+      files.map((item) => "/static/img/updateImg/" + item)
     );
     return c.json(result);
   }
