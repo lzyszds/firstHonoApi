@@ -3,7 +3,7 @@
 import ArticleMapper from "../models/article";
 import { ArticleData, Articles, ArticleType } from "../domain/Articles";
 import ApiConfig from "../domain/ApiCongfigType";
-import { checkObj, randomUnique, uploadFileLimit } from "../utils/helpers";
+import { checkObj, randomUnique, uploadFileLimit, useUserInfoGetData } from "../utils/helpers";
 import path from "path";
 import fs from "fs";
 import md5 from "md5";
@@ -20,13 +20,16 @@ class ArticleService {
     const apiConfig: ApiConfig<ArticleData<Articles[]>> = new ApiConfig();
     let { search = "", pages = 1, limit = 10 } = c.req.query();
 
+    const token = c.req.header("Authorization")
+    const userInfo = await UserMapper.getUserInfoToken(token || '')
+
     const cacheKey = `articles_page_${pages}_limit_${limit}`
 
     // 现在可以通过 c.redis 访问 Redis 客户端 
     const cachedData = await c.redis.get(cacheKey);
+    // 如果缓存存在，直接返回缓存数据
     if (cachedData) {
-      // 如果缓存存在，直接返回缓存数据
-      return apiConfig.success(JSON.parse(cachedData));
+      return apiConfig.success(useUserInfoGetData(cachedData, userInfo));
     }
 
     const total: number = await ArticleMapper.getArticleListTotal(search);
@@ -34,7 +37,8 @@ class ArticleService {
     const data: Articles[] = await ArticleMapper.findAll(search, pages, limit);
     const result = { total: total, data }
     await c.redis.setex(cacheKey, 600, JSON.stringify(result));
-    return apiConfig.success(result);
+    
+    return apiConfig.success(useUserInfoGetData(result, userInfo));
   }
 
   public async findArticleInfo(c: Context) {

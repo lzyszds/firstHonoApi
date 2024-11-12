@@ -4,6 +4,7 @@ import path from "node:path";
 import dayjs from "dayjs";
 import sharp from "sharp";
 import { log } from "node:console";
+import { UserRole } from "@/domain/User";
 const rootPath = path.resolve(__dirname, '../../');
 
 /**
@@ -331,6 +332,20 @@ const handleParamsWildcard = (obj: any) => {
 }
 
 
+//根据用户信息 独立是否禁用数据
+const useUserInfoGetData = (data: any, userInfo: UserRole) => {
+  if (typeof data == 'string') {
+    data = JSON.parse(data)
+  }
+  // 如果token不存在 或 token无效 则返回截断数据
+  if (!userInfo || userInfo.length == 0) {
+    data.data = data.data.filter((item: any) => item.whether_use == '1')
+  }
+  
+  return data
+}
+
+
 export {
   mapGather,  // 将对象转换成键值数组
   sliceData,  // 数据截取函数
@@ -348,4 +363,5 @@ export {
   uploadFileLimit,  // 上传文件大小和类型限制
   sleep,  // 睡眠
   handleParamsWildcard, // 处理通配符参数
+  useUserInfoGetData, // 根据用户信息 独立是否禁用数据
 };
