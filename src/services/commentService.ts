@@ -42,7 +42,7 @@ class CommentService {
 
   //新增评论
   public async addComment(c: Context) {
-    const apiConfig: ApiConfig<string> = new ApiConfig();
+    const apiConfig = new ApiConfig();
 
     try {
       // 遍历文件夹下的所有图片
@@ -89,7 +89,7 @@ class CommentService {
 
   //删除评论
   public async deleteComment(c: Context) {
-    const apiConfig: ApiConfig<string> = new ApiConfig();
+    const apiConfig = new ApiConfig();
     try {
       const { ids } = await c.req.json()
       // 删除评论

@@ -77,7 +77,7 @@ class SystemService {
 
   //新增页脚信息
   public async addFooterInfo(c: any): Promise<ApiConfig<string>> {
-    const apiConfig: ApiConfig<string> = new ApiConfig();
+    const apiConfig = new ApiConfig();
     try {
       const params = await c.req.json()
       if (checkObj(c.req.query(), ['footer_type', 'footer_content', 'footer_url', 'footer_order'])) {
@@ -118,7 +118,7 @@ class SystemService {
 
   //更新页脚信息
   public async updateFooterInfo(c: any): Promise<ApiConfig<string>> {
-    const apiConfig: ApiConfig<string> = new ApiConfig();
+    const apiConfig = new ApiConfig();
     try {
       const { children } = await c.req.json()
       if (checkObj(await c.req.json(), ['children'])) {

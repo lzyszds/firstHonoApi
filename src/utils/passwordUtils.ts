@@ -19,7 +19,7 @@ const hashPassword = async (password: string) => {
 const comparePasswords = async (password: string, hashedPassword: string) => {
     try {
         // 比较密码和哈希值
-        return await bcrypt.compare("123456", hashedPassword);
+        return await bcrypt.compare(password, hashedPassword);
     } catch (error) {
         throw error;
     }
