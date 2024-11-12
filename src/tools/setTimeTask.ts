@@ -30,7 +30,7 @@ export default () => {
     // createTask('dailySqlBackups', '0 02 13 * * *', sqlBackupsTask);//每日备份数据库 已弃用。现使用宝塔计划任务解决
     createTask('dailyGithub', '0 0 0 * * *', getGithubInfo);//每日获取github数据
     createTask('dailyAiUc', '0 0 0 * * *', addAiUc);//每日ai摘要key的使用次数记录表
-    createTask('dailyAiUc', '0 38 13 * * *', dailyGetAbstractAi);//每日ai摘要key的使用次数记录表
+    createTask('dailyAiUc', '0 0 0 * * *', dailyGetAbstractAi);//每日ai摘要key的使用次数记录表
 
     // schedule.scheduleJob('0 0 0 * * *', getGithubInfo)    //新增 每日github贡献图数据库
     // schedule.scheduleJob('0 0 0 * * *', addAiUc)          //每日ai摘要key的使用次数记录表
