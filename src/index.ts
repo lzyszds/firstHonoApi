@@ -8,6 +8,7 @@ import db from './utils/db'
 import routes from './routes';
 import setTimeTask from './tools/setTimeTask';
 import redis from './utils/redis'; // 导入 Redis 客户端
+import { dailyGetAbstractAi } from './tools/aiConfigUc';
 
 // 扩展 Context 类型
 declare module 'hono' {

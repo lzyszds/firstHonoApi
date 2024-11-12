@@ -1,7 +1,8 @@
 import axios from 'axios';
-import { readJsonFile, writeJsonFile } from './helpers';
+import { appendToFile, readJsonFile, writeJsonFile } from './helpers';
 import CONFIG from '../../config';
 import path from 'path';
+import fs from 'fs';
 // 创建 Axios 实例并设置超时
 const axiosInstance = axios.create({
   timeout: 5000, // 设定超时为 5 秒
@@ -36,8 +37,13 @@ export default {
   },
   writeAiTextStore: async (content: string, id: string) => {
     try {
-      // 追加内容到指定的文件。如果文件不存在，fs.appendFile 会自动创建文件
+      // 追加内容到指定的文件
       const filePath = path.join(__dirname, `../../static/aiTextStore/${id}.json`);
+      // 如果文件不存在，自动创建文件
+      if (!fs.existsSync(filePath)) {
+        await writeJsonFile(filePath, []);
+      }
+      
       let data = await readJsonFile(filePath);
       if (!data) {
         data = [content];

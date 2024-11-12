@@ -3,3 +3,5 @@ node_modules
 *.log
 .vscode/launch.json
 .vscode/tasks.json
+logs/*
+logs/combined.log

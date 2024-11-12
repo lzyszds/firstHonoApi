@@ -202,5 +202,14 @@
   "规范化 Git 提交日志格式有以下好处：更方便浏览项目历史、保证提交独立性、便于自动生成 CHANGELOG。消息格式包括类型、范围、主题，限制字符数有利于信息传达。语言选择应根据项目需求，英文适合开源项目。消息体和尾部可记录评审、签名等信息。分支命名应遵循{type}-{issue id}-the-thing-you-do格式，多版本分支可使用版本号。标签命名应遵循v{semver}格式，推荐使用附注标签。",
   "对 Git 提交日志（message）的格式进行规范约束的目的是为了更方便、快捷地浏览和了解项目的历史信息，保证提交内容的独立性，便于自动生成 CHANGELOG。规范格式包括 type、scope、subject，并限制字数，同时推荐使用英文描述。此外，还可以在提交中引用 Issues、声明破坏性变动等。在命名分支和标签时也应遵循相应规范。",
   "规范化 Git 提交日志的格式有以下几个好处：更方便浏览项目历史信息、保证提交内容独立性、便于自动生成 CHANGELOG。提交消息应遵循特定格式：type、scope、subject，可选body和footer。消息长度有限制，推荐使用英文描述改动。可以在消息中引用Issues或声明破坏性变动。分支命名应包含type、issue id和操作内容。多版本分支可单独命名。Git tag应遵循语义化版本号格式。",
-  "对 Git 提交日志（message）的格式进行规范约束有以下好处：更方便浏览项目历史信息、保证提交内容独立性、便于自动生成 CHANGELOG。规范格式包括 type、scope、subject，限制字符数，使用英文，描述改动内容，添加签名、引用 Issues、破坏性变动等。分支命名采用{type}-{issue id}-the-thing-you-do格式，多版本分支命名为版本号-stable，tag命名为v{semver}。"
+  "对 Git 提交日志（message）的格式进行规范约束有以下好处：更方便浏览项目历史信息、保证提交内容独立性、便于自动生成 CHANGELOG。规范格式包括 type、scope、subject，限制字符数，使用英文，描述改动内容，添加签名、引用 Issues、破坏性变动等。分支命名采用{type}-{issue id}-the-thing-you-do格式，多版本分支命名为版本号-stable，tag命名为v{semver}。",
+  "对 Git 提交日志（message）的格式进行规范约束有以下好处：更方便浏览项目历史信息、保证提交内容独立性、便于自动生成 CHANGELOG。规范包括 header 字数限制、语言选择、type、scope、subject、body、footer 格式等。提交信息应使用一般现在时、祈使句，避免过去时和主语。footer 可用于记录代码评审、签名、引用 Issues、破坏性变动等。分支命名格式为{type}-{issue id}-the-thing-you-do，tag 命名应遵循语义化版本号。",
+  "对 Git 提交日志（message）的格式进行规范约束有以下好处：更便于浏览项目历史信息、确保提交内容独立性、便于自动生成 CHANGELOG。格式包括 type、scope、subject、body和footer，限制首行50字符、每行72字符，建议使用英文，遵循一般现在时、祈使句，签名区可记录参与者信息，引用 Issues和破坏性变动需声明。分支命名格式为{type}-{issue id}-the-thing-you-do，tag命名格式为v{semver}。",
+  "规范 Git 提交日志的格式可以带来诸多好处：方便浏览项目历史信息、保证提交内容独立性、便于自动生成 CHANGELOG。在规范中，要求首行不超过50个字符，body和footer每行不超过72个字符，语言选择应适应项目需求。message header包含type、scope和subject，body用于详细描述提交内容，footer可记录代码评审过程等信息。通过签名区、引用Issues和破坏性变动声明等方式，进一步完善提交信息。Git分支命名规范和Git tag命名规范也有详细要求。",
+  "对Git提交日志的格式进行规范约束是为了更方便浏览项目历史、保证提交独立性、自动生成CHANGELOG，字数限制有助于阅读和信息获取。在开源项目中推荐使用英文，内部项目可选择本地语言。Message header包括type、scope、subject；body描述详细内容；footer记录代码评审、作者签名等。引用Issues和破坏性变动需特殊标记。分支命名规范为{type}-{issue id}-the-thing-you-do，多版本分支命名和Git tag命名遵循语义化版本号。",
+  "规范的 Git 提交日志格式对项目有以下好处：更便于浏览和了解项目历史、保证提交内容独立性、方便自动生成 CHANGELOG。提交日志应包括 type、scope、subject，并限制字符数，使用英文或适合团队的语言。可在 body 补充详细内容，footer 记录评审信息等。分支命名应遵循{type}-{issue id}-the-thing-you-do格式，版本分支可使用版本号命名，tag 建议使用语义化版本号。",
+  "规范的 Git 提交日志格式有助于更方便浏览项目历史信息、保证提交内容独立性、自动生成 CHANGELOG，其中包括 header、body 和 footer，分别规定了字符限制和语言选择。在提交时，需注意 type、scope 和 subject 的填写规范，同时可以在 footer 中添加引用 Issues 和破坏性变动等信息。对于分支命名和 Git tag 命名也有相应规范。",
+  "规范的 Git 提交日志格式对项目有多方面的好处：更方便浏览项目历史信息、保证提交内容独立性、便于自动生成 CHANGELOG。消息格式包括类型、范围、主题，遵守字数限制和语言选择规范，同时可添加签名、引用 Issue、破坏性变动等信息。分支命名应包括类型、Issue ID、操作内容，而标签命名应遵循语义化版本号规范。",
+  "规范化 Git 提交日志的格式是为了更方便浏览项目历史、保证提交内容独立性、便于自动生成 CHANGELOG。消息格式包括 type、scope、subject，字数限制有助于简洁明了。在开源项目中推荐使用英文，内部项目可选中文，但需处理字符集问题。签名区可记录代码评审等信息，引用 Issues 和破坏性变动需在提交中声明。分支命名应遵循{type}-{issue id}-the-thing-you-do格式，版本分支需单独拉分支，Git tag命名应语义化。",
+  "规范 Git 提交日志格式有助于更方便浏览项目历史信息、确保提交内容独立性、便于自动生成 CHANGELOG。根据规范，提交消息需包括type、scope、subject等部分，且字数有限制。在开源项目中推荐使用英文，内部项目可使用本地语言。提交消息中可包含引用的Issues和破坏性变动声明。分支命名需遵循特定格式，tag命名应遵循语义化版本号规范。"
 ]
