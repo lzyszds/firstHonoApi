@@ -8,13 +8,15 @@ import logger from '@/middleware/logger';
 export const sqlBackupsTask = async () => {
   const backupFileName = `backup_${dayjs().format("YYYY-MM-DD")}.sql`;
 
-  // 假设你使用的是 MySQL 数据库
-  await execa('mysqldump', [
-    '-u', CONFIG.dbConfig.user,
-    '-p', CONFIG.dbConfig.password,
-    CONFIG.dbConfig.database,
-    '-r', backupFileName
-  ]);
-
-  logger.info(`数据库备份成功，备份文件名：${backupFileName}`);
+  try {
+    await execa('mysqldump', [
+      '-u', CONFIG.dbConfig.user,
+      '-p', CONFIG.dbConfig.password,
+      CONFIG.dbConfig.database,
+      '-r', backupFileName
+    ]);
+    logger.info(`数据库备份成功，备份文件名：${backupFileName}`);
+  } catch (error: any) {
+    logger.error(`数据库备份失败：${error.message}`);
+  }
 }

@@ -27,7 +27,7 @@ export default () => {
     fse.readJSON(path.join(__dirname, "../../static/config/email.json")).then(res => {
         createTask('dailyEmail', res.planTime, sendEmailWarn); //发送邮件提醒 用于提醒每日是否有在github上提交代码
     })
-    createTask('dailySqlBackups', '0 0 1 * * *', sqlBackupsTask);//每日备份数据库
+    // createTask('dailySqlBackups', '0 02 13 * * *', sqlBackupsTask);//每日备份数据库 已弃用。现使用宝塔计划任务解决
     createTask('dailyGithub', '0 0 0 * * *', getGithubInfo);//每日获取github数据
     createTask('dailyAiUc', '0 0 0 * * *', addAiUc);//每日ai摘要key的使用次数记录表
 
