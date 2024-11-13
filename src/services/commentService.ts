@@ -23,9 +23,12 @@ class CommentService {
   //获取所有评论
   public async getAllComment(c: Context) {
     const { search = "", pages = "1", limit = "10" } = c.req.query()
+    const total: number = await CommentMapper.getAllCommentTotal(search);
+
     const data: CommentType[] = await CommentMapper.getAllComment(search, pages, limit);
+
     const apiConfig: ApiConfig<ArticleData<CommentType[]>> = new ApiConfig();
-    return apiConfig.success({ total: data.length, data });
+    return apiConfig.success({ total, data });
   }
 
   //获取评论可选头像

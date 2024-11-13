@@ -25,6 +25,16 @@ class CommentMapper {
     return await db.query(sql, [search, search, search, search, offset, Number(limit)]);
   }
 
+  // 获取所有评论总数
+  public async getAllCommentTotal(search: string) {
+    let sql: string = `
+            SELECT COUNT(*) as total
+            FROM wb_comments
+            WHERE content LIKE ? OR user_name LIKE ? OR email LIKE ? OR user_ip LIKE ?
+        `;
+    const result = await db.query(sql, [search, search, search, search])
+    return result[0].total;
+  }
   //新增评论
   public async addComment(params: any) {
     let {
