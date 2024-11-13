@@ -151,7 +151,7 @@ class UserController {
     const params = await c.req.json();
 
     //检查 用户名、密码、权限、创建时间、最后登录时间、个性签名、头像、是否启用 是否为空
-    if (checkObj(params, ["uname", "username", "password", "signature", "head_img"])) {
+    if (checkObj(params, ["uname", "username", "password", "head_img"])) {
       // 创建一个 ApiConfig 对象
       const apiConfig = new ApiConfig<string>();
       // 返回一个失败的 ApiConfig 对象，包含提示信息
