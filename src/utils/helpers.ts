@@ -264,6 +264,7 @@ const uploadFileLimit = async (
   ALLOWED_FILE_TYPES: string[],
   REDUCE_SIZE: number = 0.25,
 ) => {
+
   if (file.size === 0) {
     return '未上传文件';
   }
@@ -276,13 +277,12 @@ const uploadFileLimit = async (
     return '文件类型不被允许';
   }
 
-  REDUCE_SIZE = REDUCE_SIZE * 1024; // 转换为 KB
+  REDUCE_SIZE = REDUCE_SIZE * 1024 * 1024; // 转换为 KB
+  const buffer = await file.arrayBuffer(); // 转换为 ArrayBuffer
+  const nodeBuffer = Buffer.from(buffer);  // 转换为 Node.js 的 Buffer
 
   if (file.size > REDUCE_SIZE) {
     try {
-      const buffer = await file.arrayBuffer(); // 转换为 ArrayBuffer
-      const nodeBuffer = Buffer.from(buffer);  // 转换为 Node.js 的 Buffer
-
       // 使用 sharp 压缩图片
       let compressedBuffer = await sharp(nodeBuffer)
         .jpeg({ quality: 100 }) // 调整质量以压缩图片
@@ -310,7 +310,7 @@ const uploadFileLimit = async (
     }
   }
 
-  return file;
+  return nodeBuffer;
 };
 
 
@@ -341,7 +341,7 @@ const useUserInfoGetData = (data: any, userInfo: UserRole) => {
   if (!userInfo || userInfo.length == 0) {
     data.data = data.data.filter((item: any) => item.whether_use == '1')
   }
-  
+
   return data
 }
 
