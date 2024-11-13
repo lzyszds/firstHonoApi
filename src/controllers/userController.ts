@@ -290,7 +290,7 @@ class UserController {
     result = uploadFileLimit(file, 2, ALLOWED_FILE_TYPES);
 
     // 使用 nanoid 生成唯一文件名
-    const filename = nanoid() + path.extname(file.name);
+    const filename = nanoid() + '.webp';
     const uploadPath = path.join(
       __dirname,
       "../../static/img/uploadHead",
