@@ -5,4 +5,4 @@ node_modules
 .vscode/tasks.json
 logs/*
 logs/combined.log
-logs/combined.log
+.idea/*

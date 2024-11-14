@@ -1,8 +1,8 @@
-import { Hono } from 'hono'
-import { serveStatic } from 'hono/bun'
-import { authMiddleware } from './middleware/auth'
-import { camelCaseMiddleware } from './middleware/camelcase'
-import { corsAllMiddleware } from './middleware/cors';
+import {Hono} from 'hono'
+import {serveStatic} from 'hono/bun'
+import {authMiddleware} from './middleware/auth'
+import {camelCaseMiddleware} from './middleware/camelcase'
+import {corsAllMiddleware} from './middleware/cors';
 import logger from './middleware/logger';
 import db from './utils/db'
 import routes from './routes';
@@ -19,14 +19,13 @@ declare module 'hono' {
 const app = new Hono()
 
 //静态资源映射
-app.use('/static/*', serveStatic({ root: './' }))
+app.use('/static/*', serveStatic({root: './'}))
 
 //导入中间件
 // 配置CORS中间件
 app.use('/api/*', corsAllMiddleware)
 app.use('/api/*', authMiddleware) // 认证中间件
 app.use('/api/*', camelCaseMiddleware) //  驼峰命名中间件 
-
 
 
 app.use('/api/*', (c, next) => {
@@ -64,10 +63,6 @@ app.onError((err, c) => {
   logger.error(err.message)
   return c.text('出错了看看怎么解决吧！', 500)
 })
-
-
-
-
 
 
 setTimeTask()
