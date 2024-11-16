@@ -5,7 +5,7 @@
  * @LastEditors: hai-27
  * @LastEditTime: 2020-02-27 13:20:11
  */
-import mysql, { MysqlError, PoolConnection } from "mysql";
+import mysql, {MysqlError, PoolConnection} from "mysql";
 import Config from "../../config";
 
 //一些数据库错误的中文提示
@@ -19,20 +19,16 @@ export const dbErrorMessage: any = {
   'ER_DUP_ENTRY_WITH_UNIQUE_KEY': '数据库中已存在该记录',
 }
 
-var pool: mysql.Pool = mysql.createPool(Config.dbConfig);
+let pool: mysql.Pool = mysql.createPool(Config.dbConfig);
 
-interface Connection {
-  query(sql: string, params: any, callback: (error: any, results: any, fields: any) => void): void;
-
-  release(): void;
-}
+// interface Connection {
+//   query(sql: string, params: any, callback: (error: any, results: any, fields: any) => void): void;
+//
+//   release(): void;
+// }
 
 interface Database {
   query(sql: string, params: any): Promise<any>;
-}
-
-interface DatabasePool {
-  getConnection(callback: (err: Error, connection: Connection) => void): void;
 }
 
 
@@ -60,8 +56,8 @@ const db: Database = {
         pool.getConnection(function (err: MysqlError, connection: PoolConnection) {
           // 处理错误
           ErrorHandle(err, reject);
-          connection.query(sql, params, (error: MysqlError | null, results: any, fields: any) => {
-            
+          connection.query(sql, params, (error: MysqlError | null, results: any, _fields: any) => {
+
             // 释放连接
             connection.release();
             // 处理错误

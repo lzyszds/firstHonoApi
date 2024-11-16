@@ -1,6 +1,5 @@
 import Redis from 'ioredis';
-import Config from "../../config";
-
+import Config from '../../config';
 // 扩展 Context 类型
 declare module 'ioredis' {
   interface Redis {
@@ -14,7 +13,7 @@ const redis = new Redis({
   port: 6379,        // Redis 服务端口，默认为 6379
   // 如果你有密码设置，可以加上 password 字段
   // password: 'your_password',
-  db: 0, // 使用的 Redis 数据库，默认为 0
+  db: 1, // 使用的 Redis 数据库，默认为 0
 });
 
 redis.clearArticlesCache = (text) => {
