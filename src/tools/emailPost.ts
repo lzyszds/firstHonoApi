@@ -2,10 +2,12 @@ import fs from "node:fs"
 import path from "node:path"
 import dayjs from "dayjs";
 import emailTools from './emailTools'
+import { getGithubInfo } from "./getGIthubInfo";
 
 //发送邮件提醒 用于提醒每日是否有在github上提交代码
 export async function sendEmailWarn() {
     try {
+        await getGithubInfo()
         const githubData = fs.readFileSync(path.resolve(__dirname, '../../static/json/getGithubInfo.json'), 'utf-8');
         const data = JSON.parse(githubData)
         const weeks = data.data.user.contributionsCollection.contributionCalendar.weeks

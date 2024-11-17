@@ -4,8 +4,8 @@ import path from 'path';
 
 
 const emailConfig = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
-var emailHtml = (message: string = '你今天还未在github上提交代码') => {
-    return emailConfig.content
+var emailHtml = (message: number = 0) => {
+    return emailConfig.content.replace('${message}', message == 0 ? '你今天还未在github上提交代码' : "提交次数：" + message)
 }
 
 
@@ -34,7 +34,7 @@ const mail = (message?: string) => {
         // 收件人 的邮箱 可以是其他邮箱 不一定是qq邮箱
         to: emailConfig.toEmail,
         //这里可以添加html标签
-        html: emailHtml(message),
+        html: emailHtml(Number(message)),
     }
 }
 

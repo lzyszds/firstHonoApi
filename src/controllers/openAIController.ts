@@ -10,6 +10,11 @@ class AiController {
     return openAI.getAifox(c)
   }
 
+  //阿里云的硅基ai
+    async getAliAi(c: Context) {
+        return openAI.getSiliconflowiAi(c)
+    }
+
   //获取ai key列表
   async getAiKeysList(c: Context) {
     return c.json(await openAI.getAiKeysList(c));
