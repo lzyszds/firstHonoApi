@@ -13,7 +13,7 @@ export default {
     env: path.extname(__filename) === '.ts' ? 'development' : 'production',
 
     cors: {
-        origin: ['http://localhost:1026', 'http://101.201.171.168:1026', 'http://101.201.171.168:1027'],
+        origin: ['http://localhost:1026', 'http://127.0.0.1:1026', 'http://101.201.171.168:1026', 'http://101.201.171.168:1027'],
         methods: ['GET', 'POST', 'PUT', 'DELETE'],
         allowedHeaders: ['Content-Type', 'Authorization'],
         credentials: true,
@@ -53,7 +53,7 @@ export default {
     ],
     //github api密钥 配置
     githubUserConfig: {
-         token1: 'github_pat',
+        token1: 'github_pat',
         token2: '_11APYO7PI0nRTBPl7vEuvM',
         token3: '_RGJBdfX7iuKZn0TrK8CL4W7It12ukIQVVk3qlXqOAVINB3NRCVLKNxxq2Rh',
         name: 'lzyszds',
