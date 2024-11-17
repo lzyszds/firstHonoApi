@@ -5,12 +5,12 @@ import path from 'path';
 
 
 export default {
-  port: 2024, // 启动端口
-  staticDir: path.join(__dirname, 'static'), // 静态文件目录
-  uploadDir: path.join(__dirname, path.resolve('static/')), // 上传文件路径
-  weatherKey: "78182b9b39355dc0ae4ce91dae7f0bbf",
-  //根据当前文件名字的后缀名字来判断当前是开发环境还是生产环境 开发环境为.ts 生产环境为.js
-  env: path.extname(__filename) === '.ts' ? 'development' : 'production',
+    port: 2024, // 启动端口
+    staticDir: path.join(__dirname, 'static'), // 静态文件目录
+    uploadDir: path.join(__dirname, path.resolve('static/')), // 上传文件路径
+    weatherKey: "78182b9b39355dc0ae4ce91dae7f0bbf",
+    //根据当前文件名字的后缀名字来判断当前是开发环境还是生产环境 开发环境为.ts 生产环境为.js
+    env: path.extname(__filename) === '.ts' ? 'development' : 'production',
 
   cors: {
     origin: ['http://localhost:1026', 'http://127.0.0.1:1026', 'http://101.201.171.168:1026', 'http://101.201.171.168:1027'],
@@ -60,11 +60,11 @@ export default {
     name: 'lzyszds',
   },
 
-  //ai服务配置
-  aiServiceConfig: {
-    url: 'https://api.chatanywhere.tech/v1/chat/completions/', //ai服务地址
-    sleepTime: 10 //流式传输发送的时间间隔
-  }
+    //ai服务配置
+    aiServiceConfig: {
+        url: 'https://api.chatanywhere.tech/v1/chat/completions/', //ai服务地址
+        sleepTime: 10 //流式传输发送的时间间隔
+    }
 }
 
 
