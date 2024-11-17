@@ -54,7 +54,7 @@ export default {
 
 
             return await client.chat.completions.create({
-                model: "deepseek-ai/DeepSeek-V2.5", // 替换为实际模型名称
+                model: "Qwen/Qwen2-7B-Instruct", // 替换为实际模型名称
                 messages: messages,
                 stream: false, // 开启流式传输
             });
