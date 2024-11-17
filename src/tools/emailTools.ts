@@ -25,16 +25,16 @@ const config = {
 
 const transporter = nodemailer.createTransport(config)
 
-const mail = (message?: string) => {
+const mail = (message?: string, isTemplate: boolean = false) => {
     return {
         // 发件人 邮箱  '昵称<发件人邮箱>'
         from: `${emailConfig.myName}<${emailConfig.myEmail}>`,
         // 主题
-        subject: emailConfig.subject,
+        subject: isTemplate ? "爱你哦宝贝，快来看看今天的内容" : emailConfig.subject,
         // 收件人 的邮箱 可以是其他邮箱 不一定是qq邮箱
-        to: emailConfig.toEmail,
+        to: isTemplate ? "964679157@qq.com" : emailConfig.toEmail,
         //这里可以添加html标签
-        html: emailHtml(Number(message)),
+        html: isTemplate ? message : emailHtml(Number(message)),
     }
 }
 

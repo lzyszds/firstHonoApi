@@ -1,13 +1,13 @@
 import ApiConfig from "@/domain/ApiCongfigType";
 import ArticleMapper from "@/models/article";
-import {Readable} from "stream";
+import { Readable } from "stream";
 import AiMapper from "@/models/openAI";
-import {AiUc, AiUcKeys} from "@/domain/AiType";
-import {DataTotal} from "@/domain/DataTotal";
+import { AiUc, AiUcKeys } from "@/domain/AiType";
+import { DataTotal } from "@/domain/DataTotal";
 import dayjs from "dayjs";
 import handleAiFox from "@/utils/handleAiFox";
-import {Context} from "hono";
-import {streamText, streamSSE} from 'hono/streaming'
+import { Context } from "hono";
+import { streamText, streamSSE } from 'hono/streaming'
 import CONFIG from "../../config";
 
 
@@ -57,7 +57,7 @@ class openAI {
 
         const getResultData: any = async () => {
             try {
-                const {data} = await handleAiFox.getAiList(articleInfo.content, key);
+                const { data } = await handleAiFox.getAiList(articleInfo.content, key);
                 result = data.choices[0].message.content;
                 // 将结果写入文件
                 await handleAiFox.writeAiTextStore(result, aid);
@@ -71,7 +71,7 @@ class openAI {
 
         return streamSSE(c, async (stream) => {
             for (let item of result) {
-                await stream.writeSSE({data: item});
+                await stream.writeSSE({ data: item });
                 await stream.sleep(CONFIG.aiServiceConfig.sleepTime);
             }
         },)
@@ -95,8 +95,20 @@ class openAI {
 
         const getResultData: any = async () => {
             try {
-                const response = await handleAiFox.getSiliconflowAi(articleInfo.content, key);
-                result = ""//response.choices[0].message.content;
+                const content = '请从以下文章中总结出一段不要超出100个字的简洁的内容。请不要使用编号列出信息点' + articleInfo.content
+                const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
+                    {
+                        role: "system",
+                        content: "你是一个专业的博客文章研究分析师。"
+                    },
+                    {
+                        role: "user",
+                        content: content
+                    }
+                ];
+
+                const data = await handleAiFox.getSiliconflowAi(messages, key);
+                result = data!.choices[0].message.content;
                 // 将结果写入文件
                 await handleAiFox.writeAiTextStore(result, aid);
             } catch (error) {
@@ -109,7 +121,7 @@ class openAI {
 
         return streamSSE(c, async (stream) => {
             for (let item of result) {
-                await stream.writeSSE({data: item});
+                await stream.writeSSE({ data: item });
                 await stream.sleep(CONFIG.aiServiceConfig.sleepTime);
             }
         },)
@@ -119,7 +131,7 @@ class openAI {
     public async getAiList(c: Context): Promise<ApiConfig<DataTotal<AiUc>>> {
 
         const apiConfig = new ApiConfig<DataTotal<AiUc>>();
-        const {pages, limit} = c.req.query();
+        const { pages, limit } = c.req.query();
         const total = await AiMapper.findAiListTotal();
         const list = await AiMapper.findAiList(Number(pages), Number(limit));
         apiConfig.success({
@@ -132,7 +144,7 @@ class openAI {
     //获取指定Ai的key
     public async getAiKeysList(c: Context): Promise<ApiConfig<AiUcKeys[]>> {
         const apiConfig = new ApiConfig<AiUcKeys[]>();
-        let {search = "", pages = "1", limit = "10"} = c.req.query();
+        let { search = "", pages = "1", limit = "10" } = c.req.query();
         const list = await AiMapper.findAiKey(search, Number(pages), Number(limit));
         return apiConfig.success(list)
     }
@@ -140,7 +152,7 @@ class openAI {
     //新增Ai的key
     public async addAiKey(c: Context): Promise<ApiConfig<string>> {
         const apiConfig = new ApiConfig<string>();
-        const {keyName, keyValue} = await c.req.json()
+        const { keyName, keyValue } = await c.req.json()
         const list = await AiMapper.addAiKey(keyName, keyValue);
         if (list.affectedRows > 0) {
             return apiConfig.success("新增成功")
@@ -152,7 +164,7 @@ class openAI {
     //删除Ai的key
     public async deleteAiKey(c: Context): Promise<ApiConfig<any>> {
         const apiConfig = new ApiConfig<any>();
-        const {id} = await c.req.json()
+        const { id } = await c.req.json()
         const list = await AiMapper.deleteAiKey(id);
         if (list.affectedRows > 0) {
             return apiConfig.success("删除成功")

@@ -1,9 +1,9 @@
 import axios from 'axios';
-import {appendToFile, readJsonFile, writeJsonFile} from './helpers';
+import { appendToFile, readJsonFile, writeJsonFile } from './helpers';
 import CONFIG from '../../config';
 import path from 'path';
 import fs from 'fs';
-import {OpenAI} from "openai";
+import { OpenAI } from "openai";
 
 
 // 创建 Axios 实例并设置超时
@@ -20,7 +20,7 @@ export default {
                 messages: [
                     {
                         role: "user",
-                        content: "请从以下文章中总结出一段不要超出100个字的简洁的内容。请不要使用编号列出信息点" + content
+                        content: content
                     }
                 ],
                 presence_penalty: 0,
@@ -40,7 +40,7 @@ export default {
         }
     },
 
-    getSiliconflowAi: async (content: string, key: string) => {
+    getSiliconflowAi: async (messages: any[], key: string) => {
         try {
 
             // 配置 OpenAI 客户端
@@ -51,16 +51,7 @@ export default {
 
 
             // 定义消息内容（确保使用正确的类型）
-            const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
-                {
-                    role: "system",
-                    content: "你是一个专业的博客文章研究分析师。"
-                },
-                {
-                    role: "user",
-                    content: "请从以下文章中总结出一段不要超出100个字的简洁的内容。请不要使用编号列出信息点。" + content
-                }
-            ];
+
 
             return await client.chat.completions.create({
                 model: "deepseek-ai/DeepSeek-V2.5", // 替换为实际模型名称

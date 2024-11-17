@@ -2,7 +2,7 @@
 import { sqlBackupsTask } from './sqlBackupsTask';
 import { getGithubInfo } from "./getGIthubInfo";
 import { addAiUc, dailyGetAbstractAi } from './aiConfigUc';
-import { sendEmailWarn } from './emailPost';
+import { sendEmailLove, sendEmailWarn } from './emailPost';
 import { createTask, destroyTask } from '@/utils/taskScheduler';
 import path from 'path';
 import fse from 'fs-extra';
@@ -27,6 +27,9 @@ export default () => {
     fse.readJSON(path.join(__dirname, "../../static/config/email.json")).then(res => {
         createTask('dailyEmail', res.planTime, sendEmailWarn); //发送邮件提醒 用于提醒每日是否有在github上提交代码
     })
+
+
+    createTask('dailyEmail', '0 58 23 * * *', sendEmailLove); //发送邮件提醒 用于发送情书
     // createTask('dailySqlBackups', '0 02 13 * * *', sqlBackupsTask);//每日备份数据库 已弃用。现使用宝塔计划任务解决
     createTask('dailyGithub', '0 0 22 * * *', getGithubInfo);//每日获取github数据
     createTask('dailyAiUc', '0 0 0 * * *', addAiUc);//每日ai摘要key的使用次数记录表
