@@ -6,8 +6,6 @@ import {getGithubInfo} from "./getGIthubInfo";
 import {OpenAI} from "openai";
 import fse from "fs-extra";
 
-// 从配置文件读取GitHub和情书相关的邮件配置信息
-const {github, loveTetter} = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
 
 /**
  * 发送GitHub代码提交提醒邮件
@@ -15,6 +13,8 @@ const {github, loveTetter} = fse.readJSONSync(path.join(__dirname, '../../static
  * @returns {Promise<void>}
  */
 export async function sendEmailWarn() {
+  // 从配置文件读取GitHub和情书相关的邮件配置信息
+  const {github, loveTetter} = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
   try {
     // 首先获取最新的GitHub提交信息
     await getGithubInfo()
@@ -69,6 +69,8 @@ export async function sendEmailWarn() {
  * @returns {Promise<void>}
  */
 export async function sendEmailLove() {
+  // 从配置文件读取GitHub和情书相关的邮件配置信息
+  const {github, loveTetter} = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
   try {
     // 定义AI对话消息数组，包含系统角色设定和用户提示
     const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
