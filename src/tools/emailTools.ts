@@ -4,43 +4,39 @@ import path from 'path';
 
 
 const emailConfig = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
-var emailHtml = (message: number = 0) => {
-    return emailConfig.content.replace('${message}', message == 0 ? '你今天还未在github上提交代码' : "提交次数：" + message)
-}
-
 
 // 创建一个SMTP客户端配置
 const config = {
-    // service: emailConfig.service,//服务方式
-    host: emailConfig.host,
-    port: emailConfig.port,
-    secure: emailConfig.secure, // true for 465, false for other ports
-    auth: {
-        // 发件人邮箱账号
-        user: emailConfig.myEmail,
-        //发件人邮箱的授权码 这里可以通过qq邮箱获取 并且不唯一
-        pass: emailConfig.auth_pass  //mthbvhdnfivzvnfj谷歌邮箱
-    }
+  // service: emailConfig.service,//服务方式
+  host: emailConfig.host,
+  port: emailConfig.port,
+  secure: emailConfig.secure, // true for 465, false for other ports
+  auth: {
+    // 发件人邮箱账号
+    user: emailConfig.myEmail,
+    //发件人邮箱的授权码 这里可以通过qq邮箱获取 并且不唯一
+    pass: emailConfig.auth_pass
+  }
 }
 
 const transporter = nodemailer.createTransport(config)
 
-const mail = (message?: string, isTemplate: boolean = false) => {
-    return {
-        // 发件人 邮箱  '昵称<发件人邮箱>'
-        from: `${emailConfig.myName}<${emailConfig.myEmail}>`,
-        // 主题
-        subject: isTemplate ? "爱你哦宝贝，快来看看今天的内容" : emailConfig.subject,
-        // 收件人 的邮箱 可以是其他邮箱 不一定是qq邮箱
-        to: isTemplate ? "964679157@qq.com" : emailConfig.toEmail,
-        //这里可以添加html标签
-        html: isTemplate ? message : emailHtml(Number(message)),
-    }
+const mail: any = (params: { subject: string, to: string, html: string }) => {
+  return {
+    // 发件人 邮箱  '昵称<发件人邮箱>'
+    from: `${emailConfig.myName}<${emailConfig.myEmail}>`,
+    // 主题
+    subject: params.subject,
+    // 收件人 的邮箱 可以是其他邮箱 不一定是qq邮箱
+    to: params.to,
+    //这里可以添加html标签
+    html: params.html
+  }
 }
 
 export default {
-    transporter,
-    mail
+  transporter,
+  mail
 }
 
 

@@ -23,9 +23,9 @@ export default () => {
   */
 
   fse.readJSON(path.join(__dirname, "../../static/config/email.json")).then(res => {
-    createTask('dailyEmail', res.planTime, sendEmailWarn); //发送邮件提醒 用于提醒每日是否有在github上提交代码
+    createTask('dailyEmail', res.github.planTime, sendEmailWarn); //发送邮件提醒 用于提醒每日是否有在github上提交代码
+    createTask('dailyEmail', res.loveTetter.planTime, sendEmailLove); //发送邮件提醒 用于发送情书
   })
-  createTask('dailyEmail', '0 58 23 * * *', sendEmailLove); //发送邮件提醒 用于发送情书
   createTask('dailyGithub', '0 0 22 * * *', getGithubInfo);//每日获取github数据
 
 

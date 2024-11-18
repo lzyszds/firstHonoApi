@@ -2,64 +2,120 @@ import fs from "node:fs"
 import path from "node:path"
 import dayjs from "dayjs";
 import emailTools from './emailTools'
-import { getGithubInfo } from "./getGIthubInfo";
-import handleAiFox from "@/utils/handleAiFox";
+import {getGithubInfo} from "./getGIthubInfo";
+import {OpenAI} from "openai";
+import fse from "fs-extra";
 
-//发送邮件提醒 用于提醒每日是否有在github上提交代码
+// 从配置文件读取GitHub和情书相关的邮件配置信息
+const {github, loveTetter} = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
+
+/**
+ * 发送GitHub代码提交提醒邮件
+ * 功能：检查当天是否有GitHub代码提交，并发送相应的邮件提醒
+ * @returns {Promise<void>}
+ */
 export async function sendEmailWarn() {
-    try {
-        await getGithubInfo()
-        const githubData = fs.readFileSync(path.resolve(__dirname, '../../static/json/getGithubInfo.json'), 'utf-8');
-        const data = JSON.parse(githubData)
-        const weeks = data.data.user.contributionsCollection.contributionCalendar.weeks
-        const newWeeks = weeks[weeks.length - 1].contributionDays
-        //检查今天是否有提交
-        const today = dayjs().format('YYYY-MM-DD')
-        let count = 0
-        newWeeks.forEach((item: any) => {
-            if (item.date === today) {
-                count = item.contributionCount
-            }
-        })
-        // 今天有提交 不发邮件
-        emailTools.transporter.sendMail(emailTools.mail(count.toString()), (err: any, info: any) => {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            console.log('邮件发送成功', info.messageId);
-        });
-    } catch (e) {
-        console.error("邮件发送失败", e);
+  try {
+    // 首先获取最新的GitHub提交信息
+    await getGithubInfo()
+
+    // 读取GitHub数据文件
+    const githubData = fs.readFileSync(path.resolve(__dirname, '../../static/json/getGithubInfo.json'), 'utf-8');
+    const data = JSON.parse(githubData)
+
+    // 获取最近一周的贡献数据
+    const weeks = data.data.user.contributionsCollection.contributionCalendar.weeks
+    const newWeeks = weeks[weeks.length - 1].contributionDays
+
+    // 获取今天的日期
+    const today = dayjs().format('YYYY-MM-DD')
+    let count = 0
+
+    // 遍历最近一周的贡献数据，检查今天是否有代码提交
+    newWeeks.forEach((item: any) => {
+      if (item.date === today) {
+        count = item.contributionCount
+      }
+    })
+
+    // 根据当天提交数量生成邮件内容的方法
+    const emailHtml = (message: number = 0) => {
+      return github.content.replace('${message}', message == 0 ? github.notSubmittedTip : github.submitTip + message)
     }
+
+    // 构建邮件信息
+    const mail = emailTools.mail({
+      subject: github.subject,
+      html: emailHtml(count),
+      to: github.toEmail
+    })
+
+    // 发送邮件
+    emailTools.transporter.sendMail(mail, (err: any, info: any) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      console.log('邮件发送成功', info.messageId);
+    });
+  } catch (e) {
+    console.error("邮件发送失败", e);
+  }
 }
 
-
-/* 每日定时发送情书给LJY */
+/**
+ * 每日定时发送AI生成的情书
+ * 功能：使用OpenAI生成浪漫的情书内容并发送邮件
+ * @returns {Promise<void>}
+ */
 export async function sendEmailLove() {
-    try {
-        const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
-            {
-                role: "system",
-                content: "你是一个专业的情圣,你是一位高级的情感大师，很会说甜言蜜语"
-            },
-            {
-                role: "user",
-                content: "帮我写一个情书，两百字左右，尽量写的顺口，读起来让人爱意满满，如果可以的话，以古代情诗为主题进行整体编写,对方的名字叫做：卢静怡，我的名字：黎智勇"
-            }
-        ];
-        //@ts-ignore
-        const data = await handleAiFox.getSiliconflowAi(messages, "sk-ybmwpaxbqfwvgaynwwsbyiohifxrtbqkottuwzdrnztrvgcq")
+  try {
+    // 定义AI对话消息数组，包含系统角色设定和用户提示
+    const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
+      {
+        role: "system",
+        content: "你是一个专业的情圣,你是一位高级的情感大师，很会说甜言蜜语"
+      },
+      {
+        role: "user",
+        content: loveTetter.content
+      }
+    ];
 
-        const result = data!.choices[0].message.content + "为什么要在每天的晚上23点59分钟发送情书呢？因为我第二天你第一个想到的永远是我!"
-        emailTools.transporter.sendMail(emailTools.mail(result ?? "", true), (err: any, info: any) => {
-            if (err) {
-                console.log(err);
-                return;
-            }
-            console.log('邮件发送成功', info.messageId);
-        });
+    // 配置 OpenAI 客户端
+    const client = new OpenAI({
+      apiKey: loveTetter.aiKey, // OpenAI API密钥
+      baseURL: loveTetter.openAiBaseUrl, // 可选的代理地址
+    });
+
+    let data
+    // 调用OpenAI的聊天完成API生成情书内容
+    try {
+      data = await client.chat.completions.create({
+        model: loveTetter.model, // 使用指定的AI模型
+        messages: messages,
+        stream: false, // 关闭流式传输
+      });
     } catch (e) {
-        console.error("邮件发送失败", e);
+      console.error("情书生成失败,即将使用抱歉语句", e);
     }
+
+    // 构建邮件信息，包含AI生成的情书内容
+    const mail = emailTools.mail({
+      subject: loveTetter.subject,
+      html: data ? data!.choices[0].message.content + loveTetter.describe : "今天的情书生成失败，请原谅我",
+      to: loveTetter.toEmail
+    })
+
+    // 发送邮件
+    emailTools.transporter.sendMail(mail, (err: any, info: any) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      console.log('邮件发送成功', info.messageId);
+    });
+  } catch (e) {
+    console.error("邮件发送失败", e);
+  }
 }

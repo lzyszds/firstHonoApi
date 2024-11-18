@@ -1,13 +1,27 @@
 {
   "auth_pass": "tijuryafqckkdbfg",
-  "content": "<div class=\"emailitem\">\n        <span class=\"icon\">👨‍💻</span>\n        <div class=\"card\" style=\"color: #fff;\">\n          <p>･*･ ∧,,∧ ∧_∧ ･*･ </p>\n          <p>'.　( ｡･ω･)(･ω･｡ ) .'</p>\n          <p>'･. | つ♥と | .･' </p>\n          <p>*ﾟ' ･｡｡･ﾟ '* </p>\n          <p>τнänκ чöü</p>\n        </div>\n        <h1 style=\"text-align: center;font-size: 3rem;\">🔔消息提醒</h1>\n        <h1 class=\"btn\">${message}</h1>\n        <a style=\"text-align: center;color: #fff;\" href=\"https://github.com/lzyszds\">快去查看github吧！</a>\n        <style>\n          .emailitem {\n            margin: 0 auto;\n            width: 65%;\n            height: 400px;\n            min-width: 800px;\n            background-color: #5161ce;\n            box-shadow: 0px 0px 10px 1px #999;\n            border-radius: 10px;\n            display: grid;\n            justify-content: end;\n            align-items: center;\n            padding: 40px 0;\n            padding-right: 150px;\n            position: relative;\n            overflow: hidden;\n          }\n    \n          .emailitem .icon {\n            font-size: 18rem;\n            position: absolute;\n            bottom: 0;\n            transform: scale(1.5);\n          }\n    \n          .emailitem h1 {\n            color: #fff;\n            font-size: 24px;\n            margin-bottom: 20px;\n          }\n    \n          .emailitem p {\n            margin: 0;\n            text-align: center;\n          }\n    \n          .emailitem .btn {\n            color: #5161ce;\n            background-color: #fff;\n            padding: 20px;\n            border-radius: 10px;\n          }\n        </style>\n </div>",
   "myEmail": "lzyszds2048@foxmail.com",
   "myName": "lzyszds",
-  "planTime": "0 47 17 * * *",
-  "service": "gmail",
   "host": "smtp.qq.com",
+  "service": "gmail",
   "port": 465,
   "secure": true,
-  "subject": "Github每日提醒",
-  "toEmail": "lzyszds@qq.com"
+  "github": {
+    "planTime": "0 47 17 * * *",
+    "subject": "Github每日提醒",
+    "content": "<div class=\"emailitem\">\n        <span class=\"icon\">👨‍💻</span>\n        <div class=\"card\" style=\"color: #fff;\">\n          <p>･*･ ∧,,∧ ∧_∧ ･*･ </p>\n          <p>'.　( ｡･ω･)(･ω･｡ ) .'</p>\n          <p>'･. | つ♥と | .･' </p>\n          <p>*ﾟ' ･｡｡･ﾟ '* </p>\n          <p>τнänκ чöü</p>\n        </div>\n        <h1 style=\"text-align: center;font-size: 3rem;\">🔔消息提醒</h1>\n        <h1 class=\"btn\">${message}</h1>\n        <a style=\"text-align: center;color: #fff;\" href=\"https://github.com/lzyszds\">快去查看github吧！</a>\n        <style>\n          .emailitem {\n            margin: 0 auto;\n            width: 65%;\n            height: 400px;\n            min-width: 800px;\n            background-color: #5161ce;\n            box-shadow: 0px 0px 10px 1px #999;\n            border-radius: 10px;\n            display: grid;\n            justify-content: end;\n            align-items: center;\n            padding: 40px 0;\n            padding-right: 150px;\n            position: relative;\n            overflow: hidden;\n          }\n    \n          .emailitem .icon {\n            font-size: 18rem;\n            position: absolute;\n            bottom: 0;\n            transform: scale(1.5);\n          }\n    \n          .emailitem h1 {\n            color: #fff;\n            font-size: 24px;\n            margin-bottom: 20px;\n          }\n    \n          .emailitem p {\n            margin: 0;\n            text-align: center;\n          }\n    \n          .emailitem .btn {\n            color: #5161ce;\n            background-color: #fff;\n            padding: 20px;\n            border-radius: 10px;\n          }\n        </style>\n </div>",
+    "toEmail": "lzyszds@qq.com",
+    "notSubmittedTip": "今天没有提交代码哦！",
+    "submitTip": "今天提交了代码哦！提交次数："
+  },
+  "loveTetter": {
+    "planTime": "0 16 23 * * *",
+    "subject": "爱你哦宝贝，快来看看今天的内容",
+    "toEmail": "lzyszds@qq.com",
+    "content": "帮我写一个情书，两百字左右，尽量写的顺口，读起来让人爱意满满，如果可以的话，以古代情诗为主题进行整体编写,对方的名字叫做：静怡妹妹，我的名字：爱你的lzy",
+    "aiKey": "sk-ybmwpaxbqfwvgaynwwsbyiohifxrtbqkottuwzdrnztrvgcq",
+    "openAiBaseUrl": "https://api.siliconflow.cn/v1",
+    "model": "Qwen/Qwen2-7B-Instruct",
+    "describe": "为什么要在每天的晚上23点59分钟发送情书呢？因为我第二天你第一个想到的永远是我!"
+  }
 }

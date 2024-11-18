@@ -42,13 +42,11 @@ export default {
 
   getSiliconflowAi: async (messages: { role: "system" | "user" | "assistant"; content: string }[], key: string) => {
     try {
-
       // 配置 OpenAI 客户端
       const client = new OpenAI({
         apiKey: key, // 替换为你的 OpenAI API 密钥
         baseURL: "https://api.siliconflow.cn/v1", // 如果需要代理访问，设置为代理地址
       });
-
 
       // 定义消息内容（确保使用正确的类型）
       return await client.chat.completions.create({
