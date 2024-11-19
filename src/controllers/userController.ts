@@ -271,38 +271,35 @@ class UserController {
 
   //上传用户头像
   async uploadHeadImg(c: Context) {
+
     let result = "" as any;
     const formData = await c.req.parseBody();
 
     // 假设文件字段名是 'file'
-    const file = formData["file"] as File;
+    let file = formData['upload-image'] as File;
+    let buffer = await file.arrayBuffer();
+
+
 
     // 允许上传的文件类型
-    const ALLOWED_FILE_TYPES = [
-      "image/jpg",
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "image/bmp",
-      "image/webp",
-      "image/svg+xml",
-    ];
-
-    result = uploadFileLimit(file, 2, ALLOWED_FILE_TYPES);
+    const ALLOWED_FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml'];
+    result = await uploadFileLimit(file, 10, ALLOWED_FILE_TYPES)
+    if (typeof result === 'string') {
+      return c.json(result);
+    } else {
+      buffer = result;
+    }
 
     // 使用 nanoid 生成唯一文件名
-    const filename = nanoid() + '.webp';
-    const uploadPath = path.join(
-      __dirname,
-      "../../static/img/uploadHead",
-      filename
-    );
+    const filename = nanoid() + path.extname(file.name) + '.webp';
+    const articleImagesPath = `/static/img/articleImages/`
+    const uploadPath = path.join(__dirname, '../..', articleImagesPath + filename);
 
-    // 将文件保存到本地
-    const buffer = await file.arrayBuffer();
+
     //@ts-ignore
     fs.writeFileSync(uploadPath, Buffer.from(buffer));
-    result = {message: "文件上传成功", filename, code: 200};
+    result = {message: '文件上传成功', filename: articleImagesPath + filename}
+
     return c.json(result);
   }
 }
