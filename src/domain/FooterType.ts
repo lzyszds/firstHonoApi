@@ -22,3 +22,6 @@ export interface FooterPrincipal {
   footer_order: number
   children: FooterSecondary[]
 }
+
+
+

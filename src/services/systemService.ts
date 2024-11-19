@@ -92,36 +92,79 @@ class SystemService {
     }
   }
 
-  //获取页脚信息
-  public async getFooterInfo(): Promise<ApiConfig<FooterSecondary[]>> {
-    const apiConfig: ApiConfig<FooterSecondary[]> = new ApiConfig();
-    try {
-      const data = await SystemMapper.getFooterInfo();
-      //处理数据
-      let result: FooterSecondary[] = []
-      let arr: string[] = data.map((item: Footer) => item.footer_type)
-      let set = new Set(arr)
-      set.forEach((item: string) => {
-        let children = data.filter((child: Footer) => child.footer_type === item)
-        result[Number(children[0].footer_order) - 1] = {
-          footer_id: children[0].footer_id,
-          footer_content: children[0].footer_type,
-          footer_order: children[0].footer_order.toString(),
-          is_enable: children.find((child: Footer) => child.is_enable === 1) ? 1 : 0,
-          children: children.map((child: Footer, index: number) => {
-            return {
-              ...child,
-              footer_order: child.footer_order + '-' + index as any
-            }
-          })
-        }
-      })
+  //新增二级页脚信息
+  public async addFooterLink(c: any): Promise<ApiConfig<string>> {
+    const apiConfig: ApiConfig<string> = new ApiConfig();
 
-      return apiConfig.success(result)
+    try {
+      const params = await c.req.json()
+      if (checkObj(c.req.query(), ['category_id', 'name', 'url', 'sort_order', 'status'])) {
+        return apiConfig.fail('参数不能为空 category_id,name,url,sort_order,status')
+      }
+      const data = await SystemMapper.addFooterLink(params);
+      return apiConfig.success(data.affectedRows === 1 ? '新增成功' : '新增失败')
     } catch (e: any) {
       return apiConfig.fail(e)
     }
   }
+
+  //获取页脚信息
+  public async getFooterInfo(): Promise<ApiConfig<WbFooterResult[]>> {
+    const apiConfig: ApiConfig<WbFooterResult[]> = new ApiConfig();
+    try {
+      const data = await SystemMapper.getFooterInfo();
+      //处理数据
+      const results: WbFooterResult[] = data.map(row => ({
+        ...row,
+        children: row.children ? JSON.parse(row.children as any) : []
+      }));
+
+      // 给所有child的sort_order更换值
+      results.forEach((item: WbFooterResult) => {
+        item.children.forEach((child: WbFooterLink) => {
+          child.sort_order = item.sort_order + "-" + child.sort_order
+        })
+      })
+
+
+      return apiConfig.success(results)
+    } catch (e: any) {
+      return apiConfig.fail(e)
+    }
+  }
+
+  //更新页脚一级分类信息
+  public async updateFooterCategory(c: any): Promise<ApiConfig<string>> {
+    const apiConfig: ApiConfig<string> = new ApiConfig();
+
+    try {
+      const params = await c.req.json()
+      if (checkObj(params, ['id', 'name', 'sort_order', 'status'])) {
+        return apiConfig.fail('参数不能为空 id,name,sort_order,status')
+      }
+      const data = await SystemMapper.updateFooterCategory(params);
+      return apiConfig.success(data.affectedRows === 1 ? '更新成功' : '更新失败')
+    } catch (e: any) {
+      return apiConfig.fail(e)
+    }
+  }
+
+  //更新页脚二级分类信息
+  public async updateFooterLink(c: any): Promise<ApiConfig<string>> {
+    const apiConfig: ApiConfig<string> = new ApiConfig();
+
+    try {
+      const params = await c.req.json()
+      if (checkObj(params, ['id', 'name', 'url', 'sort_order', 'status'])) {
+        return apiConfig.fail('参数不能为空 id,name,url,sort_order,status')
+      }
+      const data = await SystemMapper.updateFooterLink(params);
+      return apiConfig.success(data.affectedRows === 1 ? '更新成功' : '更新失败')
+    } catch (e: any) {
+      return apiConfig.fail(e)
+    }
+  }
+
 
   //更新页脚信息
   public async updateFooterInfo(c: any): Promise<ApiConfig<string>> {

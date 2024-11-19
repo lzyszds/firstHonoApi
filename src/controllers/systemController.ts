@@ -1,5 +1,5 @@
 import SystemService from "../services/systemService";
-import { Context } from "hono";
+import {Context} from "hono";
 
 class SystemController {
 
@@ -23,13 +23,29 @@ class SystemController {
     return c.json(await SystemService.getNotification());
   }
 
+  //新增页脚信息
   async addFooterInfo(c: Context) {
     return c.json(await SystemService.addFooterInfo(c));
+  }
+
+  //新增二级页脚信息
+  async addFooterLink(c: Context) {
+    return c.json(await SystemService.addFooterLink(c));
   }
 
   //获取页脚信息数据
   async getFooterInfo(c: Context) {
     return c.json(await SystemService.getFooterInfo());
+  }
+
+  //更新页脚一级分类信息
+  async updateFooterCategory(c: Context) {
+    return c.json(await SystemService.updateFooterCategory(c));
+  }
+
+  //更新页脚二级分类信息
+  async updateFooterLink(c: Context) {
+    return c.json(await SystemService.updateFooterLink(c));
   }
 
   //更新页脚信息

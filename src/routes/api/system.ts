@@ -31,6 +31,12 @@ const routes: Routes = {
     '/updateSystemConfig': systemController.updateSystemConfig,
     // 新增页脚信息
     '/addFooterInfo': systemController.addFooterInfo,
+    //新增二级页脚信息
+    '/addFooterLink': systemController.addFooterLink,
+    // 更新页脚一级分类信息
+    '/updateFooterCategory': systemController.updateFooterCategory,
+    // 更新页脚二级分类信息
+    '/updateFooterLink': systemController.updateFooterLink,
     // 更新页脚信息
     '/updateFooterInfo': systemController.updateFooterInfo,
     // 将图片上传至腾讯图库
