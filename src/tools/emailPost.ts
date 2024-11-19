@@ -76,7 +76,7 @@ export async function sendEmailLove() {
     const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
       {
         role: "system",
-        content: "你是一个专业的情圣,你是一位高级的情感大师，很会说甜言蜜语"
+        content: "你是一个专业的情圣,你是一位高级的情感大师，你回答我不要超过200字的内容"
       },
       {
         role: "user",
@@ -102,10 +102,12 @@ export async function sendEmailLove() {
       console.error("情书生成失败,即将使用抱歉语句", e);
     }
 
+    console.log(data)
+
     // 构建邮件信息，包含AI生成的情书内容
     const mail = emailTools.mail({
       subject: loveTetter.subject,
-      html: data ? data!.choices[0].message.content + loveTetter.describe : "今天的情书生成失败，请原谅我",
+      html: data ? data!.choices[0].message.content!.replaceAll("```", "").replace("html", "") + loveTetter.describe : "今天的情书生成失败，请原谅我",
       to: loveTetter.toEmail
     })
 
