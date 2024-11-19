@@ -1,10 +1,13 @@
-import { Hono } from 'hono';
+import {Hono} from 'hono';
 import systemController from '../../controllers/systemController';
+
 interface Routes {
   [key: string]: { [key: string]: (c: any) => any };
+
   get: { [key: string]: (c: any) => any };
   post: { [key: string]: (c: any) => any };
 }
+
 const router = new Hono();
 
 const routes: Routes = {
@@ -30,6 +33,8 @@ const routes: Routes = {
     '/addFooterInfo': systemController.addFooterInfo,
     // 更新页脚信息
     '/updateFooterInfo': systemController.updateFooterInfo,
+    // 将图片上传至腾讯图库
+    '/uploadImageToTencent': systemController.uploadImageToTencent
   }
 }
 

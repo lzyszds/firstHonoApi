@@ -3,11 +3,12 @@ import SystemMapper from "../models/system";
 import path from "path";
 import fs from "fs";
 
-import { Footer, FooterPrincipal, FooterSecondary } from "../domain/FooterType";
-import { Context } from "hono";
-import { checkObj } from "@/utils/helpers";
+import {Footer, FooterSecondary} from "../domain/FooterType";
+import {Context} from "hono";
+import {checkObj, uploadFileLimit} from "@/utils/helpers";
 import logger from "@/middleware/logger";
-
+import {uploadImage} from "@/utils/pictureBed";
+import {nanoid} from "nanoid";
 
 
 class SystemService {
@@ -77,7 +78,8 @@ class SystemService {
 
   //新增页脚信息
   public async addFooterInfo(c: any): Promise<ApiConfig<string>> {
-    const apiConfig = new ApiConfig();
+    const apiConfig: ApiConfig<string> = new ApiConfig();
+
     try {
       const params = await c.req.json()
       if (checkObj(c.req.query(), ['footer_type', 'footer_content', 'footer_url', 'footer_order'])) {
@@ -101,15 +103,20 @@ class SystemService {
       let set = new Set(arr)
       set.forEach((item: string) => {
         let children = data.filter((child: Footer) => child.footer_type === item)
-        result[children[0].footer_order] = {
+        result[Number(children[0].footer_order) - 1] = {
           footer_id: children[0].footer_id,
           footer_content: children[0].footer_type,
-          footer_order: children[0].footer_order,
-          children: children
+          footer_order: children[0].footer_order.toString(),
+          is_enable: children.find((child: Footer) => child.is_enable === 1) ? 1 : 0,
+          children: children.map((child: Footer, index: number) => {
+            return {
+              ...child,
+              footer_order: child.footer_order + '-' + index as any
+            }
+          })
         }
       })
 
-      // console.log(result)
       return apiConfig.success(result)
     } catch (e: any) {
       return apiConfig.fail(e)
@@ -118,9 +125,10 @@ class SystemService {
 
   //更新页脚信息
   public async updateFooterInfo(c: any): Promise<ApiConfig<string>> {
-    const apiConfig = new ApiConfig();
+    const apiConfig: ApiConfig<string> = new ApiConfig();
+
     try {
-      const { children } = await c.req.json()
+      const {children} = await c.req.json()
       if (checkObj(await c.req.json(), ['children'])) {
         return apiConfig.fail('参数不能为空 children')
       }
@@ -162,6 +170,41 @@ class SystemService {
     } catch (e) {
       return e
     }
+  }
+
+  // 上传图片至腾讯图库
+  public uploadImageToTencent(c: any): Promise<ApiConfig<string>> {
+    return new Promise(async (resolve, reject) => {
+      const apiConfig: ApiConfig<any> = new ApiConfig();
+      let result = "" as any;
+      const formData = await c.req.parseBody();
+      // 假设文件字段名是 'file'
+      let file = formData['upload-image'] as File;
+      let buffer = await file.arrayBuffer();
+      // 使用 nanoid 生成唯一文件名
+      const filename = nanoid() + path.extname(file.name) + '.webp';
+      // 上传图片至图库
+      uploadImage(formData, filename).then(res => {
+        resolve(apiConfig.success(res.data.url))
+      }).catch(err => {
+        reject(apiConfig.fail(err))
+      })
+
+
+      // 上传图片至本地 进行简单的备份
+
+      // 允许上传的文件类型
+      const ALLOWED_FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml'];
+      result = await uploadFileLimit(file, 10, ALLOWED_FILE_TYPES)
+      if (typeof result !== 'string') {
+        buffer = result;
+        const articleImagesPath = `/static/img/articleImages/`
+        const uploadPath = path.join(__dirname, '../..', articleImagesPath + filename);
+
+        //@ts-ignore
+        fs.writeFileSync(uploadPath, Buffer.from(buffer));
+      }
+    })
   }
 }
 
