@@ -15,6 +15,7 @@ export interface SystemLog {
   user_id?: number
   username?: string
   user_ip: string
+  user_agent: string
   module: string
   action: string
   method: string

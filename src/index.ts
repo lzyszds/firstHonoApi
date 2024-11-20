@@ -6,7 +6,7 @@ import { corsAllMiddleware } from './middleware/cors';
 import logger from './middleware/logger';
 import db from './utils/db'
 import routes from './routes';
-import setTimeTask from './tools/setTimeTask';
+// import setTimeTask from './tools/setTimeTask';
 import redis from './utils/redis'; // 导入 Redis 客户端
 import { addTraceId } from './middleware/trace_time';
 import { moreLogger } from './middleware/moreLogger';
@@ -77,7 +77,7 @@ app.onError((err, c) => {
 
 
 
-setTimeTask()
+// setTimeTask()
 export default {
   port: 2024,
   fetch: app.fetch,
