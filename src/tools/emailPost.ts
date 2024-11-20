@@ -14,7 +14,7 @@ import fse from "fs-extra";
  */
 export async function sendEmailWarn() {
   // 从配置文件读取GitHub和情书相关的邮件配置信息
-  const {github, loveTetter} = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
+  const {github} = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
   try {
     // 首先获取最新的GitHub提交信息
     await getGithubInfo()
@@ -70,7 +70,7 @@ export async function sendEmailWarn() {
  */
 export async function sendEmailLove() {
   // 从配置文件读取GitHub和情书相关的邮件配置信息
-  const {github, loveTetter} = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
+  const {loveTetter} = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
   try {
     // 定义AI对话消息数组，包含系统角色设定和用户提示
     const messages: { role: "system" | "user" | "assistant"; content: string }[] = [

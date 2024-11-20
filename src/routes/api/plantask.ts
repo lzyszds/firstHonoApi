@@ -11,11 +11,22 @@ const routes: Routes = {
      get: {
           // 获取邮箱定时计划配置
           '/getEmailTaskConfig': plantaskController.getEmailTaskConfig,
-
+          // 获取所有任务
+          '/tasks': plantaskController.getAllTask,
+          // 根据任务id获取任务日志
+          '/tasks/:taskId/logs': plantaskController.getTaskLog
      },
      post: {
           // 更新邮箱定时计划配置
           '/updateEmailTaskConfig': plantaskController.updateEmailTaskConfig,
+          // 创建定时计划任务
+          '/createTask': plantaskController.createTask,
+          // 禁用任务
+          '/tasks/:taskId/disable': plantaskController.disableTask,
+          // 启用任务
+          '/tasks/:taskId/enable': plantaskController.enableTask,
+
+
      }
 }
 
