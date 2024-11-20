@@ -17,11 +17,17 @@ import { random } from 'radash'
 class ArticleService {
 
   public async findAll(c: Context) {
-    const apiConfig: ApiConfig<ArticleData<Articles[]>> = new ApiConfig();
+    const apiConfig: ApiConfig<ArticleData<Articles[]>> = new ApiConfig(c);
     let { search = "", pages = 1, limit = 10 } = c.req.query();
 
     const token = c.req.header("Authorization")
-    const userInfo = await UserMapper.getUserInfoToken(token || '')
+    const cachedUserData = await c.redis.get(token!);
+    let userInfo
+    if (cachedUserData) {
+      userInfo = JSON.parse(cachedUserData);
+    } else {
+      userInfo = await UserMapper.getUserInfoToken(token || '')
+    }
 
     const cacheKey = `articles_page_${pages}_limit_${limit}`
 
@@ -37,12 +43,12 @@ class ArticleService {
     const data: Articles[] = await ArticleMapper.findAll(search, pages, limit);
     const result = { total: total, data }
     await c.redis.setex(cacheKey, 600, JSON.stringify(result));
-    
+
     return apiConfig.success(useUserInfoGetData(result, userInfo));
   }
 
   public async findArticleInfo(c: Context) {
-    const apiConfig: ApiConfig<Articles> = new ApiConfig();
+    const apiConfig: ApiConfig<Articles> = new ApiConfig(c);
     const { id } = c.req.query();
     const cacheKey = `articles_info_${id}`
     // 现在可以通过 c.redis 访问 Redis 客户端 
@@ -56,10 +62,10 @@ class ArticleService {
     return apiConfig.success(data);
   }
 
-  public async findArticleTypeAll() {
+  public async findArticleTypeAll(c: Context) {
 
     const data: ArticleType[] = await ArticleMapper.findArticleTypeAll();
-    const apiConfig: ApiConfig<ArticleData<ArticleType[]>> = new ApiConfig();
+    const apiConfig: ApiConfig<ArticleData<ArticleType[]>> = new ApiConfig(c);
     return apiConfig.success({ total: data.length, data });
   }
 
@@ -69,7 +75,7 @@ class ArticleService {
 
     let { title, content, cover_img, main, tags, partial_content } = params
     if (checkObj(params, ["title", "content", "cover_img", "main", "tags", "partial_content"])) {
-      const apiConfig = new ApiConfig();
+      const apiConfig = new ApiConfig(c);
       return apiConfig.fail("参数错误,请检查是否有空参数");
     }
     if (cover_img.indexOf("/api/article/getRandArticleImg") == 0) {
@@ -87,7 +93,7 @@ class ArticleService {
       title, content, cover_img, main, partial_content, uid, create_date, access_count
     });
     //实例化apiConfig
-    const apiConfig = new ApiConfig();
+    const apiConfig = new ApiConfig(c);
     //根据文章类型获取文章类型id
     for (let i = 0; i < tags.length; i++) {
       const type = await ArticleMapper.getArticleTypeByName(tags[i]);
@@ -108,11 +114,11 @@ class ArticleService {
   public async addArticleType(c: Context) {
     const params = await c.req.json()
     if (checkObj(params, ["name"])) {
-      const apiConfig = new ApiConfig();
+      const apiConfig = new ApiConfig(c);
       return apiConfig.fail("参数错误");
     }
     const result = await ArticleMapper.addArticleType(params.name)
-    const apiConfig = new ApiConfig();
+    const apiConfig = new ApiConfig(c);
     if (result.affectedRows === 1) {
       return apiConfig.success("类型添加成功");
     } else {
@@ -124,11 +130,11 @@ class ArticleService {
   public async deleteArticleType(c: Context) {
     const params = await c.req.json()
     if (checkObj(params, ["id"])) {
-      const apiConfig = new ApiConfig();
+      const apiConfig = new ApiConfig(c);
       return apiConfig.fail("参数错误");
     }
     const result = await ArticleMapper.deleteArticleType(params.id)
-    const apiConfig = new ApiConfig();
+    const apiConfig = new ApiConfig(c);
     if (result.affectedRows === 1) {
       return apiConfig.success("类型删除成功");
     } else {
@@ -165,7 +171,7 @@ class ArticleService {
     const params = await c.req.json()
 
     //实例化apiConfig
-    const apiConfig = new ApiConfig();
+    const apiConfig = new ApiConfig(c);
     if (!params) {
       return apiConfig.fail("内容不曾改变");
     }
@@ -211,7 +217,7 @@ class ArticleService {
 
 
     //实例化apiConfig
-    const apiConfig = new ApiConfig();
+    const apiConfig = new ApiConfig(c);
     let result = "" as any;
     const formData = await c.req.parseBody();
 
@@ -246,11 +252,11 @@ class ArticleService {
     const params = await c.req.json()
 
     if (checkObj(params, ["id"])) {
-      const apiConfig = new ApiConfig();
+      const apiConfig = new ApiConfig(c);
       return apiConfig.fail("参数错误");
     }
     const result = await ArticleMapper.deleteArticle(params.id)
-    const apiConfig = new ApiConfig();
+    const apiConfig = new ApiConfig(c);
     if (result.affectedRows === 1) {
       /* 删除缓存 */
       c.redis.clearArticlesCache("articles_page")

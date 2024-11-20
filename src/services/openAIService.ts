@@ -41,7 +41,6 @@ async function SelkeysBasedOnUsageFrequency(): Promise<string[]> {
 * */
 async function getAiKey(value: string) {
   const aiuc = (await AiMapper.findAiKey(value, 1, 1))[0]
-  console.log(aiuc)
   return aiuc.keyValue
 }
 
@@ -148,7 +147,7 @@ class openAI {
   //获取ai列表
   public async getAiList(c: Context): Promise<ApiConfig<DataTotal<AiUc>>> {
 
-    const apiConfig = new ApiConfig<DataTotal<AiUc>>();
+    const apiConfig = new ApiConfig<DataTotal<AiUc>>(c);
     const {pages, limit} = c.req.query();
     const total = await AiMapper.findAiListTotal();
     const list = await AiMapper.findAiList(Number(pages), Number(limit));
@@ -161,7 +160,7 @@ class openAI {
 
   //获取指定Ai的key
   public async getAiKeysList(c: Context): Promise<ApiConfig<AiUcKeys[]>> {
-    const apiConfig = new ApiConfig<AiUcKeys[]>();
+    const apiConfig = new ApiConfig<AiUcKeys[]>(c);
     let {search = "", pages = "1", limit = "10"} = c.req.query();
     const list = await AiMapper.findAiKey(search, Number(pages), Number(limit));
     return apiConfig.success(list)
@@ -169,7 +168,7 @@ class openAI {
 
   //新增Ai的key
   public async addAiKey(c: Context): Promise<ApiConfig<string>> {
-    const apiConfig = new ApiConfig<string>();
+    const apiConfig = new ApiConfig<string>(c);
     const params = await c.req.json()
     const list = await AiMapper.addAiKey(params);
     if (list.affectedRows > 0) {
@@ -181,7 +180,7 @@ class openAI {
 
   //修改Ai的key
   public async updateAiKey(c: Context): Promise<ApiConfig<string>> {
-    const apiConfig = new ApiConfig<string>();
+    const apiConfig = new ApiConfig<string>(c);
     const {id, ...params} = await c.req.json()
     if (!id) return apiConfig.fail("Id不能为空,当前接口是修改不是新增")
     const list = await AiMapper.updateAiKey(id, params);
@@ -195,7 +194,7 @@ class openAI {
 
   //删除Ai的key
   public async deleteAiKey(c: Context): Promise<ApiConfig<any>> {
-    const apiConfig = new ApiConfig<any>();
+    const apiConfig = new ApiConfig<any>(c);
     const {id} = await c.req.json()
     const list = await AiMapper.deleteAiKey(id);
     if (list.affectedRows > 0) {

@@ -15,7 +15,7 @@ import { Context } from "hono";
 class CommonService {
   public async getWeather(c: Context): Promise<ApiConfig<WeatherDataType>> {
     // 创建一个 ApiConfig 对象
-    const apiConfig: ApiConfig<WeatherDataType> = new ApiConfig();
+    const apiConfig: ApiConfig<WeatherDataType> = new ApiConfig(c);
     try {
       //获取当前请求的IP地址 
       let ipAddress = c.req.header('x-real-ip') || ""
@@ -56,7 +56,7 @@ class CommonService {
 
 
   //后台首页数据
-  public async getAdminHomeData(): Promise<ApiConfig<ProcessAdminHomeType>> {
+  public async getAdminHomeData(c:Context): Promise<ApiConfig<ProcessAdminHomeType>> {
     const data: AdminHomeType = await ToolkotMapper.getAdminHomeData();
     //获取最新文章6篇
     const newArticle = await ArticleMapper.findAll('%%', 1, 6);
@@ -75,13 +75,13 @@ class CommonService {
     }
     processData.newArticle = newArticle
 
-    const apiConfig: ApiConfig<ProcessAdminHomeType> = new ApiConfig();
+    const apiConfig: ApiConfig<ProcessAdminHomeType> = new ApiConfig(c);
     return apiConfig.success(processData);
   }
 
   //获取github 贡献图
-  public async getGithubInfo(): Promise<ApiConfig<string>> {
-    const apiConfig: ApiConfig<any> = new ApiConfig<any>();
+  public async getGithubInfo(c:Context): Promise<ApiConfig<string>> {
+    const apiConfig: ApiConfig<any> = new ApiConfig(c);
     try {
       const filePath = path.resolve(__dirname, '../../static/json/getGithubInfo.json');
 
@@ -115,8 +115,8 @@ class CommonService {
     }
   }
   //诗词内容获取代理接口
-  public async getPoetry(): Promise<ApiConfig<string>> {
-    const apiConfig: ApiConfig<any> = new ApiConfig<any>();
+  public async getPoetry(c:Context): Promise<ApiConfig<string>> {
+    const apiConfig: ApiConfig<any> = new ApiConfig<any>(c);
     let data: any = ''
     try {
       data = await axios({

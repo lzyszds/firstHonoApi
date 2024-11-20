@@ -3,19 +3,19 @@ import SystemMapper from "../models/system";
 import path from "path";
 import fs from "fs";
 
-import {Footer, FooterSecondary} from "../domain/FooterType";
-import {Context} from "hono";
-import {checkObj, uploadFileLimit} from "@/utils/helpers";
+import { Footer, FooterSecondary } from "../domain/FooterType";
+import { Context } from "hono";
+import { checkObj, uploadFileLimit } from "@/utils/helpers";
 import logger from "@/middleware/logger";
-import {uploadImage} from "@/utils/pictureBed";
-import {nanoid} from "nanoid";
+import { uploadImage } from "@/utils/pictureBed";
+import { nanoid } from "nanoid";
 
 
 class SystemService {
 
   //获取系统设置
   public async getSystemConfig(c: Context): Promise<ApiConfig<any>> {
-    const apiConfig: ApiConfig<any> = new ApiConfig();
+    const apiConfig: ApiConfig<any> = new ApiConfig(c);
     if (checkObj(c.req.query(), ['type'])) {
       return apiConfig.fail('参数type不能为空')
     }
@@ -35,7 +35,7 @@ class SystemService {
 
   //新增系统设置
   public async addSystemConfig(c: any): Promise<ApiConfig<any>> {
-    const apiConfig: ApiConfig<any> = new ApiConfig();
+    const apiConfig: ApiConfig<any> = new ApiConfig(c);
     try {
       const params = await c.req.json()
       if (checkObj(params, ['config_key', 'config_value', 'config_desc'])) {
@@ -50,7 +50,7 @@ class SystemService {
 
   //更新系统设置
   public async updateSystemConfig(c: any): Promise<ApiConfig<string>> {
-    const apiConfig: ApiConfig<any> = new ApiConfig();
+    const apiConfig: ApiConfig<any> = new ApiConfig(c);
     try {
       const params = await c.req.json()
 
@@ -66,8 +66,8 @@ class SystemService {
 
 
   //获取系统公告
-  public async getNotification(): Promise<ApiConfig<any>> {
-    const apiConfig: ApiConfig<any> = new ApiConfig();
+  public async getNotification(c: Context): Promise<ApiConfig<any>> {
+    const apiConfig: ApiConfig<any> = new ApiConfig(c);
     try {
       const data = await SystemMapper.getNotification();
       return apiConfig.success(data)
@@ -78,7 +78,7 @@ class SystemService {
 
   //新增页脚信息
   public async addFooterInfo(c: any): Promise<ApiConfig<string>> {
-    const apiConfig: ApiConfig<string> = new ApiConfig();
+    const apiConfig: ApiConfig<string> = new ApiConfig(c);
 
     try {
       const params = await c.req.json()
@@ -94,7 +94,7 @@ class SystemService {
 
   //新增二级页脚信息
   public async addFooterLink(c: any): Promise<ApiConfig<string>> {
-    const apiConfig: ApiConfig<string> = new ApiConfig();
+    const apiConfig: ApiConfig<string> = new ApiConfig(c);
 
     try {
       const params = await c.req.json()
@@ -109,8 +109,8 @@ class SystemService {
   }
 
   //获取页脚信息
-  public async getFooterInfo(): Promise<ApiConfig<WbFooterResult[]>> {
-    const apiConfig: ApiConfig<WbFooterResult[]> = new ApiConfig();
+  public async getFooterInfo(c: Context): Promise<ApiConfig<WbFooterResult[]>> {
+    const apiConfig: ApiConfig<WbFooterResult[]> = new ApiConfig(c);
     try {
       const data = await SystemMapper.getFooterInfo();
       //处理数据
@@ -135,7 +135,7 @@ class SystemService {
 
   //更新页脚一级分类信息
   public async updateFooterCategory(c: any): Promise<ApiConfig<string>> {
-    const apiConfig: ApiConfig<string> = new ApiConfig();
+    const apiConfig: ApiConfig<string> = new ApiConfig(c);
 
     try {
       const params = await c.req.json()
@@ -151,7 +151,7 @@ class SystemService {
 
   //更新页脚二级分类信息
   public async updateFooterLink(c: any): Promise<ApiConfig<string>> {
-    const apiConfig: ApiConfig<string> = new ApiConfig();
+    const apiConfig: ApiConfig<string> = new ApiConfig(c);
 
     try {
       const params = await c.req.json()
@@ -168,10 +168,10 @@ class SystemService {
 
   //更新页脚信息
   public async updateFooterInfo(c: any): Promise<ApiConfig<string>> {
-    const apiConfig: ApiConfig<string> = new ApiConfig();
+    const apiConfig: ApiConfig<string> = new ApiConfig(c);
 
     try {
-      const {children} = await c.req.json()
+      const { children } = await c.req.json()
       if (checkObj(await c.req.json(), ['children'])) {
         return apiConfig.fail('参数不能为空 children')
       }
@@ -186,8 +186,8 @@ class SystemService {
   }
 
   //获取loadGif图片列表
-  public async getSystemLoadImages(): Promise<ApiConfig<any[]>> {
-    const apiConfig: ApiConfig<any[]> = new ApiConfig();
+  public async getSystemLoadImages(c: Context): Promise<ApiConfig<any[]>> {
+    const apiConfig: ApiConfig<any[]> = new ApiConfig(c);
     let data: any[] = []
     try {
       //获取loading数据图片
@@ -218,7 +218,7 @@ class SystemService {
   // 上传图片至腾讯图库
   public uploadImageToTencent(c: any): Promise<ApiConfig<string>> {
     return new Promise(async (resolve, reject) => {
-      const apiConfig: ApiConfig<any> = new ApiConfig();
+      const apiConfig: ApiConfig<any> = new ApiConfig(c);
       let result = "" as any;
       const formData = await c.req.parseBody();
       // 假设文件字段名是 'file'

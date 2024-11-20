@@ -1,36 +1,34 @@
 // src/controllers/userController.ts
-import {Context} from "hono";
+import { Context } from "hono";
 import userService from "../services/userService";
-import ApiConfig, {DataTotal} from "../domain/ApiCongfigType";
-import {GetUserListParams, User, UserRole} from "../domain/User";
+import ApiConfig, { DataTotal } from "../domain/ApiCongfigType";
+import { GetUserListParams, User, UserRole } from "../domain/User";
 import fs from "fs";
 import path from "path";
-import {checkObj, randomUnique, uploadFileLimit} from "../utils/helpers";
-import {getCookie, setCookie} from "hono/cookie";
-import {comparePasswords, hashPassword} from "../utils/passwordUtils";
+import { checkObj, randomUnique, uploadFileLimit } from "../utils/helpers";
+import { getCookie, setCookie } from "hono/cookie";
+import { comparePasswords, hashPassword } from "../utils/passwordUtils";
 import dayjs from "dayjs";
-import {generateToken} from "@/utils/authUtils";
-import {nanoid} from "nanoid";
+import { generateToken } from "@/utils/authUtils";
+import { nanoid } from "nanoid";
 
 class UserController {
   //获取用户列表
   async getUserList(c: Context) {
-    const {name = '', username = '', power = '', signature = '', pages = "1", limit = "10"} = c.req.query();
-    const search: GetUserListParams = {username, uname: name, power, signature}
+    const { name = '', username = '', power = '', signature = '', pages = "1", limit = "10" } = c.req.query();
+    const search: GetUserListParams = { username, uname: name, power, signature }
     const total = await userService.getUserListTotal(search);
     const userList = await userService.getUserList(search, pages, limit);
-    const apiConfig: ApiConfig<DataTotal<UserRole>> = new ApiConfig<
-      DataTotal<UserRole>
-    >();
-    const result = apiConfig.success({total, data: userList});
+    const apiConfig: ApiConfig<DataTotal<UserRole>> = new ApiConfig(c);
+    const result = apiConfig.success({ total, data: userList });
     return c.json(result);
   }
 
   //根据id获取用户信息
   async getUserInfo(c: Context) {
-    const {id} = c.req.query();
+    const { id } = c.req.query();
     const userInfo = await userService.findById(id);
-    const apiConfig: ApiConfig<UserRole> = new ApiConfig<UserRole>();
+    const apiConfig: ApiConfig<UserRole> = new ApiConfig<UserRole>(c);
     const result = apiConfig.success(userInfo[0]);
     return c.json(result);
   }
@@ -39,7 +37,7 @@ class UserController {
   async getUserInfoToken(c: Context) {
     const token = c.req.header("Authorization");
     const userInfo = await userService.getUserInfoToken(token!);
-    const apiConfig: ApiConfig<UserRole> = new ApiConfig<UserRole>();
+    const apiConfig: ApiConfig<UserRole> = new ApiConfig<UserRole>(c);
     const result = apiConfig.success(userInfo[0]);
     return c.json(result);
   }
@@ -56,9 +54,9 @@ class UserController {
     let random = randomUnique(1, files.length - 1, Number(randomName));
     const img = files[random];
     // 记录当前返回的图片的随机数，以便下次不重复
-    setCookie(c, "randomName", random.toString(), {maxAge: 60 * 60});
+    setCookie(c, "randomName", random.toString(), { maxAge: 60 * 60 });
     // 返回一个成功的 ApiConfig 对象，包含图片的路径
-    const apiConfig = new ApiConfig<string>();
+    const apiConfig = new ApiConfig<string>(c);
     const result = apiConfig.success("/img/updateImg/" + img);
     return c.json(result);
   }
@@ -70,7 +68,7 @@ class UserController {
       path.join(__dirname, "../../static/img/updateImg")
     );
     // 返回一个成功的 ApiConfig 对象，包含图片的路径
-    const apiConfig: ApiConfig<string[]> = new ApiConfig<string[]>();
+    const apiConfig: ApiConfig<string[]> = new ApiConfig<string[]>(c);
     const result = apiConfig.success(
       files.map((item) => "/static/img/updateImg/" + item)
     );
@@ -80,9 +78,9 @@ class UserController {
   //登陆
   async login(c: Context) {
 
-    const {username, password} = await c.req.json()
+    const { username, password } = await c.req.json()
     // 创建一个 ApiConfig 对象
-    const apiConfig = new ApiConfig<string>();
+    const apiConfig = new ApiConfig<string>(c);
 
     // 定义统一的响应处理函数
     const respond = (data: any) => c.json(data);
@@ -95,7 +93,6 @@ class UserController {
 
     // 调用 userMapper.login 方法获取用户信息 通过账号获取加密后的密码
     const user: User = await userService.checkUser(username);
-    console.log(user)
     if (!user) {
       // 返回一个失败的 ApiConfig 对象，包含提示信息
       return respond(apiConfig.fail("该账号不存在"));
@@ -114,7 +111,7 @@ class UserController {
       const ip = c.req.header("x-forwarded-for") || c.req.header("cf-connecting-ip") || c.req.header("x-real-ip") || "::1";
       //修改用户最后登录时间
       const last_login_date = dayjs().format("YYYY-MM-DD HH:mm:ss");
-      await userService.updateUser({uid: user.uid, last_login_date, last_login_ip: ip});
+      await userService.updateUser({ uid: user.uid, last_login_date, last_login_ip: ip });
 
       // 返回一个成功的 ApiConfig 对象，包含提示信息
       result = apiConfig.success(user.activation_key)
@@ -132,12 +129,12 @@ class UserController {
     //验证token
     const user: UserRole = await userService.getUserInfoToken(token!);
     // 创建一个 ApiConfig 对象
-    const apiConfig = new ApiConfig<string>();
+    const apiConfig = new ApiConfig<string>(c);
     //如果用户信息存在，说明登录成功
     if (user.length > 0) {
       //修改用户最后登录时间
       const last_login_date = new Date().toLocaleString();
-      await userService.updateUser({uid: user[0].uid, last_login_date});
+      await userService.updateUser({ uid: user[0].uid, last_login_date });
       // 返回一个成功的 ApiConfig 对象，包含提示信息
       result = apiConfig.success("记录用户在线时间成功");
     } else {
@@ -154,7 +151,7 @@ class UserController {
     //检查 用户名、密码、权限、创建时间、最后登录时间、个性签名、头像、是否启用 是否为空
     if (checkObj(params, ["uname", "username", "password", "head_img"])) {
       // 创建一个 ApiConfig 对象
-      const apiConfig = new ApiConfig<string>();
+      const apiConfig = new ApiConfig<string>(c);
       // 返回一个失败的 ApiConfig 对象，包含提示信息
       return c.json(apiConfig.fail("请检查内容是否填写完整"));
     }
@@ -171,12 +168,12 @@ class UserController {
     params.power = params.power || "1";
     params.whether_use = params.whether_use || "1";
     //生成token
-    const {uname, username} = params;
-    const activation_key = generateToken({uname, username});
+    const { uname, username } = params;
+    const activation_key = generateToken({ uname, username });
     // 获取当前时间
     let create_date = new Date().toLocaleString();
     // 创建一个 ApiConfig 对象
-    const apiConfig = new ApiConfig<string>();
+    const apiConfig = new ApiConfig<string>(c);
     try {
       // 调用 userMapper.addUser 方法获取用户信息
       const addInfo = await userService.addUser(
@@ -204,7 +201,7 @@ class UserController {
     const params = await c.req.json();
     let result = "" as any;
     // 创建一个 ApiConfig 对象
-    const apiConfig = new ApiConfig<string>();
+    const apiConfig = new ApiConfig<string>(c);
     //检查参数是否包含 id
     if (
       checkObj(
@@ -242,7 +239,7 @@ class UserController {
     const params = await c.req.json();
     let result = "" as any;
     // 创建一个 ApiConfig 对象
-    const apiConfig = new ApiConfig<string>();
+    const apiConfig = new ApiConfig<string>(c);
     //检查参数是否包含 id
     if (checkObj(params, ["uid"])) {
       // 返回一个失败的 ApiConfig 对象，包含提示信息
@@ -298,7 +295,7 @@ class UserController {
 
     //@ts-ignore
     fs.writeFileSync(uploadPath, Buffer.from(buffer));
-    result = {message: '文件上传成功', filename: articleImagesPath + filename}
+    result = { message: '文件上传成功', filename: articleImagesPath + filename }
 
     return c.json(result);
   }

@@ -10,17 +10,17 @@ class ToolkitController {
 
   //后台首页数据
   async getAdminHomeData(c: Context) {
-    return c.json(await ToolkitService.getAdminHomeData());
+    return c.json(await ToolkitService.getAdminHomeData(c));
   }
 
   //获取github 贡献图
   async getGithubInfo(c: Context) {
-    return c.json(await ToolkitService.getGithubInfo());
+    return c.json(await ToolkitService.getGithubInfo(c));
   }
 
   //诗词内容获取代理接口
   async getPoetry(c: Context) {
-    return c.json(await ToolkitService.getPoetry());
+    return c.json(await ToolkitService.getPoetry(c));
   }
 
 }

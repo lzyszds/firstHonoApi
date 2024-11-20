@@ -20,7 +20,7 @@ class SystemController {
 
   //系统公告
   async getNotification(c: Context) {
-    return c.json(await SystemService.getNotification());
+    return c.json(await SystemService.getNotification(c));
   }
 
   //新增页脚信息
@@ -35,7 +35,7 @@ class SystemController {
 
   //获取页脚信息数据
   async getFooterInfo(c: Context) {
-    return c.json(await SystemService.getFooterInfo());
+    return c.json(await SystemService.getFooterInfo(c));
   }
 
   //更新页脚一级分类信息
@@ -55,7 +55,7 @@ class SystemController {
 
   //获取系统加载图片列表
   async getSystemLoadImages(c: Context) {
-    return c.json(await SystemService.getSystemLoadImages());
+    return c.json(await SystemService.getSystemLoadImages(c));
   }
 
   //获取当前系统选择的加载图片 图片懒加载的loadGif图片

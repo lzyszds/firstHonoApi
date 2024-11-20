@@ -1,9 +1,9 @@
-import {AdminHomeType} from "../domain/AdminHomeType";
+import { AdminHomeType } from "../domain/AdminHomeType";
 import db from "../utils/db";
-import {SystemConfigType} from "../domain/ToolkitType";
-import {OkPacket} from "mysql";
-import {Footer} from "../domain/FooterType";
-import {SystemType} from "@/domain/SystemType";
+import { SystemConfigType } from "../domain/ToolkitType";
+import { OkPacket } from "mysql";
+import { Footer } from "../domain/FooterType";
+import { SystemLog, SystemType } from "@/domain/SystemType";
 
 class SystemMapper {
   //从数据库获取系统设置配置
@@ -111,6 +111,34 @@ class SystemMapper {
     return await db.query(sql, []);
   }
 
+
+  public async saveLog(logData: SystemLog): Promise<OkPacket> {
+  // 保存日志到数据库
+    const sql: string = `INSERT INTO wb_system_logs (
+        trace_id, log_type, user_id, username, user_ip,
+        module, action, method, url, request_method,
+        request_params, request_body, response_body,
+        execute_time, status, error_message, created_time
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`
+    return await db.query(sql, [
+      logData.trace_id,
+      logData.log_type,
+      logData.user_id,
+      logData.username,
+      logData.user_ip,
+      logData.module,
+      logData.action,
+      logData.method,
+      logData.url,
+      logData.request_method,
+      logData.request_params,
+      logData.request_body,
+      logData.response_body,
+      logData.execute_time,
+      logData.status,
+      logData.error_message
+    ]);
+  }
 }
 
 export default new SystemMapper();

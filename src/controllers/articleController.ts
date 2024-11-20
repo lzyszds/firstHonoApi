@@ -22,7 +22,7 @@ class ArticleController {
 
     //获取文章类型列表
     async getArticleTypeList(c: Context) {
-        return c.json(await ArticleService.findArticleTypeAll());
+        return c.json(await ArticleService.findArticleTypeAll(c));
     }
 
     //新增文章类型

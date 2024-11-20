@@ -16,7 +16,7 @@ class CommentService {
   public async getArticleComment(c: Context) {
     const { id } = c.req.query();
     const data: Articles = await CommentMapper.getArticleComment(id);
-    const apiConfig: ApiConfig<Articles> = new ApiConfig();
+    const apiConfig: ApiConfig<Articles> = new ApiConfig(c);
     return apiConfig.success(data);
   }
 
@@ -27,7 +27,7 @@ class CommentService {
 
     const data: CommentType[] = await CommentMapper.getAllComment(search, pages, limit);
 
-    const apiConfig: ApiConfig<ArticleData<CommentType[]>> = new ApiConfig();
+    const apiConfig: ApiConfig<ArticleData<CommentType[]>> = new ApiConfig(c);
     return apiConfig.success({ total, data });
   }
 
@@ -45,7 +45,7 @@ class CommentService {
 
   //新增评论
   public async addComment(c: Context) {
-    const apiConfig = new ApiConfig();
+    const apiConfig = new ApiConfig(c);
 
     try {
       // 遍历文件夹下的所有图片
@@ -92,7 +92,7 @@ class CommentService {
 
   //删除评论
   public async deleteComment(c: Context) {
-    const apiConfig = new ApiConfig();
+    const apiConfig = new ApiConfig(c);
     try {
       const { ids } = await c.req.json()
       // 删除评论
@@ -105,7 +105,7 @@ class CommentService {
 
   public async getNewComment(c: Context): Promise<ApiConfig<CommentType[]>> {
     // 创建一个 ApiConfig 对象
-    const apiConfig: ApiConfig<CommentType[]> = new ApiConfig();
+    const apiConfig: ApiConfig<CommentType[]> = new ApiConfig(c);
     try {
       const { limit = "10" } = c.req.query();
       // 获取最新评论

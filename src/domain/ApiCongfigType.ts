@@ -1,7 +1,10 @@
+import { Context } from "hono";
+
 interface ApiConfig<T> {
     code: number,
     msg: string,
     data: T | null,
+    traceId: string
 }
 
 export interface DataTotal<T> {
@@ -10,6 +13,11 @@ export interface DataTotal<T> {
 }
 
 class ApiConfig<T> {
+
+    constructor(c: Context) {
+        this.traceId = c.get('trace_id') || ''
+    }
+
     //请求成功
     success(data: T) {
         this.code = 200;

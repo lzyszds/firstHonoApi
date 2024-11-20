@@ -102,7 +102,6 @@ export async function sendEmailLove() {
       console.error("情书生成失败,即将使用抱歉语句", e);
     }
 
-    console.log(data)
 
     // 构建邮件信息，包含AI生成的情书内容
     const mail = emailTools.mail({

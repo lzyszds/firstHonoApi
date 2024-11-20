@@ -9,7 +9,7 @@ import { sendEmailWarn } from '@/tools/emailPost';
 class PlantaskService {
      //获取邮箱定时计划配置
      public async getEmailTaskConfig(c: Context) {
-          const apiConfig = new ApiConfig<any>()
+          const apiConfig = new ApiConfig(c)
           try {
                const emailJsonPath = path.join(__dirname, '../../static/config/email.json')
                return apiConfig.success(await fse.readJson(emailJsonPath))
@@ -22,7 +22,7 @@ class PlantaskService {
      //更新邮箱定时计划配置
      public async updateEmailTaskConfig(c: Context) {
           // { "myEmail": "", "myName": "", "service": "", "auth_pass": "", "subject": "", "toEmail": "", "content": "", "planTime": "" }
-          const apiConfig = new ApiConfig<any>()
+          const apiConfig = new ApiConfig(c)
           const params = await c.req.json()
           if (!params.planTime) params.planTime = '0 55 22 * * *'
           try {
