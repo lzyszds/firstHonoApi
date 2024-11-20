@@ -18,7 +18,6 @@ export const moreLogger = async (c: Context, next: () => Promise<void>) => {
     // 尝试获取用户信息
     let userId, username
     const token = c.req.header("Authorization")
-    console.log(token);
 
     if (token) {
       const cachedUserData = await c.redis.get(token!);
@@ -57,7 +56,6 @@ export const moreLogger = async (c: Context, next: () => Promise<void>) => {
       execute_time: executeTime,
       status: 1
     }
-    console.log(logData);
 
 
     // 异步写入日志到数据库
