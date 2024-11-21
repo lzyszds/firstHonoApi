@@ -42,13 +42,14 @@ class TaskManager {
     await PlantaskMapper.savePlantask(taskConfig)
     return taskConfig.id
   }
+  
 
   // 执行具体任务逻辑
   private async executeTask(taskConfig: Task) {
     try {
       switch (taskConfig.type) {
         case 'sendEmailLove':
-          await sendEmailLove()
+          await sendEmailLove("")
           break
         case 'sendEmailWarn':
           await sendEmailWarn()

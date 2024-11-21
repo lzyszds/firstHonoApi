@@ -21,12 +21,14 @@ const routes: Routes = {
           '/updateEmailTaskConfig': plantaskController.updateEmailTaskConfig,
           // 创建定时计划任务
           '/createTask': plantaskController.createTask,
+          // 更新定时计划任务
+          '/updateTask': plantaskController.updateTask,
+          // 立即执行任务
+          '/tasks/:taskId/execute': plantaskController.executeTaskImmediately,
           // 禁用任务
           '/tasks/:taskId/disable': plantaskController.disableTask,
           // 启用任务
           '/tasks/:taskId/enable': plantaskController.enableTask,
-
-
      }
 }
 

@@ -2,8 +2,8 @@ import fs from "node:fs"
 import path from "node:path"
 import dayjs from "dayjs";
 import emailTools from './emailTools'
-import {getGithubInfo} from "./getGIthubInfo";
-import {OpenAI} from "openai";
+import { getGithubInfo } from "./getGIthubInfo";
+import { OpenAI } from "openai";
 import fse from "fs-extra";
 
 
@@ -14,7 +14,7 @@ import fse from "fs-extra";
  */
 export async function sendEmailWarn() {
   // 从配置文件读取GitHub和情书相关的邮件配置信息
-  const {github} = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
+  const { github } = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
   try {
     // 首先获取最新的GitHub提交信息
     await getGithubInfo()
@@ -68,9 +68,9 @@ export async function sendEmailWarn() {
  * 功能：使用OpenAI生成浪漫的情书内容并发送邮件
  * @returns {Promise<void>}
  */
-export async function sendEmailLove() {
+export async function sendEmailLove(body: any) {
   // 从配置文件读取GitHub和情书相关的邮件配置信息
-  const {loveTetter} = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
+  const loveTetter = body
   try {
     // 定义AI对话消息数组，包含系统角色设定和用户提示
     const messages: { role: "system" | "user" | "assistant"; content: string }[] = [
@@ -122,3 +122,12 @@ export async function sendEmailLove() {
     console.error("邮件发送失败", e);
   }
 }
+type EmailPosts = {
+  [key: string]: (body: any) => any;  // 或根据实际的函数签名修改
+};
+
+
+export default {
+  sendEmailWarn: sendEmailWarn,
+  sendEmailLove: sendEmailLove
+} as EmailPosts

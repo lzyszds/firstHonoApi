@@ -1,5 +1,5 @@
 import db from "../utils/db";
-import {Task, TaskLog} from "@/domain/Plantask";
+import { Task, TaskLog } from "@/domain/Plantask";
 
 class PlantaskMapper {
 
@@ -32,6 +32,18 @@ class PlantaskMapper {
                          VALUES (?, ?, ?, ?, ?)`
     return await db.query(sql, [task.id, task.name, task.type, task.cron_expression, task.is_enabled]);
   }
+
+  //修改任务
+  public async updatePlantask(task: Task): Promise<number> {
+    const sql: string = `UPDATE wb_tasks
+                         SET name = ?,
+                             type = ?,
+                             cron_expression = ?,
+                             params_body = ?
+                         WHERE id = ?`
+    return await db.query(sql, [task.name, task.type, task.cron_expression, task.params_body, task.id]);
+  }
+
 
   //启用或禁用任务
   public async setPlantask(id: string, is_enabled: boolean): Promise<number> {

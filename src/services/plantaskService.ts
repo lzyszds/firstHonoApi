@@ -1,11 +1,11 @@
-import {Context} from "hono";
+import { Context } from "hono";
 import fse from 'fs-extra';
 import path from 'path'
 import logger from "@/middleware/logger";
 import ApiConfig from "@/domain/ApiCongfigType";
-import {createTask, destroyTask} from '@/utils/taskScheduler';
-import {sendEmailWarn} from '@/tools/emailPost';
-import {taskManager} from "@/utils/taskManager";
+import { createTask, destroyTask } from '@/utils/taskScheduler';
+import emailPost from '@/tools/emailPost';
+import { taskManager } from "@/utils/taskManager";
 import PlantaskMapper from '@/models/plantask'
 
 class PlantaskService {
@@ -33,7 +33,7 @@ class PlantaskService {
       //销毁之前的定时任务
       destroyTask("dailyEmail");
       //重新启动定时任务
-      createTask("dailyEmail", params.planTime, sendEmailWarn)
+      createTask("dailyEmail", params.planTime, emailPost.sendEmailWarn(""))
 
       return apiConfig.success(await fse.readJson(emailJsonPath))
     } catch (err) {
@@ -45,7 +45,7 @@ class PlantaskService {
   //创建定时计划任务
   public async createTask(c: Context) {
     const apiConfig = new ApiConfig(c)
-    const {name, type, cron_expression} = await c.req.json()
+    const { name, type, cron_expression } = await c.req.json()
 
     try {
       const taskId = await taskManager.createTask({
@@ -58,6 +58,47 @@ class PlantaskService {
     } catch (err) {
       logger.error(err)
       return apiConfig.fail('创建失败')
+    }
+  }
+
+  //修改定时任务
+  public async updateTask(c: Context) {
+    const apiConfig = new ApiConfig(c)
+    const { taskId, name, type, cron_expression, params_body } = await c.req.json()
+    try {
+      const result = await PlantaskMapper.updatePlantask({
+        id: taskId,
+        name,
+        type,
+        cron_expression,
+        params_body
+      })
+      console.log(result);
+      
+      return apiConfig.success(result)
+    } catch (err) { 
+      logger.error(err)
+      return apiConfig.fail('修改失败')
+    }
+  }
+
+  // 立即执行任务
+  public async executeTaskImmediately(c: Context) {
+    const apiConfig = new ApiConfig(c)
+    const taskId = c.req.param('taskId')
+    try {
+      //查询当前任务的参数
+      const result = await PlantaskMapper.getPlantaskById(taskId)
+      const type: string = result[0].type
+      if (Object.hasOwnProperty(type)) {
+        await emailPost[type](result[0].params_body)
+      }
+
+      console.log(result);
+      return apiConfig.success("执行成功")
+    } catch (err) {
+      logger.error(err)
+      return apiConfig.fail('执行失败')
     }
   }
 

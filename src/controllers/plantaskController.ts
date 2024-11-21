@@ -15,9 +15,19 @@ class PlantaskController {
     return c.json(await PlantaskService.updateEmailTaskConfig(c));
   }
 
+  //立即执行任务
+  async executeTaskImmediately  (c: Context) {
+    return c.json(await PlantaskService.executeTaskImmediately(c));
+  }
+
   //创建定时计划任务
   async createTask(c: Context) {
     return c.json(await PlantaskService.createTask(c));
+  }
+
+  //修改定时任务
+  async updateTask(c: Context) {
+    return c.json(await PlantaskService.updateTask(c));
   }
 
   //禁用任务
