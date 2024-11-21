@@ -26,7 +26,8 @@ export default {
     port: 3306,
     user: 'lzy_admin',
     password: 'a395878870',
-    database: 'lzy_admin'
+    database: 'lzy_admin',
+    charset: 'utf8mb4'
   },
   //拦截器白名单
   interceptorWhiteList: [
