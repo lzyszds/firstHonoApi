@@ -29,6 +29,8 @@ const routes: Routes = {
           '/tasks/:taskId/disable': plantaskController.disableTask,
           // 启用任务
           '/tasks/:taskId/enable': plantaskController.enableTask,
+          //删除任务
+          '/tasks/:taskId/delete': plantaskController.deleteTask
      }
 }
 

@@ -50,6 +50,11 @@ class PlantaskController {
     return c.json(await PlantaskService.getTaskLog(c));
   }
 
+
+  //删除任务
+  async deleteTask(c: Context) {
+    return c.json(await PlantaskService.deleteTask(c));
+  }
 }
 
 export default new PlantaskController();

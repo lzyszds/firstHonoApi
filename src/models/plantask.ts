@@ -1,5 +1,6 @@
 import db from "../utils/db";
-import { Task, TaskLog } from "@/domain/Plantask";
+import {Task, TaskLog} from "@/domain/Plantask";
+import {OkPacket} from "mysql";
 
 class PlantaskMapper {
 
@@ -34,19 +35,27 @@ class PlantaskMapper {
   }
 
   //修改任务
-  public async updatePlantask(task: Task): Promise<number> {
+  public async updatePlantask(task: Task): Promise<OkPacket> {
     const sql: string = `UPDATE wb_tasks
-                         SET name = ?,
-                             type = ?,
+                         SET name            = ?,
+                             type            = ?,
                              cron_expression = ?,
-                             params_body = ?
+                             params_body     = ?
                          WHERE id = ?`
     return await db.query(sql, [task.name, task.type, task.cron_expression, task.params_body, task.id]);
   }
 
+  //修改任务最后执行时间
+  public async updatePlantaskLastExecutedAt(id: string): Promise<number> {
+    const sql: string = `UPDATE wb_tasks
+                         SET last_executed_at = NOW()
+                         WHERE id = ?`
+    return await db.query(sql, [id]);
+  }
+
 
   //启用或禁用任务
-  public async setPlantask(id: string, is_enabled: boolean): Promise<number> {
+  public async setPlantask(id: string, is_enabled: number): Promise<number> {
     const sql: string = `UPDATE wb_tasks
                          SET is_enabled = ?
                          WHERE id = ?`
@@ -55,8 +64,9 @@ class PlantaskMapper {
 
   //记录任务执行是否成功 存放日志
   public async saveTaskLogResult(logs: TaskLog): Promise<number> {
-    const sql: string = `INSERT INTO wb_task_logs (task_id, status, message VALUES (?, ?, ?)`
-    return await db.query(sql, [logs.task_id, logs.status, logs.message]);
+    const sql: string = `INSERT INTO wb_task_logs (task_id, status, message, content)
+                         VALUES (?, ?, ?, ?)`
+    return await db.query(sql, [logs.task_id, logs.status, logs.message, logs.content]);
   }
 
   //获取全部任务日志
@@ -75,6 +85,13 @@ class PlantaskMapper {
     return await db.query(sql, [task_id]);
   }
 
+  //删除任务
+  public async deletePlantask(id: string): Promise<OkPacket> {
+    const sql: string = `DELETE
+                         FROM wb_tasks
+                         WHERE id = ?`
+    return await db.query(sql, [id]);
+  }
 
 }
 

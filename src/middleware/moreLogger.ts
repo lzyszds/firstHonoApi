@@ -48,7 +48,6 @@ export const moreLogger = async (c: Context, next: () => Promise<void>) => {
 
     // 计算执行时间
     const executeTime = Date.now() - requestStartTime
-    console.log(userAgent)
     // 准备日志数据
     const logData: SystemLog = {
       trace_id: traceId,

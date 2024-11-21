@@ -4,7 +4,7 @@ export interface Task {
   name: string
   type: string
   cron_expression: string
-  is_enabled: boolean
+  is_enabled?: number
   params_body?: string | null
   last_executed_at?: Date | null
   created_at?: Date
@@ -17,7 +17,8 @@ export interface TaskLog {
   task_id: string
   status: 'success' | 'failed'
   message?: string | null
-  executed_at?: Date
+  executed_at?: Date,
+  content?: string
 }
 
 export interface TaskConfig {

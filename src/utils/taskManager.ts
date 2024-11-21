@@ -3,7 +3,6 @@ import {Task} from "@/domain/Plantask";
 import {v4 as uuidv4} from 'uuid'
 import PlantaskMapper from '@/models/plantask'
 import {sendEmailLove, sendEmailWarn} from "@/tools/emailPost";
-import {getGithubInfo} from "@/tools/getGIthubInfo";
 
 const schedule = require('node-schedule');
 
@@ -22,7 +21,6 @@ class TaskManager {
 
   // 创建并调度任务
   async scheduleTask(taskConfig: Task) {
-    console.log(taskConfig)
     const job = schedule.scheduleJob(taskConfig.cron_expression, async () => {
       try {
         await this.executeTask(taskConfig)
@@ -42,30 +40,31 @@ class TaskManager {
     await PlantaskMapper.savePlantask(taskConfig)
     return taskConfig.id
   }
-  
+
 
   // 执行具体任务逻辑
-  private async executeTask(taskConfig: Task) {
+  async executeTask(taskConfig: Task) {
+    let html = ''
     try {
       switch (taskConfig.type) {
         case 'sendEmailLove':
-          await sendEmailLove("")
+          html = await sendEmailLove(taskConfig.params_body!)
           break
         case 'sendEmailWarn':
-          await sendEmailWarn()
+          html = await sendEmailWarn(taskConfig.params_body!)
           break
         case 'dailyGithub':
-          await getGithubInfo()
+          // await getGithubInfo()
           break
         default:
           throw new Error(`未知任务类型: ${taskConfig.type} ,只有以下类型：sendEmailLove、sendEmailWarn、dailyGithub`)
       }
-
       // 记录成功日志
       await PlantaskMapper.saveTaskLogResult({
         task_id: taskConfig.id!,
         status: 'success',
-        message: `任务 ${taskConfig.name} 执行成功`
+        message: `任务 ${taskConfig.name} 执行成功`,
+        content: html
       })
 
     } catch (error: any) {
@@ -77,6 +76,8 @@ class TaskManager {
       })
       throw error
     }
+    // 更新任务最后执行时间
+    await PlantaskMapper.updatePlantaskLastExecutedAt(taskConfig.id!)
   }
 
 
@@ -85,7 +86,7 @@ class TaskManager {
     const job = this.tasks.get(taskId)
     job?.cancel()
 
-    await PlantaskMapper.setPlantask(taskId, false)
+    await PlantaskMapper.setPlantask(taskId, 0)
 
     this.tasks.delete(taskId)
   }
@@ -97,9 +98,10 @@ class TaskManager {
     console.log(task.length)
     // 如果任务存在
     if (task.length) {
+
       this.scheduleTask(task[0])
       // 更新数据库中任务状态status
-      await PlantaskMapper.setPlantask(taskId, true)
+      await PlantaskMapper.setPlantask(taskId, 1)
     } else {
       throw new Error('任务不存在')
     }
