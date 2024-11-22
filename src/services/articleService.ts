@@ -20,7 +20,7 @@ class ArticleService {
     const apiConfig: ApiConfig<ArticleData<Articles[]>> = new ApiConfig(c);
     let { search = "", pages = 1, limit = 10 } = c.req.query();
 
-    const token = c.req.header("Authorization")
+    const token = getCookie(c, 'lzytkn')
     const cachedUserData = await c.redis.get(token!);
     let userInfo
     if (cachedUserData) {

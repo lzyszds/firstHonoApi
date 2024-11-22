@@ -2,6 +2,7 @@
 import { Context, Next } from 'hono'
 import CONFIG from '../../config';
 import userModel from '@/models/user';
+import { getCookie } from 'hono/cookie';
 export async function authMiddleware(c: Context, next: Next) {
   const api = c.req.path.split('/')
   const url = `/${api[2]}/${api[3]}`
@@ -10,9 +11,7 @@ export async function authMiddleware(c: Context, next: Next) {
   if (CONFIG.interceptorWhiteList.includes(url)) {
     return await next()
   }
-
-
-  const token = c.req.header('Authorization')
+  const token = getCookie(c, 'lzytkn')
   if (!token || token == 'undefined') {
     return c.json({ error: '未经许可(或批准)的', code: 401 }, 401)
   }

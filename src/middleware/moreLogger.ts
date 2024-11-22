@@ -1,7 +1,8 @@
-import {SystemLog} from "@/domain/SystemType"
+import { SystemLog } from "@/domain/SystemType"
 import systemMapper from "@/models/system"
-import {Context} from "hono"
+import { Context } from "hono"
 import UserMapper from "@/models/user";
+import { getCookie } from "hono/cookie";
 
 
 export const moreLogger = async (c: Context, next: () => Promise<void>) => {
@@ -28,7 +29,7 @@ export const moreLogger = async (c: Context, next: () => Promise<void>) => {
 
     // 尝试获取用户信息
     let userId, username
-    const token = c.req.header("Authorization")
+    const token = getCookie(c, 'lzytkn')
 
     if (token) {
       const cachedUserData = await c.redis.get(token!);

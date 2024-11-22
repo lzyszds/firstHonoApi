@@ -35,7 +35,7 @@ class UserController {
 
   //根据token获取用户信息
   async getUserInfoToken(c: Context) {
-    const token = c.req.header("Authorization");
+    const token = getCookie(c, 'lzytkn')
     const userInfo = await userService.getUserInfoToken(token!);
     const apiConfig: ApiConfig<UserRole> = new ApiConfig<UserRole>(c);
     const result = apiConfig.success(userInfo[0]);
@@ -124,7 +124,7 @@ class UserController {
 
   //开始记录用户在线时间
   async startOnlineTime(c: Context) {
-    const token = c.req.header("Authorization");
+    const token = getCookie(c, 'lzytkn');
     let result = "" as any;
     //验证token
     const user: UserRole = await userService.getUserInfoToken(token!);
