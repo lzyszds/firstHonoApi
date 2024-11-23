@@ -11,10 +11,9 @@ import {WeatherDataType, WeatherDataTypeResponse} from "@/domain/ToolkitType";
 import dayjs from "dayjs";
 import axios from "axios";
 import {Context} from "hono";
-import {nanoid} from "nanoid";
-import {uploadImage} from "@/utils/pictureBed";
-import {uploadFileLimit} from "@/utils/helpers";
+import imageUploadResponse from "@/utils/imageUploadResponse";
 import {PictureBedType} from "@/domain/PictureBedType";
+
 
 class CommonService {
   public async getWeather(c: Context): Promise<ApiConfig<WeatherDataType>> {
@@ -150,57 +149,11 @@ class CommonService {
 
   // 上传图片至腾讯图库
   public uploadImageToPictureBed(c: any): Promise<ApiConfig<string>> {
-    return new Promise(async (resolve, reject) => {
-      const apiConfig: ApiConfig<any> = new ApiConfig(c);
-      let result: any;
-      const formData = await c.req.parseBody();
-      // 假设文件字段名是 'file'
-      let file = formData['upload-image'] as File;
-      if (!file) {
-        return reject(apiConfig.fail('上传文件,请检查文件是否存在'));
-      }
-      let buffer = await file.arrayBuffer();
-      // 使用 nanoid 生成唯一文件名
-      const filename = nanoid() + path.extname(file.name) + '.webp';
-      // 上传图片至图库
-      uploadImage(formData, filename).then(async res => {
-        const sizeArr: string[] = []
-        const data = res.data.url
-        for (const key in data.size) {
-          sizeArr.push(key)
-        }
-        const name = data.url.split('/').pop()
-        // 将图片信息存入数据库
-        await ToolkotMapper.saveImageInfo({
-          name: name,
-          url: Config.pictureBedProxy + name,
-          other_sizes: sizeArr.join(','),
-          derive_from: formData.derive_from,
-          derive_from_id: formData.derive_from_id || 0
-        })
-        resolve(apiConfig.success(data))
-
-      }).catch(err => {
-        reject(apiConfig.fail(err))
-      })
-
-
-      // 上传图片至本地 进行简单的备份
-
-      // 允许上传的文件类型
-      const ALLOWED_FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml'];
-      result = await uploadFileLimit(file, 10, ALLOWED_FILE_TYPES)
-      if (typeof result !== 'string') {
-        buffer = result;
-        const articleImagesPath = `/static/img/articleImages/`
-        const uploadPath = path.join(__dirname, '../..', articleImagesPath + filename);
-
-        //@ts-ignore
-        fs.writeFileSync(uploadPath, Buffer.from(buffer));
-      }
-    })
+    return imageUploadResponse.uploadImageToPictureBed(c, ToolkotMapper)
   }
 
 }
 
-export default new CommonService();
+export default new
+
+CommonService();

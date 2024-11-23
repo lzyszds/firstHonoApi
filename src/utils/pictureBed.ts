@@ -1,4 +1,4 @@
-export const uploadImage = async (files: any, filename: string) => {
+export const uploadImage = async (file: any, filename: string) => {
   // 图床上传接口地址
   const url = "https://om.qq.com/marticle/ommixin/image/archscaleupload";
 
@@ -14,7 +14,7 @@ export const uploadImage = async (files: any, filename: string) => {
   const formData = new FormData();
 
   // 将文件和文件名添加到 FormData 中
-  formData.append('file', files['upload-image']);  // 添加文件
+  formData.append('file', file);  // 添加文件
   formData.append('Filename', filename);  // 添加文件名，使用文件对象的 name 属性
 
 
