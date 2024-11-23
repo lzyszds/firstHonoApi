@@ -169,10 +169,11 @@ class CommonService {
         for (const key in data.size) {
           sizeArr.push(key)
         }
+        const name = data.url.split('/').pop()
         // 将图片信息存入数据库
         await ToolkotMapper.saveImageInfo({
-          name: data.url.split('/').pop(),
-          url: data.url,
+          name: name,
+          url: Config.pictureBedProxy + name,
           other_sizes: sizeArr.join(','),
           derive_from: formData.derive_from,
           derive_from_id: formData.derive_from_id || 0

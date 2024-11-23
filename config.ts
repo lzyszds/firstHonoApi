@@ -9,9 +9,12 @@ export default {
   staticDir: path.join(__dirname, 'static'), // 静态文件目录
   uploadDir: path.join(__dirname, path.resolve('static/')), // 上传文件路径
   weatherKey: "78182b9b39355dc0ae4ce91dae7f0bbf",
+  //图床代理地址
+  pictureBedProxy: "/pictureBedImage/",
   //根据当前文件名字的后缀名字来判断当前是开发环境还是生产环境 开发环境为.ts 生产环境为.js
   env: path.extname(__filename) === '.ts' ? 'development' : 'production',
 
+  // 跨域设置
   cors: {
     origin: ['http://localhost:1026', 'http://127.0.0.1:1026', 'http://101.201.171.168:1026', 'http://101.201.171.168:1027'],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -29,30 +32,31 @@ export default {
     database: 'lzy_admin',
     charset: 'utf8mb4'
   },
+
   //拦截器白名单
   interceptorWhiteList: [
-    '/users/login',
-    '/users/getRandHeadImg',
-    '/users/getAllHeadImg',
-    '/article/getRandArticleImg',
-    '/article/getArticleList',
-    '/comment/getArticleComment',
-    '/article/getArticleInfo',
-    '/article/getArticleDetail',
-    '/comment/getArticleTypeList',
-    '/comment/addComment',
-    '/comment/getNewComment',
-    '/comment/getCommentAvatar',
-    '/toolkit/ipConfig',
-    '/toolkit/getGithubInfo',
-    '/toolkit/getPoetry',
-    '/toolkit/getWeather',
-    '/system/getSystemConfig',
-    '/system/getFooterInfo',
-    '/system/getLazyLoadImage',
-    '/system/uploadImageToPictureBed',
-    '/openAI/getAifox',
-    '/openAI/getSiliconflowiAi'
+    '/users/login',  //登录
+    '/users/getRandHeadImg', //获取随机头像
+    '/users/getAllHeadImg', //获取所有头像
+    '/article/getRandArticleImg', //获取随机文章封面
+    '/article/getArticleList', //获取文章列表
+    '/comment/getArticleComment', //获取文章评论
+    '/article/getArticleInfo',  //获取文章信息
+    '/article/getArticleDetail',  //获取文章详情
+    '/comment/getArticleTypeList',   //获取文章分类
+    '/comment/addComment',    //新增评论
+    '/comment/getNewComment',     //获取最新评论
+    '/comment/getCommentAvatar',    //获取评论头像
+    '/toolkit/ipConfig',  //获取ip地址
+    '/toolkit/getGithubInfo', //获取github信息
+    '/toolkit/getPoetry', //获取诗词
+    '/toolkit/getWeather',  //获取天气
+    '/system/getSystemConfig',  //获取系统配置
+    '/system/getFooterInfo',  //获取底部信息
+    '/system/getLazyLoadImage', //获取懒加载图片
+    '/system/uploadImageToPictureBed',  //上传图片
+    '/openAI/getAifox', //获取aifox
+    '/openAI/getSiliconflowiAi' //获取siliconflowiAi
   ],
   //github api密钥 配置
   githubUserConfig: {
