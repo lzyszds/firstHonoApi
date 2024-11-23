@@ -65,11 +65,7 @@ class SystemController {
     return c.body(imgBuffer);
   }
 
-  //将图片上传至腾讯图库
-  async uploadImageToTencent(c: Context) {
 
-    return c.json(await SystemService.uploadImageToTencent(c));
-  }
 
 }
 

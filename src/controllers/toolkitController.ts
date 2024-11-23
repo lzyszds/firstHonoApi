@@ -1,4 +1,4 @@
-import { Context } from "hono";
+import {Context} from "hono";
 import ToolkitService from "../services/toolkitService";
 
 class ToolkitController {
@@ -23,6 +23,15 @@ class ToolkitController {
     return c.json(await ToolkitService.getPoetry(c));
   }
 
+  //获取已存进图库中的图片
+  async getPictureBedImageList(c: Context) {
+    return c.json(await ToolkitService.getPictureBedImageList(c));
+  }
+
+  //将图片上传至腾讯图库
+  async uploadImageToPictureBed(c: Context) {
+    return c.json(await ToolkitService.uploadImageToPictureBed(c));
+  }
 }
 
 export default new ToolkitController();

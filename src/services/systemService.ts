@@ -214,41 +214,6 @@ class SystemService {
       return e
     }
   }
-
-  // 上传图片至腾讯图库
-  public uploadImageToTencent(c: any): Promise<ApiConfig<string>> {
-    return new Promise(async (resolve, reject) => {
-      const apiConfig: ApiConfig<any> = new ApiConfig(c);
-      let result = "" as any;
-      const formData = await c.req.parseBody();
-      // 假设文件字段名是 'file'
-      let file = formData['upload-image'] as File;
-      let buffer = await file.arrayBuffer();
-      // 使用 nanoid 生成唯一文件名
-      const filename = nanoid() + path.extname(file.name) + '.webp';
-      // 上传图片至图库
-      uploadImage(formData, filename).then(res => {
-        resolve(apiConfig.success(res.data.url))
-      }).catch(err => {
-        reject(apiConfig.fail(err))
-      })
-
-
-      // 上传图片至本地 进行简单的备份
-
-      // 允许上传的文件类型
-      const ALLOWED_FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml'];
-      result = await uploadFileLimit(file, 10, ALLOWED_FILE_TYPES)
-      if (typeof result !== 'string') {
-        buffer = result;
-        const articleImagesPath = `/static/img/articleImages/`
-        const uploadPath = path.join(__dirname, '../..', articleImagesPath + filename);
-
-        //@ts-ignore
-        fs.writeFileSync(uploadPath, Buffer.from(buffer));
-      }
-    })
-  }
 }
 
 export default new SystemService();

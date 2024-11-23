@@ -39,8 +39,7 @@ const routes: Routes = {
     '/updateFooterLink': systemController.updateFooterLink,
     // 更新页脚信息
     '/updateFooterInfo': systemController.updateFooterInfo,
-    // 将图片上传至腾讯图库
-    '/uploadImageToTencent': systemController.uploadImageToTencent
+   
   }
 }
 

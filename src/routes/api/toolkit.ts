@@ -1,10 +1,14 @@
-import { Hono } from 'hono';
+import {Hono} from 'hono';
 import toolkitController from '../../controllers/toolkitController';
+import ToolkitController from '../../controllers/toolkitController';
+
 interface Routes {
   [key: string]: { [key: string]: (c: any) => any };
+
   get: { [key: string]: (c: any) => any };
   post: { [key: string]: (c: any) => any };
 }
+
 const router = new Hono();
 
 const routes: Routes = {
@@ -17,8 +21,13 @@ const routes: Routes = {
     '/getGithubInfo': toolkitController.getGithubInfo,
     //诗词内容获取代理接口
     '/getPoetry': toolkitController.getPoetry,
+    //获取已存进图库中的图片
+    '/getPictureBedImageList': ToolkitController.getPictureBedImageList,
   },
-  post: {}
+  post: {
+    // 将图片上传至图库
+    '/uploadImageToPictureBed': ToolkitController.uploadImageToPictureBed
+  }
 }
 
 
@@ -28,7 +37,6 @@ for (const method in routes) {
     router[method](path, routes[method][path]);
   }
 }
-
 
 
 export default router

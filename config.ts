@@ -50,7 +50,7 @@ export default {
     '/system/getSystemConfig',
     '/system/getFooterInfo',
     '/system/getLazyLoadImage',
-    '/system/uploadImageToTencent',
+    '/system/uploadImageToPictureBed',
     '/openAI/getAifox',
     '/openAI/getSiliconflowiAi'
   ],
