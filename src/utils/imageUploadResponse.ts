@@ -6,6 +6,7 @@ import ApiConfig from "@/domain/ApiCongfigType";
 import Config from "../../config";
 import {uploadImage} from "@/utils/pictureBed";
 import {uploadFileLimit} from "@/utils/helpers";
+import {PictureBedCreate} from "@/domain/PictureBedType";
 
 
 interface ImageUploadResponse {
@@ -15,14 +16,6 @@ interface ImageUploadResponse {
       url: string;
     }
   }
-}
-
-interface ImageInfo {
-  name: string;
-  url: string;
-  other_sizes: string;
-  derive_from: string;
-  derive_from_id: number;
 }
 
 export class ImageUploadService {
@@ -107,7 +100,7 @@ export class ImageUploadService {
         other_sizes: sizeArr.join(','),
         derive_from: formData.derive_from,
         derive_from_id: Number(formData.derive_from_id) || 0
-      } as ImageInfo);
+      } as PictureBedCreate);
 
       // 保存本地备份
       const uploadResult = await uploadFileLimit(

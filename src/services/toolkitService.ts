@@ -15,7 +15,7 @@ import imageUploadResponse from "@/utils/imageUploadResponse";
 import {PictureBedType} from "@/domain/PictureBedType";
 
 
-class CommonService {
+class ToolkotService {
   public async getWeather(c: Context): Promise<ApiConfig<WeatherDataType>> {
     // 创建一个 ApiConfig 对象
     const apiConfig: ApiConfig<WeatherDataType> = new ApiConfig(c);
@@ -152,8 +152,23 @@ class CommonService {
     return imageUploadResponse.uploadImageToPictureBed(c, ToolkotMapper)
   }
 
+  // 删除图库中的图片以及数据库存储中的记录
+  public async deletePictureBedImage(c: Context): Promise<ApiConfig<string>> {
+    const apiConfig: ApiConfig<string> = new ApiConfig(c);
+    try {
+      const {id} = await c.req.json()
+      // await deleteImage(resource_id)
+      const result = await ToolkotMapper.deleteImage(id);
+      if(result.affectedRows === 0){
+        return apiConfig.fail('删除失败')
+      }
+      return apiConfig.success('删除成功')
+    } catch (e: any) {
+      return apiConfig.fail(e.message)
+    }
+  }
 }
 
-export default new
+export default new ToolkotService();
 
-CommonService();
+

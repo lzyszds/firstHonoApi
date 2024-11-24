@@ -26,7 +26,9 @@ const routes: Routes = {
   },
   post: {
     // 将图片上传至图库
-    '/uploadImageToPictureBed': ToolkitController.uploadImageToPictureBed
+    '/uploadImageToPictureBed': ToolkitController.uploadImageToPictureBed,
+    // 删除图库中的图片以及数据库存储中的记录
+    '/deletePictureBedImage': ToolkitController.deletePictureBedImage,
   }
 }
 

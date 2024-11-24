@@ -2,6 +2,7 @@
 export interface PictureBedCreate {
   url: string;                  // 图片URL地址
   name: string;                 // 图片分类名称
+  resource_id?: string           // 资源id 用于删除图片 不是很好获取，暂时不使用
   other_sizes?: string;        // 图片的其他尺寸列表，默认为 '0,640,641,1000'
   derive_from?: string;        // 图片来源，默认为 '未知'
   derive_from_id?: number;     // 图片来源的ID，关联到其他表

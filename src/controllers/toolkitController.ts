@@ -32,6 +32,11 @@ class ToolkitController {
   async uploadImageToPictureBed(c: Context) {
     return c.json(await ToolkitService.uploadImageToPictureBed(c));
   }
+
+  //删除图库中的图片以及数据库存储中的记录
+  async deletePictureBedImage(c: Context) {
+    return c.json(await ToolkitService.deletePictureBedImage(c));
+  }
 }
 
 export default new ToolkitController();

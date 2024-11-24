@@ -1,8 +1,9 @@
-import {AdminHomeType, AdminHomeTypeSql} from "../domain/AdminHomeType";
+import {AdminHomeType, AdminHomeTypeSql} from "@/domain/AdminHomeType";
 import db from "../utils/db";
 import {PictureBedCreate, PictureBedType} from "@/domain/PictureBedType";
+import {OkPacket} from "mysql";
 
-class CommonMapper {
+class ToolkitMapper {
 
   //根据ip地区获取具体的城市编码
   public async getCityCodeByIp(city: string): Promise<{ adcode: string }> {
@@ -62,7 +63,14 @@ class CommonMapper {
     return await db.query(sql, [params.url, params.name, params.other_sizes, params.derive_from, params.derive_from_id]);
   }
 
+  //删除图片
+  public async deleteImage(id: number): Promise<OkPacket> {
+    const sql: string = `DELETE
+                         FROM wb_picture_bed
+                         WHERE id = ?`
+    return await db.query(sql, [id]);
+  }
 
 }
 
-export default new CommonMapper();
+export default new ToolkitMapper();
