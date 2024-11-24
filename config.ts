@@ -16,7 +16,15 @@ export default {
 
   // 跨域设置
   cors: {
-    origin: ['http://localhost:1026', 'http://127.0.0.1:1026', 'http://101.201.171.168:1026', 'http://101.201.171.168:1027'],
+    origin: [
+      'http://localhost:1026',
+      'http://127.0.0.1:1026',
+      'http://101.201.171.168:1026',
+      'http://101.201.171.168:1027',
+      'http://jing.lzyszds.cn',
+      'http://admin.lzyszds.cn',
+      'http://lzyszds.cn',
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
