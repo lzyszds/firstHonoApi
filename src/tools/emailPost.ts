@@ -82,6 +82,10 @@ export function sendEmailLove(body: string): Promise<string> {
         },
         {
           role: "user",
+          content: `假设今天是${dayjs().format('YYYY年MM月DD日')}，那么明天是什么节日吗`
+        },
+        {
+          role: "user",
           content: loveTetter.content
         }
       ];
