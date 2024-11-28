@@ -18,14 +18,15 @@ import {PictureBedType} from "@/domain/PictureBedType";
 class ToolkotService {
   public async getWeather(c: Context): Promise<ApiConfig<WeatherDataType>> {
     // 创建一个 ApiConfig 对象
-    const apiConfig: ApiConfig<WeatherDataType> = new ApiConfig(c);
-    try {
-      //获取当前请求的IP地址 
-      let ipAddress = c.req.header('x-real-ip') || ""
+      const apiConfig: ApiConfig<WeatherDataType> = new ApiConfig(c);
+      try {
 
-      // 创建一个 IP2Region 对象
-      const query: IP2Region = new IP2Region();
-      // 查询 IP 地址的归属地
+        //获取当前请求的IP地址
+        let ipAddress = c.env.requestIP(c.req.raw).address
+        if (ipAddress === '::1') ipAddress = '180.139.210.51'
+        // 创建一个 IP2Region 对象
+        const query: IP2Region = new IP2Region();
+        // 查询 IP 地址的归属地
       const res: IP2RegionResult | null = query.search(ipAddress);
       if (!res?.province) {
         return apiConfig.success({
@@ -159,7 +160,7 @@ class ToolkotService {
       const {id} = await c.req.json()
       // await deleteImage(resource_id)
       const result = await ToolkotMapper.deleteImage(id);
-      if(result.affectedRows === 0){
+      if (result.affectedRows === 0) {
         return apiConfig.fail('删除失败')
       }
       return apiConfig.success('删除成功')
