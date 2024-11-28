@@ -136,7 +136,7 @@ class openAI {
         // 将完整结果写入文件
         await handleAiFox.writeAiTextStore(fullResponse, aid);
 
-        await stream.writeSSE({data: '[DONE]'});
+        await stream.writeSSE({data: '[总结完成]'});
       } catch (error) {
         console.error('AI处理错误:', error);
         await stream.writeSSE({data: '处理过程中发生错误，请稍后重试。'});
