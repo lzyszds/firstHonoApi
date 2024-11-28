@@ -10,13 +10,15 @@ import routes from './routes';
 import redis from './utils/redis'; // 导入 Redis 客户端
 import {addTraceId} from './middleware/trace_time';
 import {moreLogger} from './middleware/moreLogger';
+import fs from "fs";
+import path from "path";
 
 
 // 扩展 Context 类型
 declare module 'hono' {
-  interface Context {
-    redis: typeof redis;
-  }
+    interface Context {
+        redis: typeof redis;
+    }
 }
 
 const app = new Hono()
@@ -33,8 +35,8 @@ app.use('/api/*', authMiddleware) // 认证中间件
 app.use('/api/*', camelCaseMiddleware) //  驼峰命名中间件 
 // 添加 Redis 客户端到上下文
 app.use('/api/*', (c, next) => {
-  c.redis = redis;
-  return next()
+    c.redis = redis;
+    return next()
 });
 
 app.use('/api/*', addTraceId) // 添加 trace_id 和计时
@@ -46,8 +48,8 @@ app.route('/api', routes)
 
 // 检查数据库连接
 db.query('SELECT 1', [])
-  .then(() => console.log('数据库连接成功'))
-  .catch(err => console.error('数据库连接失败', err))
+    .then(() => console.log('数据库连接成功'))
+    .catch(err => console.error('数据库连接失败', err))
 
 
 // 请求日志中间件
@@ -62,26 +64,27 @@ db.query('SELECT 1', [])
 
 // 404页面
 app.notFound((c) => {
-  logger.warn(`404 Not Found: ${c.req.url}`)
-  return c.text('找不到你想要的网页', 404)
+    const htmlPath = path.join(__dirname, '../static', 'html/404.html')
+    console.log(htmlPath)
+    const htmlContent = fs.readFileSync(htmlPath, 'utf-8')
+    return c.html(htmlContent)
 })
 
 // 错误处理
 app.onError((err, c) => {
-  logger.error(err.message)
-  return c.text('出错了看看怎么解决吧！', 500)
+    logger.error(err.message)
+    return c.text('出错了看看怎么解决吧！', 500)
 })
 
 
 app.get('/api/ip', (c) => {
-  console.log()//c.requestIP(c.req.raw)
-  // @ts-ignore
-  return c.json({ip: c.env.requestIP(c.req.raw)})
+    // @ts-ignore
+    return c.json({ip: c.env.requestIP(c.req.raw)})
 })
 
 
 // setTimeTask()
 export default {
-  port: 2024,
-  fetch: app.fetch,
+    port: 2024,
+    fetch: app.fetch,
 } 

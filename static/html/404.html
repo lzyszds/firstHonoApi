@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: Arial, sans-serif;
+            background-color: #1e1e2e;
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+
+        .container {
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 72px;
+            margin-bottom: 0;
+            background: linear-gradient(45deg, #ff6b6b, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        p {
+            font-size: 18px;
+            margin-bottom: 30px;
+        }
+
+        #maze {
+            border: 2px solid #4ecdc4;
+            margin-bottom: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #ff6b6b;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #ff8e8e;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>404</h1>
+    <p>哎呀！你走进了一个数字迷宫。你能找到出路吗？</p>
+    <canvas id="maze" width="300" height="300"></canvas>
+    <p id="message">使用箭头键将红点导航到绿色出口！</p>
+<!--    <a href="/" class="button">Return to Homepage</a>-->
+</div>
+<script src="https://cdn.jsdelivr.net/npm/party-js@latest/bundle/party.min.js"></script>
+
+<script>
+    const canvas = document.getElementById('maze');
+    const ctx = canvas.getContext('2d');
+    const cellSize = 20;
+    const gridSize = canvas.width / cellSize;
+
+    let playerX = 0;
+    let playerY = 0;
+
+    // Simple maze layout (0: path, 1: wall)
+    const maze = [
+        [0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1],
+        [1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 1],
+        [1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+        [1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+        [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+        [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+    ];
+
+    function drawMaze() {
+        for (let y = 0; y < gridSize; y++) {
+            for (let x = 0; x < gridSize; x++) {
+                if (maze[y][x] === 1) {
+                    ctx.fillStyle = '#4ecdc4';
+                    ctx.fillRect(x * cellSize, y * cellSize, cellSize, cellSize);
+                }
+            }
+        }
+        // Draw exit
+        ctx.fillStyle = '#2ecc71';
+        ctx.fillRect(13 * cellSize, 13 * cellSize, cellSize, cellSize);
+    }
+
+    function drawPlayer() {
+        ctx.fillStyle = '#ff6b6b';
+        ctx.beginPath();
+        ctx.arc(playerX * cellSize + cellSize / 2, playerY * cellSize + cellSize / 2, cellSize / 3, 0, Math.PI * 2);
+        ctx.fill();
+    }
+
+    function update() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        drawMaze();
+        drawPlayer();
+    }
+
+    document.addEventListener('keydown', (e) => {
+        let newX = playerX;
+        let newY = playerY;
+
+        switch (e.key) {
+            case 'ArrowUp':
+                newY--;
+                break;
+            case 'ArrowDown':
+                newY++;
+                break;
+            case 'ArrowLeft':
+                newX--;
+                break;
+            case 'ArrowRight':
+                newX++;
+                break;
+        }
+
+        if (newX >= 0 && newX < gridSize && newY >= 0 && newY < gridSize && maze[newY][newX] === 0) {
+            playerX = newX;
+            playerY = newY;
+        }
+
+        if (playerX === 13 && playerY === 13) {
+            const runButton = document.querySelector('.container');
+            party.confetti(runButton, {
+                count: party.variation.range(50, 80),
+            });
+            document.getElementById('message').textContent = '恭喜你你找到出口了!';
+        }
+
+        update();
+    });
+
+    update();
+</script>
+</body>
+</html>
