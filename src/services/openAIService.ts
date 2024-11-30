@@ -103,12 +103,15 @@ class openAI {
 
     const key = await getAiKey("阿里云硅基Ai");
 
-    const content = '请从以下文章中总结出一段不要超出100个字的简洁的内容。请不要使用编号列出信息点' + articleInfo.content;
+    const content = '' + articleInfo.content;
     const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
-      {role: "system", content: "你是一个专业的博客文章研究分析师。"},
+      {
+        role: "system",
+        content: "你是一个专业的博客文章研究分析师。你将从以下文章中总结出一段不要超出100个字的简洁的内容。请不要使用编号列出信息点"
+      },
       {role: "user", content: content}
     ];
-
+    console.log(messages)
     // 配置 OpenAI 客户端
     const client = new OpenAI({
       apiKey: key,
@@ -128,15 +131,16 @@ class openAI {
         for await (const chunk of completion) {
           const content = chunk.choices[0]?.delta?.content || '';
           if (content) {
-            await stream.writeSSE({data: content});
             fullResponse += content;
+            // 逐字输出
+            for (const char of content) {
+              await stream.writeSSE({data: char});
+            }
           }
         }
 
         // 将完整结果写入文件
         await handleAiFox.writeAiTextStore(fullResponse, aid);
-
-        await stream.writeSSE({data: '[总结完成]'});
       } catch (error) {
         console.error('AI处理错误:', error);
         await stream.writeSSE({data: '处理过程中发生错误，请稍后重试。'});
