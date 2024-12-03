@@ -138,12 +138,12 @@ class ArticleMapper {
 
   //新增文章
   public async addArticle(params: any) {
-    const { title, content, cover_img, main, partial_content, uid, create_date } = params;
+    const { title, content, cover_img, main, partial_content, uid, create_date,access_count } = params;
     let sql: string = `
-            INSERT INTO wb_articles (title, content, cover_img, main, partial_content, uid, create_date) 
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO wb_articles (title, content, cover_img, main, partial_content, uid, create_date,access_count) 
+            VALUES (?, ?, ?, ?, ?, ?, ?,?)
         `;
-    return await db.query(sql, [title, content, cover_img, main, partial_content, uid, create_date]);
+    return await db.query(sql, [title, content, cover_img, main, partial_content, uid, create_date,access_count]);
   }
 
   //修改文章

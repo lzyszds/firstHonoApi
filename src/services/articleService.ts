@@ -1,24 +1,23 @@
 //文章接口
 
 import ArticleMapper from "../models/article";
-import { ArticleData, Articles, ArticleType } from "../domain/Articles";
+import {ArticleData, Articles, ArticleType} from "../domain/Articles";
 import ApiConfig from "../domain/ApiCongfigType";
-import { checkObj, randomUnique, uploadFileLimit, useUserInfoGetData } from "../utils/helpers";
+import {checkObj, randomUnique, uploadFileLimit, useUserInfoGetData} from "../utils/helpers";
 import path from "path";
 import fs from "fs";
-import md5 from "md5";
 import UserMapper from "../models/user";
-import { Context } from "hono";
-import { getCookie, setCookie } from "hono/cookie";
+import {Context} from "hono";
+import {getCookie, setCookie} from "hono/cookie";
 import logger from '../middleware/logger';
-import { nanoid } from "nanoid";
-import { random } from 'radash'
+import {nanoid} from "nanoid";
+import {random} from 'radash'
 
 class ArticleService {
 
   public async findAll(c: Context) {
     const apiConfig: ApiConfig<ArticleData<Articles[]>> = new ApiConfig(c);
-    let { search = "", pages = 1, limit = 10 } = c.req.query();
+    let {search = "", pages = 1, limit = 10} = c.req.query();
 
     const token = getCookie(c, 'lzytkn')
     const cachedUserData = await c.redis.get(token!);
@@ -41,7 +40,7 @@ class ArticleService {
     const total: number = await ArticleMapper.getArticleListTotal(search);
 
     const data: Articles[] = await ArticleMapper.findAll(search, pages, limit);
-    const result = { total: total, data }
+    const result = {total: total, data}
     await c.redis.setex(cacheKey, 600, JSON.stringify(result));
 
     return apiConfig.success(useUserInfoGetData(result, userInfo));
@@ -49,7 +48,7 @@ class ArticleService {
 
   public async findArticleInfo(c: Context) {
     const apiConfig: ApiConfig<Articles> = new ApiConfig(c);
-    const { id } = c.req.query();
+    const {id} = c.req.query();
     const cacheKey = `articles_info_${id}`
     // 现在可以通过 c.redis 访问 Redis 客户端 
     const cachedData = await c.redis.get(cacheKey);
@@ -66,14 +65,13 @@ class ArticleService {
 
     const data: ArticleType[] = await ArticleMapper.findArticleTypeAll();
     const apiConfig: ApiConfig<ArticleData<ArticleType[]>> = new ApiConfig(c);
-    return apiConfig.success({ total: data.length, data });
+    return apiConfig.success({total: data.length, data});
   }
 
   /* 文章添加 */
   public async addArticle(c: Context) {
     const params = await c.req.json()
-
-    let { title, content, cover_img, main, tags, partial_content } = params
+    let {title, content, cover_img, main, tags, partial_content} = params
     if (checkObj(params, ["title", "content", "cover_img", "main", "tags", "partial_content"])) {
       const apiConfig = new ApiConfig(c);
       return apiConfig.fail("参数错误,请检查是否有空参数");
@@ -86,7 +84,7 @@ class ArticleService {
     const access_count = random(500, 1000)
 
     //根据token获取uid
-    const { uid } = (await UserMapper.getUserInfoToken(c.req.header("authorization")!))[0];
+    const {uid} = (await UserMapper.getUserInfoToken(getCookie(c, 'lzytkn')!))[0];
     //获取文章发布时间 2021-08-01 12:00:00
     const create_date = new Date().toLocaleString();
     const queryData = await ArticleMapper.addArticle({
@@ -175,7 +173,7 @@ class ArticleService {
     if (!params) {
       return apiConfig.fail("内容不曾改变");
     }
-    const { tags, aid } = params;
+    const {tags, aid} = params;
 
     await ArticleMapper.updateArticle(params)
 
@@ -196,7 +194,6 @@ class ArticleService {
     c.redis.clearArticlesCache("articles_info")
     return apiConfig.success("文章修改成功");
   }
-
 
 
   /**
@@ -242,7 +239,7 @@ class ArticleService {
 
     //@ts-ignore
     fs.writeFileSync(uploadPath, Buffer.from(buffer));
-    result = { message: '文件上传成功', filename: articleImagesPath + filename }
+    result = {message: '文件上传成功', filename: articleImagesPath + filename}
 
     return apiConfig.success(result);
   }
