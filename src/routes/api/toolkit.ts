@@ -19,6 +19,8 @@ const routes: Routes = {
     '/getAdminHomeData': toolkitController.getAdminHomeData,
     //获取github 贡献图
     '/getGithubInfo': toolkitController.getGithubInfo,
+    //获取github前端项目的提交记录
+    '/getGithubFrontCommit': toolkitController.getGithubFrontCommit,
     //诗词内容获取代理接口
     '/getPoetry': toolkitController.getPoetry,
     //获取已存进图库中的图片

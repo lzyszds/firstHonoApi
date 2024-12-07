@@ -18,6 +18,11 @@ class ToolkitController {
     return c.json(await ToolkitService.getGithubInfo(c));
   }
 
+  //获取github前端项目的提交记录
+  async getGithubFrontCommit(c: Context) {
+    return c.json(await ToolkitService.getGithubFrontCommit(c));
+  }
+
   //诗词内容获取代理接口
   async getPoetry(c: Context) {
     return c.json(await ToolkitService.getPoetry(c));
