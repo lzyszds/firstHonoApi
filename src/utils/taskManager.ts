@@ -2,7 +2,7 @@
 import {Task} from "@/domain/Plantask";
 import {v4 as uuidv4} from 'uuid'
 import PlantaskMapper from '@/models/plantask'
-import {sendEmailLove, sendEmailWarn} from "@/tools/emailPost";
+import {dailyGithub, getGithubCommitHandle, sendEmailLove, sendEmailWarn} from "@/tools/taskHandleList";
 
 const schedule = require('node-schedule');
 
@@ -44,28 +44,30 @@ class TaskManager {
 
   // 执行具体任务逻辑
   async executeTask(taskConfig: Task) {
-    let html = ''
+    type TaskHandler = (params?: any) => Promise<string> | Promise<void>;
+    // Create a map of task types to their corresponding handler functions
+    const taskHandlers: Record<string, TaskHandler> = {
+      sendEmailLove: sendEmailLove, // 发送ai情书
+      sendEmailWarn: sendEmailWarn, // 发送github提交提醒
+      dailyGithub: dailyGithub, // 获取github贡献图
+      commitGithub: getGithubCommitHandle, // 获取github提交记录
+    };
+    let html = '';
     try {
-      switch (taskConfig.type) {
-        case 'sendEmailLove':
-          html = await sendEmailLove(taskConfig.params_body!)
-          break
-        case 'sendEmailWarn':
-          html = await sendEmailWarn(taskConfig.params_body!)
-          break
-        case 'dailyGithub':
-          // await getGithubInfo()
-          break
-        default:
-          throw new Error(`未知任务类型: ${taskConfig.type} ,只有以下类型：sendEmailLove、sendEmailWarn、dailyGithub`)
+      const handler = taskHandlers[taskConfig.type];
+      if (!handler) {
+        throw new Error(`未知任务类型: ${taskConfig.type} ,只有以下类型：${Object.keys(taskHandlers).join('、')}`);
       }
+
+      html = await handler(taskConfig.params_body) || '';
+
       // 记录成功日志
       await PlantaskMapper.saveTaskLogResult({
         task_id: taskConfig.id!,
         status: 'success',
         message: `任务 ${taskConfig.name} 执行成功`,
         content: html
-      })
+      });
 
     } catch (error: any) {
       // 记录失败日志
@@ -73,11 +75,12 @@ class TaskManager {
         task_id: taskConfig.id!,
         status: 'failed',
         message: error.message
-      })
-      throw error
+      });
+      throw error;
+    } finally {
+      // 更新任务最后执行时间
+      await PlantaskMapper.updatePlantaskLastExecutedAt(taskConfig.id!);
     }
-    // 更新任务最后执行时间
-    await PlantaskMapper.updatePlantaskLastExecutedAt(taskConfig.id!)
   }
 
 

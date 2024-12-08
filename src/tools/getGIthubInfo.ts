@@ -1,9 +1,7 @@
-import fs from "node:fs"
-import path from "node:path"
 import CONFIG from "../../config"
 import axios from 'axios';
 
-const { token1, token2, token3, name } = CONFIG.githubUserConfig
+const {token1, token2, token3, name} = CONFIG.githubUserConfig
 
 
 const body = {
@@ -29,13 +27,6 @@ const body = {
           }`
 }
 
-// 创建目录
-const jsonDir = path.resolve(__dirname, '../../static/json');
-//打包路径
-// const jsonDir = path.resolve(__dirname, './public/json');
-if (!fs.existsSync(jsonDir)) {
-  fs.mkdirSync(jsonDir, { recursive: true });
-}
 
 export async function getGithubInfo() {
   try {
@@ -59,12 +50,10 @@ export async function getGithubInfo() {
       //返回类型
       responseType: 'text',
     })  // 将响应内容转换为文本格式
-    // 解析出getGithubInfo.json文件的完整路径
-    const filePath = path.resolve(jsonDir, 'getGithubInfo.json');
-    // 将获取到的数据写入到本地文件中
-    fs.writeFileSync(filePath, response.data);
+    // 将响应内容写入redis
 
     console.log('github数据获取成功');
+    return response.data
   } catch (e) {
     console.error("github数据获取失败", e);
   }

@@ -1,9 +1,10 @@
-import fs from "node:fs"
-import path from "node:path"
 import dayjs from "dayjs";
 import emailTools from './emailTools'
 import {getGithubInfo} from "./getGIthubInfo";
 import {OpenAI} from "openai";
+import redis from "@/utils/redis";
+import {CommitRunInfo} from "@/domain/ToolkitType";
+import Config from "../../config";
 
 
 /**
@@ -17,11 +18,10 @@ export function sendEmailWarn(body: string): Promise<string> {
     const github = JSON.parse(body)
     try {
       // 首先获取最新的GitHub提交信息
-      await getGithubInfo()
 
       // 读取GitHub数据文件
-      const githubData = fs.readFileSync(path.resolve(__dirname, '../../static/json/getGithubInfo.json'), 'utf-8');
-      const data = JSON.parse(githubData)
+      const data = JSON.parse(await getGithubInfo())
+      console.log(data)
 
       // 获取最近一周的贡献数据
       const weeks = data.data.user.contributionsCollection.contributionCalendar.weeks
@@ -59,6 +59,7 @@ export function sendEmailWarn(body: string): Promise<string> {
         resolve(mail.html);
       });
     } catch (e) {
+      console.log(e)
       reject(new Error("邮件发送失败"))
     }
   })
@@ -129,6 +130,101 @@ export function sendEmailLove(body: string): Promise<string> {
     }
   })
 }
+
+
+/*
+*  每日获取GitHub贡献图任务
+*
+* */
+export async function dailyGithub() {
+  try {
+    //获取原始的GitHub数据
+    let githubData = await getGithubInfo()
+    redis.set('githubData', githubData!, 'EX', 60 * 60 * 24)
+
+    //解析数据
+    let data: any = JSON.parse(githubData!).data,
+      totalCount: number,
+      month: any[] = []
+    const {contributionsCollection} = data.user
+    const {weeks, totalContributions} = contributionsCollection.contributionCalendar
+    totalCount = totalContributions
+    const months: string[] = [
+      "一月", "二月", "三月", "四月", "五月", "六月",
+      "七月", "八月", "九月", "十月", "十一月", "十二月"
+    ]
+    weeks.forEach((item: any, index: any) => {
+      const date = dayjs(item.firstDay).format('MM')
+      if (!month.includes(months[parseInt(date) - 1])) {
+        month.push({text: months[parseInt(date) - 1], index: index * 19 + 30})
+      }
+    });
+    redis.set('afterGithubData', JSON.stringify({
+      totalCount,
+      month,
+      weeks,
+    }), 'EX', 60 * 60 * 24)
+    return '每日获取GitHub贡献图任务执行成功'
+  } catch (e) {
+    console.error(e)
+    return '每日获取GitHub贡献图任务执行失败'
+  }
+}
+
+/*
+*  每日获取GitHub提交信息任务
+* */
+export async function getGithubCommitHandle() {
+  const {token1, token2, token3} = Config.githubUserConfig;
+  const owner = 'lzyszds';
+  const repo = 'blog-admin';
+
+  try {
+    // 获取工作流运行状态
+    const workflowResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/runs?per_page=100`, {
+      headers: {
+        'Authorization': `bearer ${token1}${token2}${token3}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+
+    if (!workflowResponse.ok) {
+      throw new Error(`HTTP error! status: ${workflowResponse.status}`);
+    }
+
+    const workflowData = await workflowResponse.json();
+    const workflowRuns = workflowData.workflow_runs;
+
+    const workflowStatus = {
+      total: workflowRuns.length,
+      runInfoList: [] as CommitRunInfo[],
+    };
+
+    for (const run of workflowRuns) {
+      const runInfo: CommitRunInfo = {
+        id: run.id,
+        name: run.name,
+        status: run.status,
+        conclusion: run.conclusion,
+        commit_sha: run.head_sha,
+        commit_message: run.head_commit.message,
+        commit_author: run.head_commit.author.name,
+        run_url: run.html_url,
+        created_at: run.created_at,
+        avatar_url: run.actor.avatar_url,
+        html_url: 'https://github.com/lzyszds/blog-admin/commit/' + run.head_sha
+      };
+
+      workflowStatus.runInfoList.push(runInfo);
+    }
+    redis.set('workflowStatus', JSON.stringify(workflowStatus), 'EX', 60 * 60 * 24);
+    return '每日获取GitHub提交信息任务执行成功';
+  } catch (e: any) {
+    console.error(e);
+    return '每日获取GitHub提交信息任务执行失败';
+  }
+}
+
 
 type EmailPosts = {
   [key: string]: (body: any) => any;  // 或根据实际的函数签名修改

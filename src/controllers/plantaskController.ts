@@ -5,18 +5,9 @@ import {Context} from "hono";
 
 class PlantaskController {
 
-  //获取邮箱定时计划配置
-  async getEmailTaskConfig(c: Context) {
-    return c.json(await PlantaskService.getEmailTaskConfig(c));
-  }
-
-  //更新邮箱定时计划配置
-  async updateEmailTaskConfig(c: Context) {
-    return c.json(await PlantaskService.updateEmailTaskConfig(c));
-  }
 
   //立即执行任务
-  async executeTaskImmediately  (c: Context) {
+  async executeTaskImmediately(c: Context) {
     return c.json(await PlantaskService.executeTaskImmediately(c));
   }
 
@@ -43,6 +34,11 @@ class PlantaskController {
   //获取所有任务
   async getAllTask(c: Context) {
     return c.json(await PlantaskService.getAllTask(c));
+  }
+
+  //获取可添加的任务参数
+  async getTaskParams(c: Context) {
+    return c.json(await PlantaskService.getTaskParams(c));
   }
 
   //根据任务id获取任务日志

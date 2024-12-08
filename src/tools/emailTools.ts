@@ -1,9 +1,15 @@
 import nodemailer from 'nodemailer';
-import fse from 'fs-extra';
-import path from 'path';
 
 
-const emailConfig = fse.readJSONSync(path.join(__dirname, '../../static/config/email.json'))
+const emailConfig = {
+  "auth_pass": "tijuryafqckkdbfg",
+  "myEmail": "lzyszds2048@foxmail.com",
+  "myName": "lzyszds",
+  "host": "smtp.qq.com",
+  "service": "gmail",
+  "port": 465,
+  "secure": true
+}
 
 // 创建一个SMTP客户端配置
 const config = {

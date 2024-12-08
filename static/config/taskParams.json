@@ -1,0 +1,26 @@
+{
+  "githubEmail": [
+    "planTime",
+    "subject",
+    "content",
+    "toEmail",
+    "notSubmittedTip",
+    "submitTip"
+  ],
+  "loveLetterEmail": [
+    "planTime",
+    "subject",
+    "toEmail",
+    "content",
+    "aiKey",
+    "openAiBaseUrl",
+    "model",
+    "describe"
+  ],
+  "dailyGithub": [
+    "planTime"
+  ],
+  "commitGithub": [
+    "planTime"
+  ]
+}

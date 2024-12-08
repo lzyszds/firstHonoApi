@@ -26,7 +26,7 @@ export async function dailyGetAbstractAi() {
     const articleList: Articles[] = await ArticleMapper.findAll("%%", 1, 999999);
 
     for (let i = 1; i <= (180 / articleList.length); i++) {
-      articleList.forEach(async (item: Articles) => {
+      for (const item of articleList) {
         await sleep(5000)
         // 获取文章内容
         const content: string = item.content;
@@ -36,7 +36,7 @@ export async function dailyGetAbstractAi() {
         // 将结果写入文件
         await handleAiFox.writeAiTextStore(result, item.aid.toString());
         logger.info(`文章${item.aid}摘要获取成功`)
-      });
+      }
     }
 
   } catch (error) {
