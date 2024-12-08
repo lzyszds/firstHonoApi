@@ -86,7 +86,7 @@ class TaskManager {
       throw error;
     } finally {
       // 更新任务最后执行时间
-      await PlantaskMapper.updatePlantaskLastExecutedAt(taskConfig.id!);
+      if (!manualExecution) await PlantaskMapper.updatePlantaskLastExecutedAt(taskConfig.id!);
     }
   }
 
