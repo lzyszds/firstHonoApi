@@ -117,6 +117,7 @@ export function sendEmailLove(body: string): Promise<string> {
         to: loveTetter.toEmail
       })
 
+
       // 发送邮件
       emailTools.transporter.sendMail(mail, (err: any, info: any) => {
         if (err) {
@@ -159,12 +160,13 @@ export async function dailyGithub() {
         month.push({text: months[parseInt(date) - 1], index: index * 19 + 30})
       }
     });
-    redis.set('afterGithubData', JSON.stringify({
+    const newData = JSON.stringify({
       totalCount,
       month,
       weeks,
-    }), 'EX', 60 * 60 * 24)
-    return '每日获取GitHub贡献图任务执行成功'
+    })
+    redis.set('afterGithubData', newData, 'EX', 60 * 60 * 24)
+    return newData
   } catch (e) {
     console.error(e)
     return '每日获取GitHub贡献图任务执行失败'
@@ -218,7 +220,7 @@ export async function getGithubCommitHandle() {
       workflowStatus.runInfoList.push(runInfo);
     }
     redis.set('workflowStatus', JSON.stringify(workflowStatus), 'EX', 60 * 60 * 24);
-    return '每日获取GitHub提交信息任务执行成功';
+    return JSON.stringify(workflowStatus.runInfoList.map((item: any) => item.commit_message))
   } catch (e: any) {
     console.error(e);
     return '每日获取GitHub提交信息任务执行失败';
@@ -233,5 +235,7 @@ type EmailPosts = {
 
 export default {
   sendEmailWarn: sendEmailWarn,
-  sendEmailLove: sendEmailLove
+  sendEmailLove: sendEmailLove,
+  dailyGithub: dailyGithub,
+  commitGithub: getGithubCommitHandle,
 } as EmailPosts

@@ -1,5 +1,5 @@
 {
-  "githubEmail": [
+  "sendEmailWarn": [
     "planTime",
     "subject",
     "content",
@@ -7,7 +7,7 @@
     "notSubmittedTip",
     "submitTip"
   ],
-  "loveLetterEmail": [
+  "sendEmailLove": [
     "planTime",
     "subject",
     "toEmail",
@@ -17,10 +17,6 @@
     "model",
     "describe"
   ],
-  "dailyGithub": [
-    "planTime"
-  ],
-  "commitGithub": [
-    "planTime"
-  ]
+  "dailyGithub": [],
+  "commitGithub": []
 }

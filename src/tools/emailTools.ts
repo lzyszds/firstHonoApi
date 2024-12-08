@@ -28,6 +28,7 @@ const config = {
 const transporter = nodemailer.createTransport(config)
 
 const mail: any = (params: { subject: string, to: string, html: string }) => {
+
   return {
     // 发件人 邮箱  '昵称<发件人邮箱>'
     from: `${emailConfig.myName}<${emailConfig.myEmail}>`,

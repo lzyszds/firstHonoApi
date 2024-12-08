@@ -42,8 +42,8 @@ class TaskManager {
   }
 
 
-  // 执行具体任务逻辑
-  async executeTask(taskConfig: Task) {
+  // 执行具体任务逻辑 manualExecution 是否手动执行
+  async executeTask(taskConfig: Task, manualExecution: boolean = false) {
     type TaskHandler = (params?: any) => Promise<string> | Promise<void>;
     // Create a map of task types to their corresponding handler functions
     const taskHandlers: Record<string, TaskHandler> = {
@@ -55,12 +55,20 @@ class TaskManager {
     let html = '';
     try {
       const handler = taskHandlers[taskConfig.type];
-      if (!handler) {
-        throw new Error(`未知任务类型: ${taskConfig.type} ,只有以下类型：${Object.keys(taskHandlers).join('、')}`);
+      const isEmailTask = taskConfig.type == 'sendEmailLove' || taskConfig.type == 'sendEmailWarn'
+      if (!manualExecution && isEmailTask) {
+        //当天是否已经发送过
+        const today = new Date();
+        const todayStr = today.toLocaleDateString();
+        const lastExecutedAt = taskConfig.last_executed_at?.toLocaleDateString();
+        console.log('lastExecutedAt', lastExecutedAt, todayStr)
+        if (lastExecutedAt == todayStr) {
+          console.log('今天已经发送过了')
+          throw new Error('今天已经发送过了')
+        }
       }
 
       html = await handler(taskConfig.params_body) || '';
-
       // 记录成功日志
       await PlantaskMapper.saveTaskLogResult({
         task_id: taskConfig.id!,
@@ -68,7 +76,6 @@ class TaskManager {
         message: `任务 ${taskConfig.name} 执行成功`,
         content: html
       });
-
     } catch (error: any) {
       // 记录失败日志
       await PlantaskMapper.saveTaskLogResult({

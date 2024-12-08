@@ -3,8 +3,6 @@ import fse from 'fs-extra';
 import path from 'path'
 import logger from "@/middleware/logger";
 import ApiConfig from "@/domain/ApiCongfigType";
-import {createTask, destroyTask} from '@/utils/taskScheduler';
-import emailPost from '@/tools/taskHandleList';
 import {taskManager} from "@/utils/taskManager";
 import PlantaskMapper from '@/models/plantask'
 
@@ -58,12 +56,15 @@ class PlantaskService {
       //查询当前任务的参数
       const result = await PlantaskMapper.getPlantaskById(taskId)
       const type: string = result[0].type
-      if (emailPost.hasOwnProperty(type)) {
+      const typeAll = await fse.readJson(path.join(__dirname, '../../static/config/taskParams.json'))
+      if (typeAll.hasOwnProperty(type)) {
         try {
-          await taskManager.executeTask(result[0])
+          await taskManager.executeTask(result[0], true)
         } catch (err: any) {
           return apiConfig.fail(err.message)
         }
+      } else {
+        return apiConfig.fail('任务类型不存在')
       }
 
       return apiConfig.success(result[0].name + "-执行成功")
