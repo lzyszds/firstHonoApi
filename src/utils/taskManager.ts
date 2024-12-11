@@ -1,8 +1,8 @@
 // src/utils/taskManager.ts
-import {Task} from "@/domain/Plantask";
-import {v4 as uuidv4} from 'uuid'
+import { Task } from "@/domain/Plantask";
+import { v4 as uuidv4 } from 'uuid'
 import PlantaskMapper from '@/models/plantask'
-import {dailyGithub, getGithubCommitHandle, sendEmailLove, sendEmailWarn} from "@/tools/taskHandleList";
+import { dailyGithub, getGithubCommitHandle, sendEmailLove, sendEmailWarn } from "@/tools/taskHandleList";
 
 const schedule = require('node-schedule');
 
@@ -13,7 +13,6 @@ class TaskManager {
   // 启动时加载任务
   async initTasks() {
     const enabledTasks = await PlantaskMapper.getPlantaskList()
-
     for (const task of enabledTasks) {
       this.scheduleTask(task)
     }
@@ -21,6 +20,16 @@ class TaskManager {
 
   // 创建并调度任务
   async scheduleTask(taskConfig: Task) {
+    const existingJob = this.tasks.get(taskConfig.id!);
+
+    if (existingJob) {
+      // 如果任务已存在，则取消之前的任务
+      console.log('任务已存在，取消并重新调度', taskConfig.name);
+      existingJob.cancel();
+      this.tasks.delete(taskConfig.id!);
+    }
+
+
     const job = schedule.scheduleJob(taskConfig.cron_expression, async () => {
       try {
         await this.executeTask(taskConfig)
@@ -28,8 +37,10 @@ class TaskManager {
         console.error(`执行任务 ${taskConfig.name} 失败`, error)
       }
     })
-
+    // 将新任务添加到任务集合中
+    job.id = taskConfig.id!;
     this.tasks.set(taskConfig.id!, job)
+
     return taskConfig.id!
   }
 
@@ -62,9 +73,9 @@ class TaskManager {
         const todayStr = today.toLocaleDateString();
         const lastExecutedAt = taskConfig.last_executed_at?.toLocaleDateString();
         console.log('lastExecutedAt', lastExecutedAt, todayStr)
+
         if (lastExecutedAt == todayStr) {
-          console.log('今天已经发送过了')
-          throw new Error('今天已经发送过了')
+          return console.log('今天已经发送过了')
         }
       }
 
@@ -76,6 +87,9 @@ class TaskManager {
         message: `任务 ${taskConfig.name} 执行成功`,
         content: html
       });
+
+      // 更新任务最后执行时间
+      if (!manualExecution) await PlantaskMapper.updatePlantaskLastExecutedAt(taskConfig.id!);
     } catch (error: any) {
       // 记录失败日志
       await PlantaskMapper.saveTaskLogResult({
@@ -84,9 +98,6 @@ class TaskManager {
         message: error.message
       });
       throw error;
-    } finally {
-      // 更新任务最后执行时间
-      if (!manualExecution) await PlantaskMapper.updatePlantaskLastExecutedAt(taskConfig.id!);
     }
   }
 
@@ -115,6 +126,14 @@ class TaskManager {
     } else {
       throw new Error('任务不存在')
     }
+  }
+
+  // 清理任务
+  async clearTask() {
+    for (const job of this.tasks.values()) {
+      job.cancel();
+    }
+    this.tasks.clear();
   }
 }
 
