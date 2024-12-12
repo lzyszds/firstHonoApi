@@ -31,8 +31,6 @@ class ToolkitMapper {
                           a.create_date,
                           a.title,
                           a.cover_img,
-                          a.comments_count,
-                          a.partial_content,
                           a.access_count,
                           wb_users.uname,
                           wb_users.head_img
