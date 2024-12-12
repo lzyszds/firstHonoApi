@@ -4,7 +4,8 @@ interface ApiConfig<T> {
     code: number,
     msg: string,
     data: T | null,
-    traceId: string
+    traceId: string,
+    url?: T | string,
 }
 
 export interface DataTotal<T> {
@@ -63,6 +64,14 @@ class ApiConfig<T> {
         this.code = 404;
         this.msg = msg;
         this.data = null;
+        return this
+    }
+
+    imageResult(url: T) {
+        this.code = 200;
+        this.msg = 'success';
+        this.data = url;
+        this.url = url
         return this
     }
 

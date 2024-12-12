@@ -1,12 +1,12 @@
-import {nanoid} from 'nanoid';
+import { nanoid } from 'nanoid';
 import sharp from 'sharp';
 import path from 'path';
 import fs from 'fs';
 import ApiConfig from "@/domain/ApiCongfigType";
 import Config from "../../config";
-import {uploadImage} from "@/utils/pictureBed";
-import {uploadFileLimit} from "@/utils/helpers";
-import {PictureBedCreate} from "@/domain/PictureBedType";
+import { uploadImage } from "@/utils/pictureBed";
+import { uploadFileLimit } from "@/utils/helpers";
+import { PictureBedCreate } from "@/domain/PictureBedType";
 
 
 interface ImageUploadResponse {
@@ -35,15 +35,15 @@ export class ImageUploadService {
    */
   private async convertWebpToPng(file: File, buffer: Buffer): Promise<{ file: File, buffer: Buffer }> {
     if (file.type !== 'image/webp') {
-      return {file, buffer};
+      return { file, buffer };
     }
 
     const pngBuffer = await sharp(buffer).png().toBuffer();
-    const blob = new Blob([pngBuffer], {type: 'image/png'});
+    const blob = new Blob([pngBuffer], { type: 'image/png' });
     const convertedFile = new File(
       [blob],
       file.name.replace('.webp', '.png'),
-      {type: 'image/png'}
+      { type: 'image/png' }
     );
 
     return {
@@ -58,18 +58,19 @@ export class ImageUploadService {
   private async saveImageToLocal(buffer: Buffer, filename: string): Promise<void> {
     const articleImagesPath = `/static/img/cacheImage/`;
     const uploadPath = path.join(__dirname, '../..', articleImagesPath + filename);
+    //@ts-ignore
     await fs.promises.writeFile(uploadPath, buffer);
   }
 
   /**
    * 上传图片到图床并保存信息
    */
-  public async uploadImageToPictureBed(c: any, ToolkotMapper: any): Promise<ApiConfig<string>> {
-    const apiConfig = new ApiConfig<string>(c);
+  public async uploadImageToPictureBed(c: any, ToolkotMapper: any): Promise<ApiConfig<any>> {
+    const apiConfig = new ApiConfig(c);
 
     try {
       const formData = await c.req.parseBody();
-      const file = formData['upload-image'] as File;
+      const file = formData['upload-image'] ?? formData['upload']
 
       if (!file) {
         throw new Error('上传文件,请检查文件是否存在');
@@ -83,7 +84,7 @@ export class ImageUploadService {
       let buffer = Buffer.from(new Uint8Array(arrayBuffer));
 
       // 处理 WebP 转换
-      const {file: processedFile, buffer: processedBuffer} =
+      const { file: processedFile, buffer: processedBuffer } =
         await this.convertWebpToPng(file, buffer);
 
       // 上传图片至图床
@@ -113,7 +114,7 @@ export class ImageUploadService {
         await this.saveImageToLocal(uploadResult, filename);
       }
 
-      return apiConfig.success(`${Config.pictureBedProxy}${name}`);
+      return apiConfig.imageResult(`${Config.pictureBedProxy}${name}`);
 
     } catch (error) {
       return apiConfig.fail(error instanceof Error ? error.message : '上传失败');
