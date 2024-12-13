@@ -84,78 +84,108 @@ app.get('/api/ip', (c) => {
   // @ts-ignore
   return c.json({ ip: c.env.requestIP(c.req.raw) })
 })
-
+// WebSocket Upgrade Handler
 app.get('/api/websocket', (c) => {
-  // 手动处理 Upgrade 头信息
   if (c.req.header('Upgrade') !== 'websocket') {
     return c.text('Not a WebSocket request', 400);
   }
 
-  // 使用 Bun.upgrade 处理 WebSocket 升级
-  const upgraded = Bun.upgrade(c.req.raw, {
+  const server = c.server; // Get the Bun server instance
+  const success = server.upgrade(c.req.raw, {
     data: {
-      userId: null
+      userId: null, // Initially, userId is not known
     },
+    // You might want to pass through headers like Sec-WebSocket-Protocol here
   });
 
-  // 如果升级失败，返回错误
-  if (!upgraded) {
-    return new Response("Failed to upgrade to WebSocket", { status: 500 });
+  if (success) {
+    // Return undefined to let Bun handle the WebSocket connection
+    return undefined;
   }
 
-  // 如果升级成功，返回 WebSocket Response
-  return new Response(upgraded.socket, {
-    headers: upgraded.headers
-  });
+  return new Response('Failed to upgrade to WebSocket', { status: 500 });
 });
 
-// 初始化执行计划任务
-taskManager.initTasks()
+
+// Initialize tasks
+taskManager.initTasks();
+
+// Server Configuration
 export default {
-  port: 2024,
-  fetch: async (req: Request, server: any) => {
-    // 获取当前请求的URL
-    const url = new URL(req.url)
-    // 检查是否为静态资源请求
+  port: Number(process.env.PORT) || 2024,
+  fetch: (req: Request, server: Server) => { // Access the server object here
+    const url = new URL(req.url);
+
+    // WebSocket Upgrade Handling (directly within fetch)
     if (url.pathname === '/api/websocket') {
-      // 使用 Hono 的 Request 对象
-      return handleWebSocketUpgrade(req, server);
+      if (req.headers.get('Upgrade') !== 'websocket') {
+        return new Response('Not a WebSocket request', { status: 400 });
+      }
+
+      const success = server.upgrade(req, {
+        data: {
+          userId: null,
+        } as WebSocketData,
+      });
+
+      if (success) {
+        return undefined; // Let Bun handle the WebSocket connection
+      }
+
+      return new Response('Failed to upgrade to WebSocket', { status: 500 });
     }
-    // 处理其他请求
-    return app.fetch(req, server)
+
+    // Handle non-WebSocket requests using Hono
+    return app.fetch(req, server); 
   },
-  websocket: { // This is a placeholder to satisfy TypeScript
-    message: async (ws: WebSocket | any, message: string | Uint8Array) => {
-
-      const decodedMessage =
-        typeof message === "string"
-          ? message
-          : new TextDecoder().decode(message);
-      const data = JSON.parse(decodedMessage);
-
-      if (data.type === "在线" && data.userId && data.token) {
-        //校验token是否id 一致
-        const user = await userService.getUserInfoToken(data.token);
-
-        if (data.userId != user[0].id) {
-          return ws.close(1008, "token 错误");
-        }
-        ws.data.userId = data.userId;
-        onlineUsers.add(data.userId);
-        connections.set(data.userId, ws);
-        console.log(`User ${data.userId} connected`);
-        broadcastOnlineUsers();
+  websocket: {
+    open: (ws: any) => { // Type as any if a specific WebSocket type is not available
+      console.log('WebSocket opened');
+      // Check for ws.data and ws.data.userId if needed
+      if (ws.data && ws.data.userId) {
+          console.log(`User ${ws.data.userId} connected (on open)`);
       }
     },
-    close: (ws: WebSocket | any) => {
-      console.log("WebSocket closed");
-      
-      if (ws.data.userId) {
+    message: async (ws: any, message: string | Uint8Array) => {
+      try {
+        const decodedMessage = typeof message === 'string' ? message : new TextDecoder().decode(message);
+        const data = JSON.parse(decodedMessage);
+
+        if (data.type === 'login' && data.userId && data.token) {
+          // ... Verify token (using your preferred method) ...
+          const user = await userService.getUserInfoToken(data.token);
+          if (data.userId != user[0].id) {
+            return ws.close(1008, 'token 错误');
+          }
+
+          // Set userId on ws.data after successful verification
+          ws.data.userId = data.userId;
+
+          onlineUsers.add(data.userId);
+          connections.set(data.userId, ws);
+          console.log(`User ${data.userId} connected (on message)`);
+          broadcastOnlineUsers();
+        } else {
+          // Handle other message types...
+          // You may need to check ws.data.userId here as well,
+          // depending on your application logic.
+          console.log('Received unknown message:', data);
+          
+        }
+      } catch (error) {
+        console.error('Error handling WebSocket message:', error);
+        ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }));
+      }
+    },
+    close: (ws: any) => {
+      console.log('WebSocket closed');
+      // Check for ws.data and ws.data.userId if needed
+      if (ws.data && ws.data.userId) {
         onlineUsers.delete(ws.data.userId);
         connections.delete(ws.data.userId);
         console.log(`User ${ws.data.userId} disconnected`);
         broadcastOnlineUsers();
       }
     },
-  }
-} 
+  },
+};
