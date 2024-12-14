@@ -1,20 +1,20 @@
-import { Hono } from 'hono'
-import { serveStatic } from 'hono/bun'
-import { authMiddleware } from './middleware/auth'
-import { camelCaseMiddleware } from './middleware/camelcase'
-import { corsAllMiddleware } from './middleware/cors';
+import {Hono} from 'hono'
+import {serveStatic} from 'hono/bun'
+import {authMiddleware} from './middleware/auth'
+import {camelCaseMiddleware} from './middleware/camelcase'
+import {corsAllMiddleware} from './middleware/cors';
 import logger from './middleware/logger';
 import db from './utils/db'
 import routes from './routes';
 // import setTimeTask from './tools/setTimeTask';
 import redis from './utils/redis'; // 导入 Redis 客户端
-import { addTraceId } from './middleware/trace_time';
-import { moreLogger } from './middleware/moreLogger';
+import {addTraceId} from './middleware/trace_time';
+import {moreLogger} from './middleware/moreLogger';
 import fs from "fs";
 import path from "path";
-import { taskManager } from "@/utils/taskManager";
-import { broadcastOnlineUsers, connections, handleWebSocketUpgrade, onlineUsers } from './tools/webScoket';
-import userService from './services/userService';
+import {taskManager} from "@/utils/taskManager";
+import {handleWebSocketUpgrade, websocket} from './tools/webScoket';
+import Config from "../config";
 
 
 // 扩展 Context 类型
@@ -28,14 +28,14 @@ const app = new Hono()
 let bunServer
 
 //静态资源映射
-app.use('/static/*', serveStatic({ root: './' }))
+app.use('/static/*', serveStatic({root: './'}))
 
 // 导入中间件
 
 
 app.use('/api/*', corsAllMiddleware)// 配置CORS中间件
 app.use('/api/*', authMiddleware) // 认证中间件
-app.use('/api/*', camelCaseMiddleware) //  驼峰命名中间件 
+app.use('/api/*', camelCaseMiddleware) //  驼峰命名中间件
 // 添加 Redis 客户端到上下文
 app.use('/api/*', (c, next) => {
   c.redis = redis;
@@ -82,28 +82,23 @@ app.onError((err, c) => {
 
 app.get('/api/ip', (c) => {
   // @ts-ignore
-  return c.json({ ip: c.env.requestIP(c.req.raw) })
+  return c.json({ip: c.env.requestIP(c.req.raw)})
 })
+
+
 // WebSocket Upgrade Handler
-app.get('/api/websocket', (c) => {
+app.get('/websocket', (c: any) => {
   if (c.req.header('Upgrade') !== 'websocket') {
-    return c.text('Not a WebSocket request', 400);
+    return c.text('不是WebSocket请求', 400);
   }
 
   const server = c.server; // Get the Bun server instance
-  const success = server.upgrade(c.req.raw, {
-    data: {
-      userId: null, // Initially, userId is not known
-    },
-    // You might want to pass through headers like Sec-WebSocket-Protocol here
-  });
-
-  if (success) {
-    // Return undefined to let Bun handle the WebSocket connection
+  try {
+    server.upgrade(c.req.raw, {data: {userId: null}});
     return undefined;
+  } catch (e) {
+    return new Response("Failed to upgrade to WebSocket", {status: 500});
   }
-
-  return new Response('Failed to upgrade to WebSocket', { status: 500 });
 });
 
 
@@ -112,80 +107,16 @@ taskManager.initTasks();
 
 // Server Configuration
 export default {
-  port: Number(process.env.PORT) || 2024,
-  fetch: (req: Request, server: Server) => { // Access the server object here
+  port: Number(Config.port) || 2024,
+  fetch: (req: Request, server: any) => { // Access the server object here,
     const url = new URL(req.url);
 
     // WebSocket Upgrade Handling (directly within fetch)
-    if (url.pathname === '/api/websocket') {
-      if (req.headers.get('Upgrade') !== 'websocket') {
-        return new Response('Not a WebSocket request', { status: 400 });
-      }
-
-      const success = server.upgrade(req, {
-        data: {
-          userId: null,
-        } as WebSocketData,
-      });
-
-      if (success) {
-        return undefined; // Let Bun handle the WebSocket connection
-      }
-
-      return new Response('Failed to upgrade to WebSocket', { status: 500 });
+    if (url.pathname === '/websocket') {
+      handleWebSocketUpgrade(req, server);
     }
-
     // Handle non-WebSocket requests using Hono
-    return app.fetch(req, server); 
+    return app.fetch(req, server);
   },
-  websocket: {
-    open: (ws: any) => { // Type as any if a specific WebSocket type is not available
-      console.log('WebSocket opened');
-      // Check for ws.data and ws.data.userId if needed
-      if (ws.data && ws.data.userId) {
-          console.log(`User ${ws.data.userId} connected (on open)`);
-      }
-    },
-    message: async (ws: any, message: string | Uint8Array) => {
-      try {
-        const decodedMessage = typeof message === 'string' ? message : new TextDecoder().decode(message);
-        const data = JSON.parse(decodedMessage);
-
-        if (data.type === 'login' && data.userId && data.token) {
-          // ... Verify token (using your preferred method) ...
-          const user = await userService.getUserInfoToken(data.token);
-          if (data.userId != user[0].id) {
-            return ws.close(1008, 'token 错误');
-          }
-
-          // Set userId on ws.data after successful verification
-          ws.data.userId = data.userId;
-
-          onlineUsers.add(data.userId);
-          connections.set(data.userId, ws);
-          console.log(`User ${data.userId} connected (on message)`);
-          broadcastOnlineUsers();
-        } else {
-          // Handle other message types...
-          // You may need to check ws.data.userId here as well,
-          // depending on your application logic.
-          console.log('Received unknown message:', data);
-          
-        }
-      } catch (error) {
-        console.error('Error handling WebSocket message:', error);
-        ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }));
-      }
-    },
-    close: (ws: any) => {
-      console.log('WebSocket closed');
-      // Check for ws.data and ws.data.userId if needed
-      if (ws.data && ws.data.userId) {
-        onlineUsers.delete(ws.data.userId);
-        connections.delete(ws.data.userId);
-        console.log(`User ${ws.data.userId} disconnected`);
-        broadcastOnlineUsers();
-      }
-    },
-  },
+  websocket: websocket,
 };

@@ -1,5 +1,6 @@
-
 // 在线用户集合
+import userService from "@/services/userService";
+
 export const onlineUsers = new Set<string>();
 
 // 用户 ID 到 WebSocket 连接的映射
@@ -11,7 +12,7 @@ export function broadcastOnlineUsers() {
   connections.forEach((ws) => {
     if (ws.readyState === 1) {
       // Bun 使用数字表示状态, 1 代表 OPEN
-      ws.send(JSON.stringify({ type: "onlineUsers", data: userList }));
+      ws.send(JSON.stringify({type: "onlineUsers", data: userList}));
     }
   });
 }
@@ -21,32 +22,63 @@ export function handleWebSocketUpgrade(
   req: Request,
   server: any
 ) {
-  // 从请求头中获取 JWT
-  const token = req.headers.get("Sec-WebSocket-Protocol");
 
-  let userId = null;
-  // if (token) {
-  //     try {
-  //         const secret = 'YOUR_JWT_SECRET';
-  //         const payload = await verify(token, secret);
-  //         userId = payload.sub; // 获取用户 ID
-  //     } catch (error) {
-  //         console.error('JWT verification failed:', error);
-  //         // 可以选择关闭连接或发送错误消息
-  //     }
-  // }
-
-  const success = server.upgrade(req, {
-    data: {
-      userId: null, // 初始时 userId 未设置
-    },
-  });
-  console.log(success);
-
-  if (success) {
+  try {
+    server.upgrade(req, {data: {userId: null}});
     return undefined;
+  } catch (e) {
+    return new Response("升级到WebSocket失败", {status: 500});
   }
 
-  return new Response("Failed to upgrade to WebSocket", { status: 500 });
 }
 
+
+export const websocket = {
+  open: (ws: any) => { // Type as any if a specific WebSocket type is not available
+    console.log('WebSocket opened');
+    // Check for ws.data and ws.data.userId if needed
+    if (ws.data && ws.data.userId) {
+      console.log(`User ${ws.data.userId} connected (on open)`);
+    }
+  },
+  message: async (ws: any, message: string | Uint8Array) => {
+    try {
+      const decodedMessage = typeof message === 'string' ? message : new TextDecoder().decode(message);
+      const data = JSON.parse(decodedMessage);
+
+      if (data.type === '在线' && data.userId && data.token) {
+        // ... Verify token (using your preferred method) ...
+        const user = await userService.getUserInfoToken(data.token);
+        if (data.userId != user[0].uid) {
+          return ws.close(1008, 'token 错误');
+        }
+
+        // Set userId on ws.data after successful verification
+        ws.data.userId = data.userId;
+
+        onlineUsers.add(data.userId);
+        connections.set(data.userId, ws);
+        console.log(`User ${data.userId} connected (on message)`);
+        broadcastOnlineUsers();
+      } else {
+        // Handle other message types...
+        // You may need to check ws.data.userId here as well,
+        // depending on your application logic.
+        console.log('Received unknown message:', data);
+      }
+    } catch (error) {
+      console.error('Error handling WebSocket message:', error);
+      ws.send(JSON.stringify({type: 'error', message: 'Invalid message format'}));
+    }
+  },
+  close: (ws: any) => {
+    console.log('WebSocket closed');
+    // Check for ws.data and ws.data.userId if needed
+    if (ws.data && ws.data.userId) {
+      onlineUsers.delete(ws.data.userId);
+      connections.delete(ws.data.userId);
+      console.log(`User ${ws.data.userId} disconnected`);
+      broadcastOnlineUsers();
+    }
+  },
+}
