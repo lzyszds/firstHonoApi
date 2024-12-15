@@ -8,7 +8,6 @@
     "submitTip"
   ],
   "sendEmailLove": [
-    "planTime",
     "subject",
     "toEmail",
     "content",

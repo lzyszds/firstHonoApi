@@ -29,9 +29,9 @@ class PlantaskMapper {
 
   //存储任务
   public async savePlantask(task: Task): Promise<number> {
-    const sql: string = `INSERT INTO wb_tasks (id, name, type, cron_expression, is_enabled)
-                         VALUES (?, ?, ?, ?, ?)`
-    return await db.query(sql, [task.id, task.name, task.type, task.cron_expression, task.is_enabled]);
+    const sql: string = `INSERT INTO wb_tasks (id, name, type, cron_expression, is_enabled, params_body)
+                         VALUES (?, ?, ?, ?, ?,?)`
+    return await db.query(sql, [task.id, task.name, task.type, task.cron_expression, task.is_enabled, task.params_body]);
   }
 
   //修改任务

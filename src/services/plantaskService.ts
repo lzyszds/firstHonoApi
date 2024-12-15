@@ -11,7 +11,6 @@ class PlantaskService {
   public async createTask(c: Context) {
     const apiConfig = new ApiConfig(c)
     const {name, type, cron_expression, params_body} = await c.req.json()
-
     try {
       const taskId = await taskManager.createTask({
         name,
