@@ -136,8 +136,10 @@ class ToolkotService {
   //获取已存进图库中的图片
   public async getPictureBedImageList(c: Context): Promise<ApiConfig<PictureBedType[]>> {
     const apiConfig: ApiConfig<PictureBedType[]> = new ApiConfig(c);
+    let {page = 1, limit = 999, type = '%%'} = c.req.query()
     try {
-      const result = await ToolkotMapper.getImageInfo();
+      if (type === 'all') type = '%%'
+      const result = await ToolkotMapper.getImageInfo({page, limit, type,})
       return apiConfig.success(result)
     } catch (e: any) {
       return apiConfig.fail(e.message)

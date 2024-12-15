@@ -13,3 +13,9 @@ export interface PictureBedCreate {
 export interface PictureBedType extends PictureBedCreate {
   id: number;                  // 图片分类ID，主键，自动递增（由数据库自动处理）
 }
+
+export interface PictureBedImageListParams {
+  page: number | string
+  limit: number | string
+  type: string
+}

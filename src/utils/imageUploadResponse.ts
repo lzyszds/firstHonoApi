@@ -71,6 +71,8 @@ export class ImageUploadService {
     try {
       const formData = await c.req.parseBody();
       const file = formData['upload-image'] ?? formData['upload']
+      //图片存放类型
+      const imageDepositType = formData.type;
 
       if (!file) {
         throw new Error('上传文件,请检查文件是否存在');
@@ -99,7 +101,7 @@ export class ImageUploadService {
         name: filename,
         url: `${Config.pictureBedProxy}${name}`,
         other_sizes: sizeArr.join(','),
-        derive_from: formData.derive_from,
+        derive_from:  imageDepositType,
         derive_from_id: Number(formData.derive_from_id) || 0
       } as PictureBedCreate);
 

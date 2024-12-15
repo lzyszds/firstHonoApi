@@ -1,7 +1,6 @@
 import {AdminHomeType, AdminHomeTypeSql} from "@/domain/AdminHomeType";
 import db from "../utils/db";
-import {PictureBedCreate, PictureBedType} from "@/domain/PictureBedType";
-import {OkPacket} from "mysql";
+import {PictureBedCreate, PictureBedImageListParams, PictureBedType} from "@/domain/PictureBedType";
 
 class ToolkitMapper {
 
@@ -48,24 +47,30 @@ class ToolkitMapper {
   }
 
   //获取图床中所有图片的信息
-  public async getImageInfo(): Promise<PictureBedType[]> {
+  public async getImageInfo(params: PictureBedImageListParams): Promise<PictureBedType[]> {
     const sql: string = `SELECT *
-                         FROM wb_picture_bed`
-    return await db.query(sql, [])
+                         FROM wb_picture_bed
+                         WHERE derive_from LIKE ? limit ?, ?`
+    console.log(sql,params.type)
+    return await db.query(sql, [params.type, (Number(params.page) - 1) * Number(params.limit), params.limit]);
   }
 
   //新增图片信息
   public async saveImageInfo(params: PictureBedCreate): Promise<number> {
-    const sql: string = `INSERT INTO wb_picture_bed (url, name, other_sizes, derive_from, derive_from_id)
-                         VALUES (?, ?, ?, ?, ?); `
+    const sql: string = `
+        INSERT
+        INTO wb_picture_bed(url, name, other_sizes, derive_from, derive_from_id)
+        VALUES (?, ?, ?, ?, ?);
+    `
     return await db.query(sql, [params.url, params.name, params.other_sizes, params.derive_from, params.derive_from_id]);
   }
 
   //删除图片
-  public async deleteImage(id: number): Promise<OkPacket> {
-    const sql: string = `DELETE
-                         FROM wb_picture_bed
-                         WHERE id = ?`
+  public async deleteImage(id: number): Promise<any> {
+    const sql: string = `
+        DELETE
+        FROM wb_picture_bed
+        WHERE id = ? `
     return await db.query(sql, [id]);
   }
 
