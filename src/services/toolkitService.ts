@@ -1,17 +1,18 @@
 import ApiConfig from "../domain/ApiCongfigType";
-import {AdminHomeType, ProcessAdminHomeType} from "../domain/AdminHomeType";
+import { AdminHomeType, ProcessAdminHomeType } from "../domain/AdminHomeType";
 import ToolkotMapper from "../models/toolkit";
 import ArticleMapper from "../models/article";
-import IP2Region, {IP2RegionResult} from "ip2region"
+import IP2Region, { IP2RegionResult } from "ip2region"
 
 import Config from "../../config";
-import {WeatherDataType, WeatherDataTypeResponse} from "@/domain/ToolkitType";
+import { WeatherDataType, WeatherDataTypeResponse } from "@/domain/ToolkitType";
 import dayjs from "dayjs";
 import axios from "axios";
-import {Context} from "hono";
+import { Context } from "hono";
 import imageUploadResponse from "@/utils/imageUploadResponse";
-import {PictureBedType} from "@/domain/PictureBedType";
-import {dailyGithub, getGithubCommitHandle} from "@/tools/taskHandleList";
+import { PictureBedType } from "@/domain/PictureBedType";
+import { dailyGithub, getGithubCommitHandle } from "@/tools/taskHandleList";
+import { getIpAddress } from "@/utils/getIpAddress";
 
 
 class ToolkotService {
@@ -23,8 +24,7 @@ class ToolkotService {
     try {
 
       //获取当前请求的IP地址
-      let ipAddress = c.env.requestIP(c.req.raw).address
-      if (ipAddress === '::1') ipAddress = '180.139.210.51'
+      const ipAddress = await getIpAddress(c)
       // 创建一个 IP2Region 对象
       const query: IP2Region = new IP2Region();
       // 查询 IP 地址的归属地
@@ -46,12 +46,22 @@ class ToolkotService {
         })
       }
       //根据地区获取当前城市编码
-      const {adcode} = await ToolkotMapper.getCityCodeByIp(res?.city!)
-      //根据城市编码获取天气预报
-      const {data} = await axios(`https://restapi.amap.com/v3/weather/weatherInfo?city=${adcode}&key=${Config.weatherKey}`)
-      const weatherData: WeatherDataTypeResponse = data
+      const { adcode } = await ToolkotMapper.getCityCodeByIp(res?.city!)
 
+      let weatherInfo = await c.redis.get('ipAddress' + adcode)
+      console.log('ipAddress' + adcode,weatherInfo);
+      
+      if (weatherInfo) {
+        return apiConfig.success(JSON.parse(weatherInfo))
+      }
+
+      //根据城市编码获取天气预报
+      const { data } = await axios(`https://restapi.amap.com/v3/weather/weatherInfo?city=${adcode}&key=${Config.weatherKey}`)
+      const weatherData: WeatherDataTypeResponse = data
       weatherData.lives[0].ip = ipAddress
+
+      //缓存数据 缓存时间为半小时
+      await c.redis.set('ipAddress' + adcode, JSON.stringify(weatherData.lives[0]), 'EX', 60 * 60 * 0.5)
       return apiConfig.success(weatherData.lives[0])
     } catch (e: any) {
       console.log(e)
@@ -136,10 +146,10 @@ class ToolkotService {
   //获取已存进图库中的图片
   public async getPictureBedImageList(c: Context): Promise<ApiConfig<PictureBedType[]>> {
     const apiConfig: ApiConfig<PictureBedType[]> = new ApiConfig(c);
-    let {page = 1, limit = 999, type = '%%'} = c.req.query()
+    let { page = 1, limit = 999, type = '%%' } = c.req.query()
     try {
       if (type === 'all') type = '%%'
-      const result = await ToolkotMapper.getImageInfo({page, limit, type,})
+      const result = await ToolkotMapper.getImageInfo({ page, limit, type, })
       return apiConfig.success(result)
     } catch (e: any) {
       return apiConfig.fail(e.message)
@@ -155,7 +165,7 @@ class ToolkotService {
   public async deletePictureBedImage(c: Context): Promise<ApiConfig<string>> {
     const apiConfig: ApiConfig<string> = new ApiConfig(c);
     try {
-      const {id} = await c.req.json()
+      const { id } = await c.req.json()
       // await deleteImage(resource_id)
       const result = await ToolkotMapper.deleteImage(id);
       if (result.affectedRows === 0) {
