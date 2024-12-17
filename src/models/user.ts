@@ -83,6 +83,7 @@ class UserModel {
   public async updateUser(user: UserAny): Promise<any> {
     //函数式处理sql语句
     const query = joinSQL.UPDATE(user, "wb_users", "uid");
+    
     return await db.query(query[0], query[1]);
   }
 

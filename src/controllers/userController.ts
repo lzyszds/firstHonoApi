@@ -11,6 +11,10 @@ import { comparePasswords, hashPassword } from "../utils/passwordUtils";
 import dayjs from "dayjs";
 import { generateToken } from "@/utils/authUtils";
 import { nanoid } from "nanoid";
+import { getIpAddress } from "@/utils/getIpAddress";
+import ToolkotMapper from "@/models/toolkit";
+import { PictureBedType } from "@/domain/PictureBedType";
+
 
 class UserController {
   //获取用户列表
@@ -63,15 +67,15 @@ class UserController {
 
   /* 获取所有头像 */
   async getAllHeadImg(c: Context) {
-    // 获取文件夹 public/img/updateImg 中的所有文件
-    const files = fs.readdirSync(
-      path.join(__dirname, "../../static/img/updateImg")
-    );
+    const images = await ToolkotMapper.getImageInfo({
+      page: 1,
+      limit: 7,
+      type: 'head'
+    })
+
     // 返回一个成功的 ApiConfig 对象，包含图片的路径
-    const apiConfig: ApiConfig<string[]> = new ApiConfig<string[]>(c);
-    const result = apiConfig.success(
-      files.map((item) => "/static/img/updateImg/" + item)
-    );
+    const apiConfig: ApiConfig<PictureBedType[]> = new ApiConfig<PictureBedType[]>(c);
+    const result = apiConfig.success(images);
     return c.json(result);
   }
 
@@ -108,7 +112,7 @@ class UserController {
 
     // 如果用户信息存在，说明登录成功
     if (isMatch) {
-      const ip = c.req.header("x-forwarded-for") || c.req.header("cf-connecting-ip") || c.req.header("x-real-ip") || "::1";
+      const ip = await getIpAddress(c);
       //修改用户最后登录时间
       const last_login_date = dayjs().format("YYYY-MM-DD HH:mm:ss");
       await userService.updateUser({ uid: user.uid, last_login_date, last_login_ip: ip });

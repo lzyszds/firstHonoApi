@@ -13,6 +13,8 @@ import imageUploadResponse from "@/utils/imageUploadResponse";
 import { PictureBedType } from "@/domain/PictureBedType";
 import { dailyGithub, getGithubCommitHandle } from "@/tools/taskHandleList";
 import { getIpAddress } from "@/utils/getIpAddress";
+import fs from "fs"
+import path from "path"
 
 
 class ToolkotService {
@@ -49,8 +51,7 @@ class ToolkotService {
       const { adcode } = await ToolkotMapper.getCityCodeByIp(res?.city!)
 
       let weatherInfo = await c.redis.get('ipAddress' + adcode)
-      console.log('ipAddress' + adcode,weatherInfo);
-      
+
       if (weatherInfo) {
         return apiConfig.success(JSON.parse(weatherInfo))
       }
@@ -171,6 +172,10 @@ class ToolkotService {
       if (result.affectedRows === 0) {
         return apiConfig.fail('删除失败')
       }
+
+      //将图片从本地删除
+      await fs.unlinkSync(path.join(__dirname, '../../static/img/cacheImage', result.resource_id))
+
       return apiConfig.success('删除成功')
     } catch (e: any) {
       return apiConfig.fail(e.message)

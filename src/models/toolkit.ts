@@ -51,7 +51,6 @@ class ToolkitMapper {
     const sql: string = `SELECT *
                          FROM wb_picture_bed
                          WHERE derive_from LIKE ? limit ?, ?`
-    console.log(sql,params.type)
     return await db.query(sql, [params.type, (Number(params.page) - 1) * Number(params.limit), params.limit]);
   }
 
