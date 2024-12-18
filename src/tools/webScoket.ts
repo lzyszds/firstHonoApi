@@ -1,5 +1,5 @@
 // 在线用户集合
-import userService from "@/services/userService";
+import {decodeToken} from "@/utils/authUtils";
 
 export const onlineUsers = new Set<string>();
 
@@ -48,8 +48,8 @@ export const websocket = {
 
       if (data.type === '在线' && data.userId && data.token) {
         // ... Verify token (using your preferred method) ...
-        const user = await userService.getUserInfoToken(data.token);
-        if (data.userId != user[0].uid) {
+        const user = decodeToken(data.token)
+        if (data.userId != user.uid) {
           return ws.close(1008, 'token 错误');
         }
 

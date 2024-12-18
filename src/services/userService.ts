@@ -1,6 +1,6 @@
 // src/services/userService.ts
 import userModel from '../models/user'
-import { User, UserRole, UserAny, GetUserListParams } from '../domain/User'
+import { User, UserRole, UserAny, GetUserListParams } from '@/domain/User'
 import { OkPacket } from 'mysql';
 
 
@@ -20,11 +20,6 @@ class UserService {
   // 获取符合搜索
   async getUserList(search: GetUserListParams, pages: string, limit: string): Promise<UserRole[]> {
     return await userModel.getUserList(search, pages, limit);
-  }
-
-  // 根据token获取用户信息
-  async getUserInfoToken(token: string): Promise<UserRole> {
-    return await userModel.getUserInfoToken(token);
   }
 
   //检查用户名获取密码

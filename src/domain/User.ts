@@ -10,7 +10,6 @@ interface UserRole {
     head_img: string;
     whether_use?: number | null; // '?' denotes optional field
     signature?: string | null; // '?' denotes optional field
-    activation_key: string;
     create_ip?: string;
     last_login_ip?: string;
 }

@@ -1,8 +1,8 @@
-import { SystemLog } from "@/domain/SystemType"
+import {SystemLog} from "@/domain/SystemType"
 import systemMapper from "@/models/system"
-import { Context } from "hono"
-import UserMapper from "@/models/user";
-import { getCookie } from "hono/cookie";
+import {Context} from "hono"
+import {getCookie} from "hono/cookie";
+import {decodeToken} from "@/utils/authUtils";
 
 
 export const moreLogger = async (c: Context, next: () => Promise<void>) => {
@@ -37,7 +37,7 @@ export const moreLogger = async (c: Context, next: () => Promise<void>) => {
       if (cachedUserData) {
         userInfo = JSON.parse(cachedUserData);
       } else {
-        userInfo = (await UserMapper.getUserInfoToken(token || ''))[0]
+        userInfo = decodeToken(token)
         await c.redis.set(token!, JSON.stringify(userInfo), 'EX', 86400)
       }
       userId = userInfo.uid

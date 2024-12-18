@@ -1,17 +1,18 @@
 //文章接口
 
 import ArticleMapper from "../models/article";
-import {ArticleData, Articles, ArticleType} from "../domain/Articles";
+import {ArticleData, Articles, ArticleType} from "@/domain/Articles";
 import ApiConfig from "../domain/ApiCongfigType";
-import {checkObj, randomUnique, uploadFileLimit, useUserInfoGetData} from "../utils/helpers";
+import {checkObj, randomUnique, uploadFileLimit, useUserInfoGetData} from "@/utils/helpers";
 import path from "path";
 import fs from "fs";
-import UserMapper from "../models/user";
 import {Context} from "hono";
 import {getCookie, setCookie} from "hono/cookie";
 import logger from '../middleware/logger';
 import {nanoid} from "nanoid";
 import {random} from 'radash'
+import {decodeToken} from "@/utils/authUtils";
+import {User} from "@/domain/User";
 
 class ArticleService {
 
@@ -25,7 +26,7 @@ class ArticleService {
     if (cachedUserData) {
       userInfo = JSON.parse(cachedUserData);
     } else {
-      userInfo = await UserMapper.getUserInfoToken(token || '')
+      userInfo = decodeToken(token!)
     }
 
     const cacheKey = `articles_page_${pages}_limit_${limit}`
@@ -84,7 +85,7 @@ class ArticleService {
     const access_count = random(500, 1000)
 
     //根据token获取uid
-    const {uid} = (await UserMapper.getUserInfoToken(getCookie(c, 'lzytkn')!))[0];
+    const {uid} = decodeToken(getCookie(c, 'lzytkn')!) as User;
     //获取文章发布时间 2021-08-01 12:00:00
     const create_date = new Date().toLocaleString();
     const queryData = await ArticleMapper.addArticle({
@@ -159,9 +160,8 @@ class ArticleService {
       imgBuffer = await fs.promises.readFile(imgPath);
     } catch (err: any) {
       logger.error(err.message);
-    } finally {
-      return imgBuffer;
     }
+    return imgBuffer;
   }
 
   //更新文章
@@ -199,7 +199,6 @@ class ArticleService {
   /**
    *  上传文章图片
    *  @param c 请求对象
-   *  @param file 文件对象
    *  @returns 返回上传成功
    *  限制配置: 文件大小限制为10MB
    *  具体的上传图片逻辑
@@ -215,7 +214,7 @@ class ArticleService {
 
     //实例化apiConfig
     const apiConfig = new ApiConfig(c);
-    let result = "" as any;
+    let result: any;
     const formData = await c.req.parseBody();
 
     // 假设文件字段名是 'file'

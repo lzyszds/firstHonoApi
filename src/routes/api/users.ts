@@ -23,8 +23,6 @@ const routes: Routes = {
   post: {
     // 登陆
     "/login": userController.login,
-    //开始记录用户在线时间
-    "/startOnlineTime": userController.startOnlineTime,
     //新增用户账号
     "/addUser": userController.addUser,
     //修改用户信息

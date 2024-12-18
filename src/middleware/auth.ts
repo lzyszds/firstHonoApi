@@ -1,8 +1,9 @@
 //src/middleware/auth.ts
 import {Context, Next} from 'hono'
 import CONFIG from '../../config';
-import userModel from '@/models/user';
 import {getCookie} from 'hono/cookie';
+import {decodeToken} from "@/utils/authUtils";
+import {User} from "@/domain/User";
 
 export async function authMiddleware(c: Context, next: Next) {
   const api = c.req.path.split('/')
@@ -17,15 +18,22 @@ export async function authMiddleware(c: Context, next: Next) {
     return c.json({error: '未经许可(或批准)的', code: 401}, 401)
   }
 
-  // 验证token逻辑...
-  const userInfo = await userModel.getUserInfoToken(token!)
+  try {
+    // 验证token逻辑...
+    const userInfo = decodeToken(token) as User
 
-  if (!userInfo[0].uid) {
-    return c.json({error: '未经许可(或批准)的', code: 401}, 401)
+    // const userInfo = await userModel.getUserInfoToken(token!)
+    console.log(userInfo, "userInfo")
+    if (!userInfo.uid) {
+      return c.json({error: '未经许可(或批准)的', code: 401}, 401)
+    }
+    if (userInfo.whether_use != 1) {
+      return c.json({error: '该账号已被禁用', code: 401}, 401)
+    }
+  } catch (e) {
+    return c.json({error: '令牌已过期', code: 401}, 401)
   }
-  if (userInfo[0].whether_use != 1) {
-    return c.json({error: '该账号已被禁用', code: 401}, 401)
-  }
+
 
   await next()
 }
