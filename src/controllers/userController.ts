@@ -97,6 +97,7 @@ class UserController {
 
     // 调用 userMapper.login 方法获取用户信息 通过账号获取加密后的密码
     const user: User = await userService.checkUser(username);
+    console.log(user)
     if (!user) {
       // 返回一个失败的 ApiConfig 对象，包含提示信息
       return respond(apiConfig.fail("该账号不存在"));
@@ -106,7 +107,7 @@ class UserController {
     if (user.whether_use != 1) {
       return respond(apiConfig.fail("该账号已被禁用"));
     }
-
+    console.log(password, user.password)
     // 比较密码是否正确
     const isMatch: boolean = await comparePasswords(password, user.password);
 
@@ -203,7 +204,7 @@ class UserController {
   //修改用户信息
   async updateUser(c: Context) {
     const params = await c.req.json();
-    let result = "" as any;
+    let result: any;
     // 创建一个 ApiConfig 对象
     const apiConfig = new ApiConfig<string>(c);
     //检查参数是否包含 id
@@ -220,6 +221,8 @@ class UserController {
       try {
         if (params.password) {
           params.password = await hashPassword(params.password)
+        }else{
+          delete params.password
         }
         // 调用 userMapper.updateUser 方法获取用户信息
         const updateIfOk = await userService.updateUser(params);
