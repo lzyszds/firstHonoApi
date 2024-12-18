@@ -44,6 +44,7 @@ class UserModel {
   async getUserList(search: GetUserListParams, pages: string, limit: string): Promise<UserRole[]> {
     const offset: number = (Number(pages) - 1) * Number(limit);
     const {whereValue, params} = handleParamsWildcard(search)
+
     let sql: string = `
         SELECT *
         FROM wb_users ${whereValue}

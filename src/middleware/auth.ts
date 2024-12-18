@@ -23,7 +23,6 @@ export async function authMiddleware(c: Context, next: Next) {
     const userInfo = decodeToken(token) as User
 
     // const userInfo = await userModel.getUserInfoToken(token!)
-    console.log(userInfo, "userInfo")
     if (!userInfo.uid) {
       return c.json({error: '未经许可(或批准)的', code: 401}, 401)
     }

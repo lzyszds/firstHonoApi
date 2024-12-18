@@ -3,8 +3,8 @@ import * as https from "https";
 import path from "node:path";
 import dayjs from "dayjs";
 import sharp from "sharp";
-import { log } from "node:console";
-import { UserRole } from "@/domain/User";
+import {UserRole} from "@/domain/User";
+
 const rootPath = path.resolve(__dirname, '../../');
 
 /**
@@ -47,7 +47,7 @@ const sliceData = <T>(data: T[], pages: number, limit: number): { data: T[], tot
   // 截取当前页数的数据
   data = data.slice(start, end);
 
-  return { data, total };
+  return {data, total};
 };
 
 /**
@@ -175,7 +175,7 @@ function checkObj(obj: Record<string, any>, keys: string[], onlyOneExists?: stri
 
 /**
  * 检查值是否为空
- * 
+ *
  * @param value - 需要检查的值
  * @returns 如果值为空则返回 true，否则返回 false
  */
@@ -194,7 +194,7 @@ function parseUserAgent(userAgent: any) {
   var browserName = "Unknown";
   var browserVersion = "Unknown";
   var os = "Unknown";
-  if (!userAgent) return { browserSystem: "Unknown", browserVersion, deviceSystem: os };
+  if (!userAgent) return {browserSystem: "Unknown", browserVersion, deviceSystem: os};
   // 浏览器信息
   if (userAgent.indexOf("Firefox") > -1) {
     browserName = "Firefox";
@@ -220,7 +220,7 @@ function parseUserAgent(userAgent: any) {
     // 可以进一步解析iOS的版本
   }
 
-  return { browserSystem: browserName + browserVersion, deviceSystem: os };
+  return {browserSystem: browserName + browserVersion, deviceSystem: os};
 }
 
 // 读取 JSON 文件
@@ -257,7 +257,7 @@ const appendToFile = (content: string, filePath: string) => {
  *  @param MAX_FILE_SIZE 上传文件的大小限制 单位 MB
  *  @param ALLOWED_FILE_TYPES 允许上传的文件类型
  *  @param REDUCE_SIZE 压缩后的文件大小限制 单位 MB
-*/
+ */
 const uploadFileLimit = async (
   file: any,
   MAX_FILE_SIZE: number,
@@ -285,7 +285,7 @@ const uploadFileLimit = async (
     try {
       // 使用 sharp 压缩图片
       let compressedBuffer = await sharp(nodeBuffer)
-        .jpeg({ quality: 100 }) // 调整质量以压缩图片
+        .jpeg({quality: 100}) // 调整质量以压缩图片
         .toBuffer();
 
       // 如果压缩后的文件仍然超过 REDUCE_SIZE，继续调整质量压缩
@@ -298,7 +298,7 @@ const uploadFileLimit = async (
             return compressedBuffer
           }
           compressedBuffer = await sharp(compressedBuffer)
-            .jpeg({ quality })
+            .jpeg({quality})
             .toBuffer();
         }
       }
@@ -320,15 +320,18 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 // 处理通配符参数 给参数添加 % %
 const handleParamsWildcard = (obj: any) => {
   const params = []
+
+  const idAll = ['aid', 'id', 'uid']
+
   let whereValue = ''
   for (let key in obj) {
     if (obj[key]) {
-      obj[key] = `%${obj[key]}%`
-      whereValue += (!whereValue ? 'where ' : 'and ') + `${key} like ? `
+      obj[key] = idAll.includes(key) ? obj[key] : `%${obj[key]}%`
+      whereValue += (!whereValue ? 'where ' : 'and ') + `${key} ${idAll.includes(key) ? '=' : 'like'} ? `
       params.push(obj[key])
     }
   }
-  return { whereValue, params }
+  return {whereValue, params}
 }
 
 

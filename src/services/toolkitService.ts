@@ -1,18 +1,18 @@
 import ApiConfig from "../domain/ApiCongfigType";
-import { AdminHomeType, ProcessAdminHomeType } from "../domain/AdminHomeType";
+import {AdminHomeType, ProcessAdminHomeType} from "../domain/AdminHomeType";
 import ToolkotMapper from "../models/toolkit";
 import ArticleMapper from "../models/article";
-import IP2Region, { IP2RegionResult } from "ip2region"
+import IP2Region, {IP2RegionResult} from "ip2region"
 
 import Config from "../../config";
-import { WeatherDataType, WeatherDataTypeResponse } from "@/domain/ToolkitType";
+import {WeatherDataType, WeatherDataTypeResponse} from "@/domain/ToolkitType";
 import dayjs from "dayjs";
 import axios from "axios";
-import { Context } from "hono";
+import {Context} from "hono";
 import imageUploadResponse from "@/utils/imageUploadResponse";
-import { PictureBedType } from "@/domain/PictureBedType";
-import { dailyGithub, getGithubCommitHandle } from "@/tools/taskHandleList";
-import { getIpAddress } from "@/utils/getIpAddress";
+import {PictureBedType} from "@/domain/PictureBedType";
+import {dailyGithub, getGithubCommitHandle} from "@/tools/taskHandleList";
+import {getIpAddress} from "@/utils/getIpAddress";
 import fs from "fs"
 import path from "path"
 
@@ -48,7 +48,7 @@ class ToolkotService {
         })
       }
       //根据地区获取当前城市编码
-      const { adcode } = await ToolkotMapper.getCityCodeByIp(res?.city!)
+      const {adcode} = await ToolkotMapper.getCityCodeByIp(res?.city!)
 
       let weatherInfo = await c.redis.get('ipAddress' + adcode)
 
@@ -57,7 +57,7 @@ class ToolkotService {
       }
 
       //根据城市编码获取天气预报
-      const { data } = await axios(`https://restapi.amap.com/v3/weather/weatherInfo?city=${adcode}&key=${Config.weatherKey}`)
+      const {data} = await axios(`https://restapi.amap.com/v3/weather/weatherInfo?city=${adcode}&key=${Config.weatherKey}`)
       const weatherData: WeatherDataTypeResponse = data
       weatherData.lives[0].ip = ipAddress
 
@@ -75,7 +75,7 @@ class ToolkotService {
   public async getAdminHomeData(c: Context): Promise<ApiConfig<ProcessAdminHomeType>> {
     const data: AdminHomeType = await ToolkotMapper.getAdminHomeData();
     //获取最新文章6篇
-    const newArticle = await ArticleMapper.findAll('%%', 1, 6);
+    const newArticle = await ArticleMapper.findAll('', '', '', 1, 6);
     //处理数据 不需要返回所有数据 删除对象中的content属性
     newArticle.forEach((item: any) => {
       delete item.content
@@ -147,10 +147,10 @@ class ToolkotService {
   //获取已存进图库中的图片
   public async getPictureBedImageList(c: Context): Promise<ApiConfig<PictureBedType[]>> {
     const apiConfig: ApiConfig<PictureBedType[]> = new ApiConfig(c);
-    let { page = 1, limit = 999, type = '%%' } = c.req.query()
+    let {page = 1, limit = 999, type = '%%'} = c.req.query()
     try {
       if (type === 'all') type = '%%'
-      const result = await ToolkotMapper.getImageInfo({ page, limit, type, })
+      const result = await ToolkotMapper.getImageInfo({page, limit, type,})
       return apiConfig.success(result)
     } catch (e: any) {
       return apiConfig.fail(e.message)
@@ -166,7 +166,7 @@ class ToolkotService {
   public async deletePictureBedImage(c: Context): Promise<ApiConfig<string>> {
     const apiConfig: ApiConfig<string> = new ApiConfig(c);
     try {
-      const { id } = await c.req.json()
+      const {id} = await c.req.json()
       // await deleteImage(resource_id)
       const result = await ToolkotMapper.deleteImage(id);
       if (result.affectedRows === 0) {

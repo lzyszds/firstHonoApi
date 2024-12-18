@@ -18,7 +18,7 @@ class ArticleService {
 
   public async findAll(c: Context) {
     const apiConfig: ApiConfig<ArticleData<Articles[]>> = new ApiConfig(c);
-    let {search = "", pages = 1, limit = 10} = c.req.query();
+    let {title, username, aid, pages = 1, limit = 10} = c.req.query();
 
     const token = getCookie(c, 'lzytkn')
     const cachedUserData = await c.redis.get(token!);
@@ -29,18 +29,17 @@ class ArticleService {
       userInfo = decodeToken(token!)
     }
 
-    const cacheKey = `articles_page_${pages}_limit_${limit}`
-
-    // 现在可以通过 c.redis 访问 Redis 客户端 
+    const cacheKey = `articles_page_${pages}_limit_${limit}_title_${title}_username_${username}_aid_${aid}`
+    // 现在可以通过 c.redis 访问 Redis 客户端
     const cachedData = await c.redis.get(cacheKey);
     // 如果缓存存在，直接返回缓存数据
-    if (cachedData) {
-      return apiConfig.success(useUserInfoGetData(cachedData, userInfo));
-    }
+    // if (cachedData) {
+    //   return apiConfig.success(useUserInfoGetData(cachedData, userInfo));
+    // }
 
-    const total: number = await ArticleMapper.getArticleListTotal(search);
+    const total: number = await ArticleMapper.getArticleListTotal({title, username, aid});
 
-    const data: Articles[] = await ArticleMapper.findAll(search, pages, limit);
+    const data: Articles[] = await ArticleMapper.findAll({title, username, aid}, pages, limit);
     const result = {total: total, data}
     await c.redis.setex(cacheKey, 600, JSON.stringify(result));
 

@@ -41,7 +41,6 @@ class UserController {
   async getUserInfoToken(c: Context) {
     const token = getCookie(c, 'lzytkn')
     const userInfo = decodeToken(token!);
-    console.log(userInfo)
     const apiConfig: ApiConfig<UserRole> = new ApiConfig<UserRole>(c);
     // @ts-ignore
     const result = apiConfig.success(userInfo);
@@ -107,7 +106,6 @@ class UserController {
     if (user.whether_use != 1) {
       return respond(apiConfig.fail("该账号已被禁用"));
     }
-    console.log(password, user.password)
     // 比较密码是否正确
     const isMatch: boolean = await comparePasswords(password, user.password);
 

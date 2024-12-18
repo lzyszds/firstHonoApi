@@ -1,61 +1,65 @@
 //文章接口
-import db from "../utils/db";
+import db from "@/utils/db";
+import {handleParamsWildcard} from "@/utils/helpers";
+import type {GetArticleListParams} from "@/domain/Articles";
 
 class ArticleMapper {
 
   //获取文章列表总数
-  public async getArticleListTotal(search: string): Promise<number> {
+  public async getArticleListTotal(search: GetArticleListParams,): Promise<number> {
     let sql: string = `
-            SELECT COUNT(*) as total 
-            FROM wb_articles 
-            WHERE title LIKE ? OR  partial_content LIKE ? 
-        `;
-    const total = await db.query(sql, [search, search, search]);
+        SELECT COUNT(*) as total
+        FROM wb_articles
+        WHERE wb_articles.title LIKE ?
+          AND wb_articles.aid = ? -- 这里修改了，明确指定 aid 属于 wb_articles 表
+    `;
+
+    // 确保 search.title 包含通配符，如果需要的话
+    const titleParam = search.title ? `%${search.title}%` : '%';
+    // 确保 search.aid 是一个明确的值，如果它用于精确匹配
+    const aidParam = search.aid || ''; // 如果 aid 是可选的，处理它可能为空的情况
+
+    const total = await db.query(sql, [titleParam, aidParam]);
     return total[0].total;
   }
 
   //获取文章列表
-  public async findAll(search: string = "%%", pages: number | string, limit: number | string): Promise<any> {
+  public async findAll(search: GetArticleListParams, pages: number | string, limit: number | string): Promise<any> {
     pages = Number(pages);
     limit = Number(limit);
+
+    let {whereValue, params} = handleParamsWildcard(search)
+
+    whereValue = whereValue.replace('aid', 'a.aid')
+
     const sql = `
-      SELECT 
-        a.*, 
-        wb_users.uname, 
-        wb_users.head_img, 
-        GROUP_CONCAT(DISTINCT wb_articlestype.name) AS tags,  -- 使用 DISTINCT 来避免重复标签
-        (
-          SELECT COUNT(*) 
-          FROM wb_comments 
-          WHERE wb_comments.article_id = a.aid
-        ) AS comment_count  -- 子查询来统计每篇文章的评论数
-      FROM 
-        wb_articles AS a
-      INNER JOIN 
-        wb_users ON a.uid = wb_users.uid
-      LEFT JOIN 
-        wb_articles_types ON a.aid = wb_articles_types.aid
-      LEFT JOIN 
-        wb_articlestype ON wb_articles_types.type_id = wb_articlestype.type_id
-      WHERE 
-        a.title LIKE ? OR a.partial_content LIKE ?
-      GROUP BY 
-        a.aid
-      ORDER BY 
-        a.aid DESC
-      LIMIT ?, ?
+        SELECT a.*,
+               wb_users.uname,
+               wb_users.head_img,
+               GROUP_CONCAT(DISTINCT wb_articlestype.name) AS tags,         -- 使用 DISTINCT 来避免重复标签
+               (SELECT COUNT(*)
+                FROM wb_comments
+                WHERE wb_comments.article_id = a.aid)      AS comment_count -- 子查询来统计每篇文章的评论数
+        FROM wb_articles AS a
+                 INNER JOIN
+             wb_users ON a.uid = wb_users.uid
+                 LEFT JOIN
+             wb_articles_types ON a.aid = wb_articles_types.aid
+                 LEFT JOIN
+             wb_articlestype ON wb_articles_types.type_id = wb_articlestype.type_id
+            ${whereValue}
+        GROUP BY a.aid
+        ORDER BY a.aid DESC LIMIT ?, ?
     `;
     const offset = (pages - 1) * limit;
-
+    console.log(whereValue, params)
     try {
       // 使用参数数组直接传递分页和搜索参数
-      const result = await db.query(sql, [`%${search}%`, `%${search}%`, offset, limit]);
-      return result; // 返回查询结果
+      return await db.query(sql, [...params, offset, limit]); // 返回查询结果
     } catch (e) {
       throw e; // 直接抛出异常
     }
   }
-
 
 
   //获取文章信息
@@ -63,22 +67,30 @@ class ArticleMapper {
     try {
 
       const updateSql = `UPDATE wb_articles
-        SET access_count = access_count + 1
-        WHERE aid = ?`
+                         SET access_count = access_count + 1
+                         WHERE aid = ?`
       await db.query(updateSql, [id])
 
       const sql = `
-        SELECT 
-          a.aid, a.create_date, a.title, a.content, a.main, a.modified_date, 
-          a.cover_img, a.partial_content,  
-          u.uname, u.head_img, u.signature,
-          GROUP_CONCAT(at.name) AS tags
-        FROM wb_articles AS a
-        JOIN wb_users AS u ON a.uid = u.uid
-        LEFT JOIN wb_articles_types AS art ON a.aid = art.aid
-        LEFT JOIN wb_articlestype AS at ON art.type_id = at.type_id
-        WHERE a.aid = ?
-        GROUP BY a.aid;
+          SELECT a.aid,
+                 a.create_date,
+                 a.title,
+                 a.content,
+                 a.main,
+                 a.modified_date,
+                 a.cover_img,
+                 a.partial_content,
+                 u.uname,
+                 u.head_img,
+                 u.signature,
+                 GROUP_CONCAT(at.name) AS tags
+          FROM wb_articles AS a
+                   JOIN wb_users AS u ON a.uid = u.uid
+                   LEFT JOIN wb_articles_types AS art ON a.aid = art.aid
+                   LEFT JOIN wb_articlestype AS at
+          ON art.type_id = at.type_id
+          WHERE a.aid = ?
+          GROUP BY a.aid;
       `;
 
       const [result] = await db.query(sql, [id, id]);
@@ -110,40 +122,40 @@ class ArticleMapper {
   //获取文章类型列表
   public async findArticleTypeAll() {
     let sql: string = `
-            SELECT *
-            FROM wb_articlestype 
-            WHERE whether_use = 1
-        `;
+        SELECT *
+        FROM wb_articlestype
+        WHERE whether_use = 1
+    `;
     return await db.query(sql, []);
   }
 
   //根据文章类型获取文章类型id
   public async getArticleTypeByName(name: string) {
     let sql: string = `
-            SELECT type_id
-            FROM wb_articlestype 
-            WHERE name = ?
-        `;
+        SELECT type_id
+        FROM wb_articlestype
+        WHERE name = ?
+    `;
     return await db.query(sql, [name]);
   }
 
   //将文章id和文章类型id插入到文章类型表
   public async addArticleTypeByAid(type_id: string, aid: string) {
     let sql: string = `
-            INSERT INTO wb_articles_types (type_id, aid) 
-            VALUES (?, ?)
-        `;
+        INSERT INTO wb_articles_types (type_id, aid)
+        VALUES (?, ?)
+    `;
     return await db.query(sql, [type_id, aid]);
   }
 
   //新增文章
   public async addArticle(params: any) {
-    const { title, content, cover_img, main, partial_content, uid, create_date,access_count } = params;
+    const {title, content, cover_img, main, partial_content, uid, create_date, access_count} = params;
     let sql: string = `
-            INSERT INTO wb_articles (title, content, cover_img, main, partial_content, uid, create_date,access_count) 
-            VALUES (?, ?, ?, ?, ?, ?, ?,?)
-        `;
-    return await db.query(sql, [title, content, cover_img, main, partial_content, uid, create_date,access_count]);
+        INSERT INTO wb_articles (title, content, cover_img, main, partial_content, uid, create_date, access_count)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+    return await db.query(sql, [title, content, cover_img, main, partial_content, uid, create_date, access_count]);
   }
 
   //修改文章
@@ -163,10 +175,10 @@ class ArticleMapper {
     //修改时间
     sqlSetField += ', modified_date = NOW()'
     let sql: string = `
-            UPDATE wb_articles
-            SET ${sqlSetField}
-            WHERE aid = ?
-        `;
+        UPDATE wb_articles
+        SET ${sqlSetField}
+        WHERE aid = ?
+    `;
     sqlQueryArr.push(params.aid)
     return await db.query(sql, sqlQueryArr);
   }
@@ -174,9 +186,9 @@ class ArticleMapper {
   //新增文章类型
   public async addArticleType(name: string) {
     let sql: string = `
-            INSERT INTO wb_articlestype (name, whether_use) 
-            VALUES (?, ?)
-        `;
+        INSERT INTO wb_articlestype (name, whether_use)
+        VALUES (?, ?)
+    `;
     let result
     try {
       result = await db.query(sql, [name, 1]);
@@ -189,9 +201,10 @@ class ArticleMapper {
   //删除文章类型
   public async deleteArticleType(type_id: string) {
     let sql: string = `
-            DELETE FROM wb_articlestype
-            WHERE type_id = ?
-        `;
+        DELETE
+        FROM wb_articlestype
+        WHERE type_id = ?
+    `;
     return await db.query(sql, [type_id]);
   }
 
@@ -199,9 +212,10 @@ class ArticleMapper {
   //删除文章
   public async deleteArticle(id: string) {
     let sql: string = `
-            DELETE FROM wb_articles
-            WHERE aid = ?
-        `;
+        DELETE
+        FROM wb_articles
+        WHERE aid = ?
+    `;
     return await db.query(sql, [id]);
   }
 
