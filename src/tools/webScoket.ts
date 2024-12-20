@@ -1,5 +1,7 @@
 // 在线用户集合
-import {decodeToken} from "@/utils/authUtils";
+import { decodeToken } from "@/utils/authUtils";
+import UserModel from "@/models/user";
+import { convertToCamelCase } from "@/middleware/camelcase";
 
 export const onlineUsers = new Set<string>();
 
@@ -7,12 +9,20 @@ export const onlineUsers = new Set<string>();
 export const connections = new Map<string, WebSocket>();
 
 // 广播在线用户列表
-export function broadcastOnlineUsers() {
-  const userList = Array.from(onlineUsers);
+export async function broadcastOnlineUsers() {
+  const userListFindAll = Array.from(onlineUsers).map(async res => {
+    return await UserModel.findById(res);
+  });
+  let userList: any[] = [];
+  for (const element of userListFindAll) {
+    userList.push((await element)[0]);
+  }
+  
+  ;
   connections.forEach((ws) => {
     if (ws.readyState === 1) {
       // Bun 使用数字表示状态, 1 代表 OPEN
-      ws.send(JSON.stringify({type: "onlineUsers", data: userList}));
+      ws.send(JSON.stringify({ type: "onlineUsers", data: convertToCamelCase(userList) }));
     }
   });
 }
@@ -24,10 +34,10 @@ export function handleWebSocketUpgrade(
 ) {
 
   try {
-    server.upgrade(req, {data: {userId: null}});
+    server.upgrade(req, { data: { userId: null } });
     return undefined;
   } catch (e) {
-    return new Response("升级到WebSocket失败", {status: 500});
+    return new Response("升级到WebSocket失败", { status: 500 });
   }
 
 }
@@ -68,7 +78,7 @@ export const websocket = {
       }
     } catch (error) {
       console.error('Error handling WebSocket message:', error);
-      ws.send(JSON.stringify({type: 'error', message: 'Invalid message format'}));
+      ws.send(JSON.stringify({ type: 'error', message: 'Invalid message format' }));
     }
   },
   close: (ws: any) => {

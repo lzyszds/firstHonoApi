@@ -2,15 +2,15 @@ import { Context } from "hono"
 
 
 /* 驼峰转换 */
-// Helper function to convert snake_case to camelCase
+//将snake_case转换为camelCase的辅助函数
 function toCamelCase(str: string): string {
   return str.replace(/([-_][a-z])/g, (group) =>
     group.toUpperCase().replace('-', '').replace('_', '')
   )
 }
 
-// Recursive function to convert all keys in an object to camelCase
-function convertToCamelCase(obj: any): any {
+//递归函数，用于将对象中的所有键转换为camelCase
+export function convertToCamelCase(obj: any): any {
   if (Array.isArray(obj)) {
     return obj.map(convertToCamelCase)
   } else if (obj !== null && typeof obj === 'object') {
