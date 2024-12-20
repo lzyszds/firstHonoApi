@@ -1,63 +1,63 @@
 //文章接口
 import db from "@/utils/db";
-import {handleParamsWildcard} from "@/utils/helpers";
-import type {GetArticleListParams} from "@/domain/Articles";
+import { handleParamsWildcard } from "@/utils/helpers";
+import type { Articles, GetArticleListParams } from "@/domain/Articles";
 
 class ArticleMapper {
 
   //获取文章列表总数
-  public async getArticleListTotal(search: GetArticleListParams,): Promise<number> {
-    let sql: string = `
-        SELECT COUNT(*) as total
-        FROM wb_articles
-        WHERE wb_articles.title LIKE ?
-          AND wb_articles.aid = ? -- 这里修改了，明确指定 aid 属于 wb_articles 表
-    `;
+  public async getArticleListTotal(search: GetArticleListParams): Promise<number> {
+    try {
+      const { whereValue, params } = handleParamsWildcard(search);
 
-    // 确保 search.title 包含通配符，如果需要的话
-    const titleParam = search.title ? `%${search.title}%` : '%';
-    // 确保 search.aid 是一个明确的值，如果它用于精确匹配
-    const aidParam = search.aid || ''; // 如果 aid 是可选的，处理它可能为空的情况
+      const sql = `
+        SELECT COUNT(DISTINCT a.aid) as total
+        FROM wb_articles a
+        ${whereValue}
+      `;
 
-    const total = await db.query(sql, [titleParam, aidParam]);
-    return total[0].total;
+      const [result] = await db.query<[{ total: number }]>(sql, params);
+      return result.total;
+    } catch (error) {
+      throw error;
+    }
   }
 
   //获取文章列表
-  public async findAll(search: GetArticleListParams, pages: number | string, limit: number | string): Promise<any> {
-    pages = Number(pages);
-    limit = Number(limit);
-
-    let {whereValue, params} = handleParamsWildcard(search)
-
-    whereValue = whereValue.replace('aid', 'a.aid')
-
-    const sql = `
-        SELECT a.*,
-               wb_users.uname,
-               wb_users.head_img,
-               GROUP_CONCAT(DISTINCT wb_articlestype.name) AS tags,         -- 使用 DISTINCT 来避免重复标签
-               (SELECT COUNT(*)
-                FROM wb_comments
-                WHERE wb_comments.article_id = a.aid)      AS comment_count -- 子查询来统计每篇文章的评论数
-        FROM wb_articles AS a
-                 INNER JOIN
-             wb_users ON a.uid = wb_users.uid
-                 LEFT JOIN
-             wb_articles_types ON a.aid = wb_articles_types.aid
-                 LEFT JOIN
-             wb_articlestype ON wb_articles_types.type_id = wb_articlestype.type_id
-            ${whereValue}
-        GROUP BY a.aid
-        ORDER BY a.aid DESC LIMIT ?, ?
-    `;
-    const offset = (pages - 1) * limit;
-    console.log(whereValue, params)
+  public async findAll(search: GetArticleListParams, page: number | string, limit: number | string): Promise<Articles[]> {
     try {
-      // 使用参数数组直接传递分页和搜索参数
-      return await db.query(sql, [...params, offset, limit]); // 返回查询结果
-    } catch (e) {
-      throw e; // 直接抛出异常
+      const pageNum = Number(page);
+      const limitNum = Number(limit);
+      const offset = (pageNum - 1) * limitNum;
+
+      const { whereValue, params } = handleParamsWildcard(search);
+      const whereClause = whereValue.replace('aid', 'a.aid');
+
+      const sql = `
+        SELECT 
+          a.*,
+          u.uname,
+          u.head_img,
+          GROUP_CONCAT(DISTINCT at.name) AS tags,
+          COALESCE(c.comment_count, 0) AS comment_count
+        FROM wb_articles a
+        INNER JOIN wb_users u ON a.uid = u.uid
+        LEFT JOIN wb_articles_types art ON a.aid = art.aid
+        LEFT JOIN wb_articlestype at ON art.type_id = at.type_id
+        LEFT JOIN (
+          SELECT article_id, COUNT(*) as comment_count 
+          FROM wb_comments 
+          GROUP BY article_id
+        ) c ON a.aid = c.article_id
+        ${whereClause}
+        GROUP BY a.aid
+        ORDER BY a.aid DESC 
+        LIMIT ?, ?
+      `;
+
+      return await db.query<Articles[]>(sql, [...params, offset, limitNum]);
+    } catch (error) {
+      throw error;
     }
   }
 
@@ -150,7 +150,7 @@ class ArticleMapper {
 
   //新增文章
   public async addArticle(params: any) {
-    const {title, content, cover_img, main, partial_content, uid, create_date, access_count} = params;
+    const { title, content, cover_img, main, partial_content, uid, create_date, access_count } = params;
     let sql: string = `
         INSERT INTO wb_articles (title, content, cover_img, main, partial_content, uid, create_date, access_count)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?)

@@ -5,7 +5,7 @@
  * @LastEditors: hai-27
  * @LastEditTime: 2020-02-27 13:20:11
  */
-import mysql, {MysqlError, PoolConnection} from "mysql";
+import mysql, { MysqlError, PoolConnection } from "mysql";
 import Config from "../../config";
 
 //一些数据库错误的中文提示
@@ -17,6 +17,7 @@ export const dbErrorMessage: any = {
   'ER_ROW_IS_REFERENCED_2': '外键约束检查失败',
   'ER_DUP_ENTRY_WITH_KEY_NAME': '数据库中已存在该记录',
   'ER_DUP_ENTRY_WITH_UNIQUE_KEY': '数据库中已存在该记录',
+  'ER_BAD_FIELD_ERROR': '字段不存在',
 }
 
 let pool: mysql.Pool = mysql.createPool(Config.dbConfig);
@@ -28,7 +29,7 @@ let pool: mysql.Pool = mysql.createPool(Config.dbConfig);
 // }
 
 interface Database {
-  query(sql: string, params: any): Promise<any>;
+  query<T = any>(sql: string, params: any): Promise<T>;
 }
 
 
@@ -40,7 +41,7 @@ interface Database {
  * warningCount: 表示服务器返回的警告数量。
  * */
 const db: Database = {
-  query: function (sql: string, params: any): Promise<any> {
+  query: function <T = any>(sql: string, params: any): Promise<T> {
     // 处理一下params 如果里面有值为NULL 的转换为`%%`
     if (sql.indexOf("SELECT") !== -1) {
       // console.log(`lzy  sql:`, sql);
@@ -78,7 +79,7 @@ const db: Database = {
 function ErrorHandle(err: MysqlError | null, reject: Function) {
   // 截取错误信息
   if (err) {
-    console.error(err);
+    console.error(dbErrorMessage[err.code] + err);
     reject(dbErrorMessage[err.code]);
   }
 }

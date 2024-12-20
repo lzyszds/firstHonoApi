@@ -46,7 +46,7 @@ interface ArticleType {
 
 interface GetArticleListParams {
   title: string,
-  username: string,
+  content: string,
   aid: string | number,
 }
 
