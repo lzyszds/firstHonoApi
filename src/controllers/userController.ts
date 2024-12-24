@@ -153,7 +153,7 @@ class UserController {
     params.power = params.power || "1";
     params.whether_use = params.whether_use || "1";
     // 获取当前时间
-    let create_date = new Date().toLocaleString();
+    let create_date = dayjs().format('YYYY/MM/DD HH:mm:ss');
     // 创建一个 ApiConfig 对象
     const apiConfig = new ApiConfig<string>(c);
     try {
