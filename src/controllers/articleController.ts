@@ -5,9 +5,13 @@ import { Context } from "hono";
 
 class ArticleController {
 
-    //获取文章列表
+    //获取文章列表(后台版本)
     async findAll(c: Context) {
         return c.json(await ArticleService.findAll(c));
+    }
+    //获取文章列表(前台版本)
+    async findArticleList(c: Context) {
+        return c.json(await ArticleService.findArticleList(c));
     }
 
     //根据id获取文章详情

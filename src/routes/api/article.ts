@@ -9,8 +9,10 @@ const router = new Hono();
 
 const routes: Routes = {
   get: {
-    // 获取文章列表
+    // 获取文章列表(后台)
     '/getArticleList': articleController.findAll,
+    // 获取文章列表(前台)
+    '/getArticleListForWeb': articleController.findArticleList,
     // 根据id获取文章详情
     '/getArticleDetail': articleController.findArticleInfo,
     // 获取文章类型列表

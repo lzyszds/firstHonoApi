@@ -49,7 +49,7 @@ export default {
     '/users/getRandHeadImg', //获取随机头像
     '/users/getAllHeadImg', //获取所有头像
     '/article/getRandArticleImg', //获取随机文章封面
-    '/article/getArticleList', //获取文章列表
+    '/article/getArticleListForWeb', //获取文章列表
     '/comment/getArticleComment', //获取文章评论
     '/article/getArticleInfo',  //获取文章信息
     '/article/getArticleDetail',  //获取文章详情

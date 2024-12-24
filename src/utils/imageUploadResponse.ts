@@ -92,6 +92,9 @@ export class ImageUploadService {
       // 上传图片至图床
       const res = await uploadImage(processedFile, filename) as ImageUploadResponse;
 
+      if(!res) return apiConfig.fail('上传失败：token失效，请前往腾讯图床进行登录并获取新的token,https://om.qq.com/main/material/picManage');
+
+
       // 处理图片大小信息
       const sizeArr = Object.keys(res.data.url.size);
       const name = res.data.url.url.split('/').pop();

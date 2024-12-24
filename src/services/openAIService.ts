@@ -111,7 +111,6 @@ class openAI {
       },
       {role: "user", content: content}
     ];
-    console.log(messages)
     // 配置 OpenAI 客户端
     const client = new OpenAI({
       apiKey: key,
