@@ -5,11 +5,6 @@ import openAI from "../services/openAIService";
 
 class AiController {
 
-  //GPT3.5开放ai
-  async getAifox(c: Context) {
-    return openAI.getAifox(c)
-  }
-
   //阿里云的硅基ai
   async getSiliconflowiAi(c: Context) {
     return openAI.getSiliconflowiAi(c)

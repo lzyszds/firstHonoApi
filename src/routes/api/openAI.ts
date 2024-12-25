@@ -12,8 +12,6 @@ const router = new Hono();
 
 const routes: Routes = {
   get: {
-    //  GPT3.5开放ai
-    '/getAifox': openAIController.getAifox,
     //  获取ai key列表
     '/getAiKeysList': openAIController.getAiKeysList,
     //  询问阿里云的硅基ai

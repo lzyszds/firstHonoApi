@@ -6,6 +6,7 @@ import commentRouter from './api/comment';
 import systemRouter from './api/system';
 import openAIRouter from './api/openAI';
 import plantaskRouter from './api/plantask';
+import websocketRouter from './api/websocket';
 
 const app = new Hono();
 
@@ -21,6 +22,7 @@ const routes: Routes = {
   '/system': systemRouter,
   '/openAI': openAIRouter,
   '/plantask': plantaskRouter,
+  '/websocket': websocketRouter,
 }
 
 // 注册子路由

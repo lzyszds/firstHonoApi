@@ -47,47 +47,6 @@ async function getAiKey(value: string) {
 
 class openAI {
 
-
-  // GPT-3.5 OpenAI
-  public async getAifox(c: Context) {
-
-    // 获取文章 ID
-    const aid: any = c.req.query().aid || 21;
-    let articleInfo: any;
-
-    try {
-      // 根据文章 ID 获取文章内容
-      articleInfo = await ArticleMapper.findArticleInfo(aid);
-    } catch (e) {
-      return "文章不存在";
-    }
-
-    const [key, keyName] = await SelkeysBasedOnUsageFrequency();
-
-    let result: any;
-
-    const getResultData: any = async () => {
-      try {
-        const {data} = await handleAiFox.getAiList(articleInfo.content, key);
-        result = data.choices[0].message.content;
-        // 将结果写入文件
-        await handleAiFox.writeAiTextStore(result, aid);
-      } catch (error) {
-        return await getResultData()
-      }
-    }
-    await getResultData()
-    // 更新 AI 使用次数
-    await AiMapper.updateAiUc(keyName, dayjs().format('YYYY-MM-DD') + "%");
-
-    return streamSSE(c, async (stream) => {
-      for (let item of result) {
-        await stream.writeSSE({data: item});
-        await stream.sleep(CONFIG.aiServiceConfig.sleepTime);
-      }
-    },)
-  }
-
   // 阿里云硅基Ai
   public async getSiliconflowiAi(c: Context) {
     // 获取文章 ID
@@ -139,7 +98,7 @@ class openAI {
         }
 
         // 将完整结果写入文件
-        await handleAiFox.writeAiTextStore(fullResponse, aid);
+        // await handleAiFox.writeAiTextStore(fullResponse, aid);
       } catch (error) {
         console.error('AI处理错误:', error);
         await stream.writeSSE({data: '处理过程中发生错误，请稍后重试。'});
