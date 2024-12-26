@@ -17,5 +17,10 @@
     "describe"
   ],
   "dailyGithub": [],
-  "commitGithub": []
+  "commitGithub": [],
+  "dependencySummarize":[
+    "aiKey",
+    "openAiBaseUrl",
+    "model"
+  ]
 }
