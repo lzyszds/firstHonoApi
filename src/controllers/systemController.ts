@@ -64,7 +64,10 @@ class SystemController {
     c.set('Content-Type', 'image/jpeg');
     return c.body(imgBuffer);
   }
-
+  //获取系统日志
+    async getSystemLog(c: Context) {
+        return c.json(await SystemService.getSystemLog(c));
+    }
 
 
 }

@@ -73,7 +73,7 @@ app.notFound((c) => {
 
 // 错误处理
 app.onError((err, c) => {
-    logger.error(err.message)
+    logger.error(err)
     return c.text('出错了看看怎么解决吧！', 500)
 })
 

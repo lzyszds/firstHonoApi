@@ -1,45 +1,61 @@
 import { createLogger, format, transports } from 'winston';
 import path from 'path';
 import dayjs from 'dayjs';
+import fs from 'fs';
 
-const logDir = path.join(__dirname, '../../logs/' + dayjs().format('YYYY-MM-DD')); // 日志目录
+const logDir = process.env.LOG_DIR || path.join(process.cwd(), 'logs', dayjs().format('YYYY-MM-DD'));
 
-// 创建日志记录器
+if (!fs.existsSync(logDir)) {
+    fs.mkdirSync(logDir, { recursive: true });
+}
+
+
+/*
+* infoFilter：
+* 我们定义了一个名为 infoFilter 的格式化器。
+* 这个格式化器会检查日志的 level 是否为 info，如果不是，则会返回 false，这样 winston 就不会继续处理这条日志，从而实现了对 info.log 的日志过滤。
+* 这个格式化器只在 info.log 的 transport 上使用。
+* */
+const infoFilter = format(info => {
+    if (info.level === 'info') {
+        return info;
+    }
+    return false;
+});
 const logger = createLogger({
+    level: 'debug', // 设置 logger 的最低日志级别为 debug
     format: format.combine(
-        format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), // 添加时间戳
-        format.errors({ stack: true }), // 记录堆栈跟踪
+        format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
+        format.errors({ stack: true }),
         format.splat(),
-        format.json() // 以 JSON 格式记录日志
+        format.json()
     ),
-    defaultMeta: { service: 'hono-service' }, // 默认元数据（可选）
+    defaultMeta: { service: 'hono-service' },
     transports: [
-        // 文件输出：info 级别日志
         new transports.File({
-            filename: path.join(logDir, '/info.log'),
-            level: 'info',
-            tailable: true,
-        }),
-        // 文件输出：error 级别日志
-        new transports.File({
-            filename: path.join(logDir, '/error.log'),
-            level: 'error',
-        }),
-        // 控制台输出：只记录 warn 和 error 级别的日志
-        new transports.Console({
-            level: 'warn', // 控制台输出的最低级别设置为 warn
+            filename: path.join(logDir, 'info.log'),
+            level: 'info', // 设置最低级别
             format: format.combine(
-                format.colorize(), // 启用颜色输出
-                format.simple() // 使用简单格式
+                infoFilter(),
+                format.timestamp(),
+                format.json()
+            )
+        }),
+        new transports.File({
+            filename: path.join(logDir, 'error.log'),
+            level: 'error', // error.log 只会记录 error 及以上级别的日志
+        }),
+        new transports.Console({
+            level: 'warn', // 控制台只会记录 warn 及以上级别的日志
+            format: format.combine(
+                format.colorize(),
+                format.simple()
             ),
+            silent: process.env.NODE_ENV === 'production'
         }),
     ],
 });
 
-// 生产环境中禁用控制台日志
-if (process.env.NODE_ENV === 'production') {
-    logger.remove(new transports.Console());
-}
 
 // logger.info('这条日志只会被写入文件');
 // logger.warn('这条日志会同时输出到文件和控制台');

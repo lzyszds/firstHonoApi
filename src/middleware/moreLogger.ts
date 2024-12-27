@@ -72,7 +72,6 @@ export const moreLogger = async (c: Context, next: () => Promise<void>) => {
 
 
         // 异步写入日志到日志文件
-        await systemMapper.saveLog(logData)
         logger.info(JSON.stringify(logData))
 
     } catch (error: any) {
@@ -91,7 +90,7 @@ export const moreLogger = async (c: Context, next: () => Promise<void>) => {
             status: 2,
             error_message: error.message
         }
-
+        console.log("moreLogger -> errorLogData", errorLogData)
         // 异步写入日志到日志文件
         logger.error(JSON.stringify(errorLogData))
     }

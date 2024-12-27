@@ -22,6 +22,8 @@ const routes: Routes = {
     '/getSystemLoadImages': systemController.getSystemLoadImages,
     // 获取当前系统选择的加载图片 图片懒加载的loadGif图片
     '/getLazyLoadImage': systemController.getLazyLoadImage,
+    // 获取系统日志
+    '/getSystemLog': systemController.getSystemLog,
 
   },
   post: {
