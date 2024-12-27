@@ -1,4 +1,5 @@
-import { Context } from "hono";
+import {Context} from "hono";
+import Logger from "@/middleware/logger";
 
 interface ApiConfig<T> {
     code: number,
@@ -28,10 +29,12 @@ class ApiConfig<T> {
     }
 
     //请求失败
-    fail(msg: string) {
+    fail(msg: string | any) {
+        console.log()
         this.code = 500;
         this.msg = msg;
         this.data = null;
+        Logger.error(msg)
         return this
     }
 

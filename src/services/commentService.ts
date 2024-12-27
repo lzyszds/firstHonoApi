@@ -99,7 +99,7 @@ class CommentService {
       await CommentMapper.deleteComment(ids);
       return apiConfig.success("删除成功");
     } catch (e: any) {
-      return apiConfig.fail(e.message);
+      return apiConfig.fail(e);
     }
   }
 
@@ -114,7 +114,7 @@ class CommentService {
       return apiConfig.success(data)
     } catch (e: any) {
       console.log(e)
-      return apiConfig.fail(e.message)
+      return apiConfig.fail(e)
     }
   }
 }
