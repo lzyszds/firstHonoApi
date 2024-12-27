@@ -246,10 +246,10 @@ export async function getDependencySummarize(body: string) {
                 },
                 {
                     role: "user",
-                    content: `${json} 将当前内容的依赖给我总结出一个json,我需要你对每一个依赖都进行简单介绍,并区分开发依赖跟构建依赖，我需要的返回(必须要按照我的格式进行返回,只返回json即可，不用添加任何描述免得破坏了我的json结构),我给你举一个例子{
+                    content: `${json} 将当前内容的依赖给我总结出一个json,我需要你对每一个依赖都进行简单介绍(稍微详细点),并区分开发依赖跟构建依赖，我需要的返回(必须要按照我的格式进行返回,只返回json即可，不用添加任何描述免得破坏了我的json结构),我给你举一个例子{
                           "unplugin-auto-import": {
                             "version": "^2.2.0",
-                            "description": "自动导入模块",
+                            "description": "自动导入模块,xxxx",
                             "link": "https://xxx",
                           }
                         }`
