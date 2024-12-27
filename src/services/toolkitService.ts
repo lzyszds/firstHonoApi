@@ -18,15 +18,6 @@ import Joi from "joi";
 import Logger from "@/middleware/logger"
 
 
-// 自定义错误类
-class ServiceError extends Error {
-    constructor(message: string, public code?: number, public details?: any) {
-        super(message);
-        this.name = "ServiceError";
-    }
-}
-
-
 // 定义默认 IP 信息
 const DEFAULT_IP_INFO: WeatherDataType = {
     province: "未知",
