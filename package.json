@@ -4,7 +4,7 @@
   "scripts": {
     "dev": "bun run --exit-on-unhandled --hot src/index.ts",
     "start": "bun run --exit-on-unhandled --inspect=4000 src/index.ts",
-    "build": "bun run build",
+    "build": "bun build src/index.ts --outdir dist --target node",
     "test": "bun test"
   },
   "dependencies": {

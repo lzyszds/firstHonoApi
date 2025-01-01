@@ -1,15 +1,17 @@
-import ApiConfig from "../domain/ApiCongfigType";
-import SystemMapper from "../models/system";
-import path from "path";
-import fs from "fs";
+import ApiConfig from '../domain/ApiCongfigType';
+import SystemMapper from '../models/system';
+import path from 'path';
+import fs from 'fs';
 
-import {Footer, FooterSecondary} from "@/domain/FooterType";
-import {Context} from "hono";
-import {checkObj, parseLogString} from "@/utils/helpers";
-import logger from "@/middleware/logger";
-import fse from "fs-extra";
-import dayjs from "dayjs";
+import {Footer, FooterSecondary} from '@/domain/FooterType';
+import {Context} from 'hono';
+import {checkObj, parseLogString} from '@/utils/helpers';
+import logger from '@/middleware/logger';
+import dayjs from 'dayjs';
+import {fileURLToPath} from 'url';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 class SystemService {
 
@@ -21,8 +23,8 @@ class SystemService {
     }
     const type = c.req.query().type
     const params: any = {
-      "admin": "admin", //获取所有
-      "reception": '4,5', //前台
+      'admin': 'admin', //获取所有
+      'reception': '4,5', //前台
     }
 
     try {
@@ -122,7 +124,7 @@ class SystemService {
       // 给所有child的sort_order更换值
       results.forEach((item: WbFooterResult) => {
         item.children.forEach((child: WbFooterLink) => {
-          child.sort_order = item.sort_order + "-" + child.sort_order
+          child.sort_order = item.sort_order + '-' + child.sort_order
         })
       })
 
@@ -177,11 +179,12 @@ class SystemService {
       }
       // 使用 flat 方法简化数组操作
       const arr: Footer[] = children.flatMap((item: FooterSecondary) => item.children);
-      /*const data = */await SystemMapper.updateFooterInfo(arr);
-      return apiConfig.success("更新成功")
+      /*const data = */
+      await SystemMapper.updateFooterInfo(arr);
+      return apiConfig.success('更新成功')
     } catch (e: any) {
       logger.error(e)
-      return apiConfig.fail("更新失败")
+      return apiConfig.fail('更新失败')
     }
   }
 
@@ -195,7 +198,7 @@ class SystemService {
       result = result.sort((a: string, b: string) => {
         return parseInt(a.split('.')[0].replace('loading', '')) - parseInt(b.split('.')[0].replace('loading', ''))
       })
-      data = result.map((item: string) => "/static/img/loadGif/" + item)
+      data = result.map((item: string) => '/static/img/loadGif/' + item)
 
       return apiConfig.success(data)
     } catch (e: any) {
@@ -207,7 +210,7 @@ class SystemService {
   public async getLazyLoadImage(_c: any): Promise<any> {
     try {
       const data = await SystemMapper.getSystemConfig('admin');
-      const gifValue = data.filter((item: any) => item.config_key === "load_animation_gif")[0].config_value
+      const gifValue = data.filter((item: any) => item.config_key === 'load_animation_gif')[0].config_value
       return fs.readFileSync(path.resolve(__dirname, '../../' + gifValue))
     } catch (e) {
       return e
@@ -222,24 +225,27 @@ class SystemService {
     const {type = 'info', date = newDate, page, limit} = params
     try {
 
-      //如果文件夹不存在则返回空数组
-      if (!fs.existsSync(path.resolve(__dirname, '../../logs/' + date))) {
-        return apiConfig.success([])
+      const logDir = path.resolve(__dirname, '../../logs'); // 假设 logs 文件夹在你的源代码根目录下
+      const logFilePath = path.resolve(logDir, date);
+      if (!fs.existsSync(logFilePath)) {
+        return apiConfig.success([]);
       }
 
-      let data: any = fse.readFileSync(path.resolve(__dirname, '../../logs/' + date + '/' + type + '.log'), 'utf-8');
+      let data: any = fs.readFileSync(logFilePath + `\\${type}.log`, 'utf-8');
       data = parseLogString(data)
-        .filter((item) => !!item)
+        .filter((item: any): boolean => !!item)
         .reverse()
         .map((item) => {
           try {
             return {
+              ...item,
               time: item.timestamp,
               level: item.level,
               message: JSON.parse(item.message),
             }
           } catch {
             return {
+              ...item,
               time: item.timestamp,
               level: item.level,
               message: item.message,
