@@ -33,6 +33,8 @@ const routes: Routes = {
     '/uploadArticleImg': articleController.uploadArticleImg,
     // 删除文章
     '/deleteArticle': articleController.deleteArticle,
+    // 禁用文章
+    '/disableArticle': articleController.disableArticle,
   }
 }
 

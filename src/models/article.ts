@@ -260,6 +260,16 @@ class ArticleMapper {
         return await db.query(sql, [id]);
     }
 
+    //禁用文章
+    public async disableArticle(id: string) {
+        let sql: string = `
+            UPDATE wb_articles
+            SET whether_use = 1 - whether_use
+            WHERE aid = ?
+        `;
+        return await db.query(sql, [id]);
+    }
+
 
 }
 

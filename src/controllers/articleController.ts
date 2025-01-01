@@ -69,6 +69,11 @@ class ArticleController {
     async deleteArticle(c: Context) {
         return c.json(await ArticleService.deleteArticle(c));
     }
+
+    //禁用文章
+    async disableArticle(c: Context) {
+        return c.json(await ArticleService.disableArticle(c));
+    }
 }
 
 export default new ArticleController();

@@ -1,20 +1,28 @@
 //文章接口
 
-import ArticleMapper from "../models/article";
-import {ArticleData, Articles, ArticleType} from "@/domain/Articles";
-import ApiConfig from "../domain/ApiCongfigType";
-import {checkObj, randomUnique, uploadFileLimit, useUserInfoGetData} from "@/utils/helpers";
-import path from "path";
-import fs from "fs";
-import {Context} from "hono";
-import {getCookie, setCookie} from "hono/cookie";
+import ArticleMapper from '../models/article';
+import {ArticleData, Articles, ArticleType} from '@/domain/Articles';
+import ApiConfig from '../domain/ApiCongfigType';
+import {checkObj, randomUnique, uploadFileLimit, useUserInfoGetData} from '@/utils/helpers';
+import path from 'path';
+import fs from 'fs';
+import {Context} from 'hono';
+import {getCookie, setCookie} from 'hono/cookie';
 import logger from '../middleware/logger';
-import {nanoid} from "nanoid";
+import {nanoid} from 'nanoid';
 import {random} from 'radash'
-import {decodeToken} from "@/utils/authUtils";
-import {User} from "@/domain/User";
-import md5 from "md5";
-import dayjs from "dayjs";
+import {decodeToken} from '@/utils/authUtils';
+import {User} from '@/domain/User';
+import md5 from 'md5';
+import dayjs from 'dayjs';
+
+const clearCache = (c: Context) => {
+  /* 删除缓存 */
+  c.redis.clearArticlesCache('articles_page')
+  c.redis.clearArticlesCache('articles_page_web')
+  c.redis.clearArticlesCache('articles_info')
+}
+
 
 class ArticleService {
 
@@ -64,9 +72,9 @@ class ArticleService {
     const total: number = await ArticleMapper.getArticleListTotal(params as any);
 
     const data: Articles[] = await ArticleMapper.findArticleList({
-      title: "",
-      content: "",
-      aid: ""
+      title: '',
+      content: '',
+      aid: ''
     }, pages, limit);
     const result = {total: total, data}
     await c.redis.setex(cacheKey, 600, JSON.stringify(result));
@@ -101,11 +109,11 @@ class ArticleService {
   public async addArticle(c: Context) {
     const params = await c.req.json()
     let {title, content, cover_img, main, tags, partial_content} = params
-    if (checkObj(params, ["title", "content", "cover_img", "main", "tags", "partial_content"])) {
+    if (checkObj(params, ['title', 'content', 'cover_img', 'main', 'tags', 'partial_content'])) {
       const apiConfig = new ApiConfig(c);
-      return apiConfig.fail("参数错误,请检查是否有空参数");
+      return apiConfig.fail('参数错误,请检查是否有空参数');
     }
-    if (cover_img.indexOf("/api/article/getRandArticleImg") == 0) {
+    if (cover_img.indexOf('/api/article/getRandArticleImg') == 0) {
       cover_img = `/img/coverRomImg/${getCookie(c, 'randArticleImg')}`;
     }
 
@@ -125,30 +133,28 @@ class ArticleService {
     for (let i = 0; i < tags.length; i++) {
       const type = await ArticleMapper.getArticleTypeByName(tags[i]);
       if (type.length === 0) {
-        return apiConfig.fail("文章类型不存在");
+        return apiConfig.fail('文章类型不存在');
       } else {
         //将文章id和文章类型id插入到文章类型表
         await ArticleMapper.addArticleTypeByAid(type[0].type_id, queryData.insertId);
       }
     }
 
-    c.redis.clearArticlesCache("articles_page")
-    c.redis.clearArticlesCache("articles_page_web")
-    c.redis.clearArticlesCache("articles_info")
-    return apiConfig.success("文章添加成功");
+    clearCache(c)
+    return apiConfig.success('文章添加成功');
   }
 
   //添加文章类型
   public async addArticleType(c: Context) {
     const params = await c.req.json()
-    if (checkObj(params, ["name"])) {
+    if (checkObj(params, ['name'])) {
       const apiConfig = new ApiConfig(c);
-      return apiConfig.fail("参数错误");
+      return apiConfig.fail('参数错误');
     }
     const result = await ArticleMapper.addArticleType(params.name)
     const apiConfig = new ApiConfig(c);
     if (result.affectedRows === 1) {
-      return apiConfig.success("类型添加成功");
+      return apiConfig.success('类型添加成功');
     } else {
       return apiConfig.fail(result);
     }
@@ -157,14 +163,14 @@ class ArticleService {
   //删除文章类型
   public async deleteArticleType(c: Context) {
     const params = await c.req.json()
-    if (checkObj(params, ["id"])) {
+    if (checkObj(params, ['id'])) {
       const apiConfig = new ApiConfig(c);
-      return apiConfig.fail("参数错误");
+      return apiConfig.fail('参数错误');
     }
     const result = await ArticleMapper.deleteArticleType(params.id)
     const apiConfig = new ApiConfig(c);
     if (result.affectedRows === 1) {
-      return apiConfig.success("类型删除成功");
+      return apiConfig.success('类型删除成功');
     } else {
       return apiConfig.fail(result);
     }
@@ -200,7 +206,7 @@ class ArticleService {
     //实例化apiConfig
     const apiConfig = new ApiConfig(c);
     if (!params) {
-      return apiConfig.fail("内容不曾改变");
+      return apiConfig.fail('内容不曾改变');
     }
     const {tags, aid} = params;
 
@@ -211,7 +217,7 @@ class ArticleService {
       for (let i = 0; i < tags.length; i++) {
         const type = await ArticleMapper.getArticleTypeByName(tags[i]);
         if (type.length === 0) {
-          return apiConfig.fail("文章类型不存在");
+          return apiConfig.fail('文章类型不存在');
         } else {
           //将文章id和文章类型id插入到文章类型表
           await ArticleMapper.addArticleTypeByAid(type[0].type_id, aid);
@@ -219,10 +225,8 @@ class ArticleService {
       }
     }
 
-    c.redis.clearArticlesCache("articles_page")
-    c.redis.clearArticlesCache("articles_page_web")
-    c.redis.clearArticlesCache("articles_info")
-    return apiConfig.success("文章修改成功");
+    clearCache(c)
+    return apiConfig.success('文章修改成功');
   }
 
 
@@ -277,18 +281,34 @@ class ArticleService {
   public async deleteArticle(c: Context) {
     const params = await c.req.json()
 
-    if (checkObj(params, ["id"])) {
+    if (checkObj(params, ['id'])) {
       const apiConfig = new ApiConfig(c);
-      return apiConfig.fail("参数错误");
+      return apiConfig.fail('参数错误');
     }
     const result = await ArticleMapper.deleteArticle(params.id)
     const apiConfig = new ApiConfig(c);
     if (result.affectedRows === 1) {
       /* 删除缓存 */
-      c.redis.clearArticlesCache("articles_page")
-      c.redis.clearArticlesCache("articles_page_web")
-      c.redis.clearArticlesCache("articles_info")
-      return apiConfig.success("文章删除成功");
+      clearCache(c)
+      return apiConfig.success('文章删除成功');
+    } else {
+      return apiConfig.fail(result);
+    }
+  }
+
+  //禁用文章
+  public async disableArticle(c: Context) {
+    const params = await c.req.json()
+    if (checkObj(params, ['id'])) {
+      const apiConfig = new ApiConfig(c);
+      return apiConfig.fail('参数错误');
+    }
+    const result = await ArticleMapper.disableArticle(params.id)
+    const apiConfig = new ApiConfig(c);
+    if (result.affectedRows === 1) {
+      //删除缓存
+      clearCache(c)
+      return apiConfig.success('文章禁用成功');
     } else {
       return apiConfig.fail(result);
     }
