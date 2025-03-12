@@ -1,4 +1,4 @@
-import {Hono} from 'hono';
+import {Hono} from "hono";
 
 interface Routes {
     [key: string]: { [key: string]: (c: any) => any };
@@ -8,10 +8,10 @@ interface Routes {
 
 const router = new Hono();
 
-router.get('/onlineUsers', (c: any) => {
+router.get("/onlineUsers", (c: any) => {
     // 获取所有在线用户 websocket
-    if (c.req.header('Upgrade') !== 'websocket') {
-        return c.text('不是WebSocket请求', 400);
+    if (c.req.header("Upgrade") !== "websocket") {
+        return c.text("不是WebSocket请求", 400);
     }
 
     const server = c.server; // Get the Bun server instance
@@ -23,9 +23,9 @@ router.get('/onlineUsers', (c: any) => {
     }
 })
 
-router.get('/latestComments', (c: any) => {
-    if (c.req.header('Upgrade') !== 'websocket') {
-        return c.text('不是WebSocket请求', 400);
+router.get("/latestComments", (c: any) => {
+    if (c.req.header("Upgrade") !== "websocket") {
+        return c.text("不是WebSocket请求", 400);
     }
 
     const server = c.server; // Get the Bun server instance

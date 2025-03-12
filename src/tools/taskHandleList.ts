@@ -4,7 +4,6 @@ import { getGithubInfo } from "./getGIthubInfo";
 import { OpenAI } from "openai";
 import redis from "@/utils/redis";
 import { CommitRunInfo } from "@/domain/ToolkitType";
-import Config from "../../config";
 import fse from "fs-extra";
 import path from "path";
 import { getConfig } from "@/config";
