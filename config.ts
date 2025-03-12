@@ -68,13 +68,6 @@ export default {
     '/openAI/getAifox', //获取aifox
     '/openAI/getSiliconflowiAi' //获取siliconflowiAi
   ],
-  //github api密钥 配置
-  githubUserConfig: {
-    token1: 'github_pat',
-    token2: '_11APYO7PI0nRTBPl7vEuvM',
-    token3: '_RGJBdfX7iuKZn0TrK8CL4W7It12ukIQVVk3qlXqOAVINB3NRCVLKNxxq2Rh',
-    name: 'lzyszds',
-  },
 
   //ai服务配置
   aiServiceConfig: {

@@ -44,10 +44,9 @@ export function handleWebSocketUpgrade(
 
 export const websocket = {
     open: (ws: any,) => { // Type as any if a specific WebSocket type is not available
-        console.log('WebSocket opened');
         // Check for ws.data and ws.data.userId if needed
         if (ws.data && ws.data.userId) {
-            console.log(`User ${ws.data.userId} connected (on open)`);
+            // console.log(`User ${ws.data.userId} connected (on open)`);
         }
     },
     message: async (ws: any, message: string | Uint8Array) => {

@@ -1,22 +1,23 @@
-import {Hono} from 'hono'
-import {serveStatic} from 'hono/bun'
-import {authMiddleware} from './middleware/auth'
-import {camelCaseMiddleware} from './middleware/camelcase'
-import {corsAllMiddleware} from './middleware/cors';
+import { Hono } from 'hono'
+import { serveStatic } from 'hono/bun'
+import { authMiddleware } from './middleware/auth'
+import { camelCaseMiddleware } from './middleware/camelcase'
+import { corsAllMiddleware } from './middleware/cors';
 import logger from './middleware/logger';
 import db from './utils/db'
 import routes from './routes';
 // import setTimeTask from './tools/setTimeTask';
 import redis from './utils/redis'; // 导入 Redis 客户端
-import {addTraceId} from './middleware/trace_time';
-import {moreLogger} from './middleware/moreLogger';
+import { addTraceId } from './middleware/trace_time';
+import { moreLogger } from './middleware/moreLogger';
 import fs from "fs";
 import path from "path";
-import {taskManager} from "@/utils/taskManager";
-import {handleWebSocketUpgrade, websocket} from './tools/webScoket';
+import { taskManager } from "@/utils/taskManager";
+import { handleWebSocketUpgrade, websocket } from './tools/webScoket';
 import Config from "../config";
-import {getIpAddress} from './utils/getIpAddress';
+import { getIpAddress } from './utils/getIpAddress';
 import websocketRouter from './routes/api/websocket';
+import { initializeConfig } from './config';
 
 // 扩展 Context 类型
 declare module 'hono' {
@@ -26,13 +27,11 @@ declare module 'hono' {
 }
 
 const app = new Hono()
-let bunServer
 
 //静态资源映射
-app.use('/static/*', serveStatic({root: './'}))
+app.use('/static/*', serveStatic({ root: './' }))
 
 // 导入中间件
-
 
 app.use('/api/*', corsAllMiddleware)// 配置CORS中间件
 app.use('/api/*', authMiddleware) // 认证中间件
@@ -59,8 +58,12 @@ app.route('/websocket', websocketRouter)
 
 // 检查数据库连接
 db.query('SELECT 1', [])
-    .then(() => console.log('数据库连接成功'))
+    .then(async () => {
+        console.log('数据库连接成功')
+        await initializeConfig()
+    })
     .catch(err => console.error('数据库连接失败', err))
+
 
 
 // 404页面

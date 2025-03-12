@@ -1,12 +1,13 @@
 import dayjs from "dayjs";
 import emailTools from './emailTools'
-import {getGithubInfo} from "./getGIthubInfo";
-import {OpenAI} from "openai";
+import { getGithubInfo } from "./getGIthubInfo";
+import { OpenAI } from "openai";
 import redis from "@/utils/redis";
-import {CommitRunInfo} from "@/domain/ToolkitType";
+import { CommitRunInfo } from "@/domain/ToolkitType";
 import Config from "../../config";
 import fse from "fs-extra";
 import path from "path";
+import { getConfig } from "@/config";
 
 
 /**
@@ -145,8 +146,8 @@ export async function dailyGithub() {
         let data: any = JSON.parse(githubData!).data,
             totalCount: number,
             month: any[] = []
-        const {contributionsCollection} = data.user
-        const {weeks, totalContributions} = contributionsCollection.contributionCalendar
+        const { contributionsCollection } = data.user
+        const { weeks, totalContributions } = contributionsCollection.contributionCalendar
         totalCount = totalContributions
         const months: string[] = [
             "一月", "二月", "三月", "四月", "五月", "六月",
@@ -155,7 +156,7 @@ export async function dailyGithub() {
         weeks.forEach((item: any, index: any) => {
             const date = dayjs(item.firstDay).format('MM')
             if (!month.includes(months[parseInt(date) - 1])) {
-                month.push({text: months[parseInt(date) - 1], index: index * 19 + 30})
+                month.push({ text: months[parseInt(date) - 1], index: index * 19 + 30 })
             }
         });
         const newData = JSON.stringify({
@@ -175,7 +176,8 @@ export async function dailyGithub() {
 *  每日获取GitHub提交信息任务
 * */
 export async function getGithubCommitHandle() {
-    const {token1, token2, token3} = Config.githubUserConfig;
+    const config = getConfig('github_key')
+
     const owner = 'lzyszds';
     const repo = 'blog-admin';
 
@@ -183,7 +185,7 @@ export async function getGithubCommitHandle() {
         // 获取工作流运行状态
         const workflowResponse = await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/runs?per_page=100`, {
             headers: {
-                'Authorization': `bearer ${token1}${token2}${token3}`,
+                'Authorization': `bearer ${config.config_value}`,
                 'Accept': 'application/vnd.github.v3+json'
             }
         });
