@@ -1,5 +1,5 @@
 import {Hono} from 'hono';
-import usersRouter from './api/users';
+import userRouter from './api/user';
 import toolkitRouter from './api/toolkit';
 import articleRouter from './api/article';
 import commentRouter from './api/comment';
@@ -7,6 +7,7 @@ import systemRouter from './api/system';
 import openAIRouter from './api/openAI';
 import plantaskRouter from './api/plantask';
 import websocketRouter from './api/websocket';
+import permissionRouter from './api/permission'
 
 const app = new Hono();
 
@@ -15,14 +16,15 @@ interface Routes {
 }
 
 const routes: Routes = {
-  '/users': usersRouter,
-  '/toolkit': toolkitRouter,
-  '/article': articleRouter,
-  '/comment': commentRouter,
-  '/system': systemRouter,
-  '/openAI': openAIRouter,
-  '/plantask': plantaskRouter,
-  '/websocket': websocketRouter,
+  '/user': userRouter, // 用户路由
+  '/toolkit': toolkitRouter, // 工具路由
+  '/article': articleRouter, // 文章路由
+  '/comment': commentRouter, // 评论路由
+  '/system': systemRouter, // 系统路由
+  '/openAI': openAIRouter, // OpenAI路由
+  '/plantask': plantaskRouter, // 计划任务路由
+  '/websocket': websocketRouter, // websocket路由
+  '/permission': permissionRouter, // 权限路由
 }
 
 // 注册子路由

@@ -1,7 +1,7 @@
-import {SystemLog} from '@/domain/SystemType'
-import {Context} from 'hono'
-import {getCookie} from 'hono/cookie';
-import {decodeToken} from '@/utils/authUtils';
+import { SystemLog } from '@/domain/SystemType'
+import { Context } from 'hono'
+import { getCookie } from 'hono/cookie';
+import { decodeToken } from '@/utils/authUtils';
 import logger from '@/middleware/logger';
 
 
@@ -32,7 +32,8 @@ export const moreLogger = async (c: Context, next: () => Promise<void>) => {
     const token = getCookie(c, 'lzytkn')
 
     try {
-      if (token) {
+
+      if (token != "null" && token != '' && token != 'undefined' && token) {
         const cachedUserData = await c.redis.get(token!);
         let userInfo
         if (cachedUserData) {

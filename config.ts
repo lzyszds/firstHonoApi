@@ -73,7 +73,38 @@ export default {
   aiServiceConfig: {
     url: 'https://api.chatanywhere.tech/v1/chat/completions/', //ai服务地址
     sleepTime: 10 //流式传输发送的时间间隔
-  }
+  },
+
+  permission: [
+    {
+      title: "公开访问",
+      icon: "hugeicons:view",
+      description: "无需登录即可访问",
+      sumValue: 0,
+      roles: [],
+    },
+    {
+      title: "普通用户和管理员",
+      icon: "hugeicons:user-id-verification",
+      description: "需要登录权限即可访问",
+      sumValue: 0,
+      roles: [0, 1],
+    },
+    {
+      title: "管理员",
+      icon: "hugeicons:ai-security-01",
+      description: "仅管理员可访问",
+      sumValue: 0,
+      roles: [0],
+    },
+    {
+      title: "特殊权限",
+      icon: "hugeicons:complaint",
+      description: "特殊权限",
+      sumValue: 0,
+      roles: [2],
+    },
+  ]
 }
 
 

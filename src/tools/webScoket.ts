@@ -66,7 +66,7 @@ export const websocket = {
 
                 onlineUsers.add(data.userId);
                 connections.set(data.userId, ws);
-                console.log(`User ${data.userId} connected (on message)`);
+                // console.log(`User ${data.userId} connected (on message)`);
                 broadcastOnlineUsers();
             } else {
                 // Handle other message types...
@@ -80,12 +80,12 @@ export const websocket = {
         }
     },
     close: (ws: any) => {
-        console.log('WebSocket closed');
+        // console.log('WebSocket closed');
         // Check for ws.data and ws.data.userId if needed
         if (ws.data && ws.data.userId) {
             onlineUsers.delete(ws.data.userId);
             connections.delete(ws.data.userId);
-            console.log(`User ${ws.data.userId} disconnected`);
+            // console.log(`User ${ws.data.userId} disconnected`);
             broadcastOnlineUsers();
         }
     },

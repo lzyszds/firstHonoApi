@@ -158,8 +158,6 @@ class ToolkotService {
             Logger.error("Error in getGithubFrontCommit:", e);
             return apiConfig.fail('获取github提交记录失败')
         }
-
-
     }
 
 

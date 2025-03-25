@@ -18,7 +18,8 @@ import Config from "../config";
 import { getIpAddress } from './utils/getIpAddress';
 import websocketRouter from './routes/api/websocket';
 import { initializeConfig } from './config';
-
+import { initPermissionConfig } from './config/permission';
+import { scanApiFiles } from './tools/autoCreateInterface'
 // 扩展 Context 类型
 declare module 'hono' {
     interface Context {
@@ -31,16 +32,17 @@ const app = new Hono()
 //静态资源映射
 app.use('/static/*', serveStatic({ root: './' }))
 
-// 导入中间件
-
-app.use('/api/*', corsAllMiddleware)// 配置CORS中间件
-app.use('/api/*', authMiddleware) // 认证中间件
-app.use('/api/*', camelCaseMiddleware) //  驼峰命名中间件
 // 添加 Redis 客户端到上下文
 app.use('/api/*', (c, next) => {
     c.redis = redis;
     return next()
 });
+
+// 导入中间件
+app.use('/api/*', corsAllMiddleware)// 配置CORS中间件
+app.use('/api/*', authMiddleware) // 认证中间件
+app.use('/api/*', camelCaseMiddleware) //  驼峰命名中间件
+
 
 app.use('/api/*', addTraceId) // 添加 trace_id 和计时
 app.use('/api/*', moreLogger) // 更多日志 更全的日志
@@ -61,6 +63,9 @@ db.query('SELECT 1', [])
     .then(async () => {
         console.log('数据库连接成功')
         await initializeConfig()
+        await initPermissionConfig()
+        // 生成接口表
+        // scanApiFiles()
     })
     .catch(err => console.error('数据库连接失败', err))
 
