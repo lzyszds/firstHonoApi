@@ -77,7 +77,7 @@ export async function authMiddleware(c: Context, next: Next) {
             1: [0, 1],  // 普通用户和管理员
             2: [0],     // 仅管理员
             3: [2]      // 特殊权限
-        };
+        }; 
 
         if (permissionMap[apiRoles]?.includes(userInfo.power!)) {
             return await next();

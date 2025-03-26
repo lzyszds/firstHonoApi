@@ -14,7 +14,6 @@ class PermissionService {
   public async findByName(c: Context) {
     
     const { name } = c.req.query()
-    console.log(name);
     
     const data: PermissionType[] = await permissionModel.findByName(name);
     const apiConfig: ApiConfig<PermissionType[]> = new ApiConfig(c);
