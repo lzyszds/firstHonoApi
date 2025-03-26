@@ -73,7 +73,17 @@ interface WbInterfaceBelongCreateOrUpdate {
 }
 
 
+//  组件接口 (Component)
+interface Component {
+  componentId: number; // 组件ID
+  componentName: string; // 组件名称
+  componentKey: string; // 组件唯一标识符
+  description?: string; // 组件描述（可选）
+  createdAt?: string; // 创建时间（可选）
+  updatedAt?: string; // 更新时间（可选）
+}
 
 
-export { PermissionType, PermissionCreate, WbInterfaceBelong, WbInterfaceBelongCreateOrUpdate };
+
+export { PermissionType, PermissionCreate, WbInterfaceBelong, WbInterfaceBelongCreateOrUpdate, Component };
 

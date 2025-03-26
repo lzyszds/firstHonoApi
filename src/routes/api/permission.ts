@@ -15,9 +15,14 @@ const routes: Routes = {
     // 获取所有接口列表
     "/getAll": permissionController.findAll,
 
+    // 模糊查询接口列表
+    "/getByName": permissionController.findByName,
+
     // 获取接口所属信息
     "/getBelongs": permissionController.findBelongs,
     
+    // 获取组件权限
+    "/getComponent": permissionController.findComponent,
   },
   post: {
     // 修改接口权限

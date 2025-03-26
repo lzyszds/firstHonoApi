@@ -1,6 +1,6 @@
 import ApiConfig from "@/domain/ApiCongfigType";
 import db from "../utils/db";
-import { PermissionType, WbInterfaceBelong } from "@/domain/PermissionType";
+import { PermissionType, WbInterfaceBelong, Component } from "@/domain/PermissionType";
 import { OkPacket } from "mysql";
 
 class PermissionMapper {
@@ -10,6 +10,14 @@ class PermissionMapper {
     const sql: string = `SELECT *
                          FROM wb_interface`
     return await db.query(sql, []);
+  }
+
+  // 模糊查询接口列表
+  public async findByName(name: string): Promise<PermissionType[]> {
+    const sql: string = `SELECT *
+                         FROM wb_interface
+                         WHERE interface_name LIKE ? OR interface_desc LIKE ?`
+    return await db.query(sql, [`%${name}%`, `%${name}%`]);
   }
 
   // 修改接口权限
@@ -24,6 +32,14 @@ class PermissionMapper {
   public async findBelongs(): Promise<WbInterfaceBelong> {
     const sql: string = `SELECT *
                          FROM wb_interface_belong`
+    return await db.query(sql, []);
+  }
+
+
+  // 获取组件权限
+  public async findComponent(): Promise<Component[]> {
+    const sql: string = `SELECT *
+                         FROM wb_components`
     return await db.query(sql, []);
   }
 }
