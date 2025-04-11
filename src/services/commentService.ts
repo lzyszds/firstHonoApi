@@ -107,7 +107,7 @@ class CommentService {
     // 创建一个 ApiConfig 对象
     const apiConfig: ApiConfig<CommentType[]> = new ApiConfig(c);
     try {
-      const { limit = "10" } = c.req.query();
+      const { limit = "5" } = c.req.query();
       // 获取最新评论
       const data: CommentType[] = await CommentMapper.getNewComment(Number(limit));
 
