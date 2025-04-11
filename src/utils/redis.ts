@@ -19,6 +19,7 @@ const redis = new Redis({
 
 // 定义 clearArticlesCache 方法
 redis.clearArticlesCache = (text) => {
+  
   try {
     // 使用 SCAN 命令查找所有匹配的键
     const stream = redis.scanStream({

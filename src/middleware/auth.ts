@@ -41,16 +41,9 @@ export async function authMiddleware(c: Context, next: Next) {
     }
 
     // 从缓存中获取权限列表
-    const cachedPermission = await c.redis.get('permission');
     let permission: PermissionType[]; // 权限列表
-    if (cachedPermission) {
-        // 缓存中有权限列表
-        permission = JSON.parse(cachedPermission);
-    } else {
-        // 缓存中没有权限列表，重新获取
-        permission = await getConfig()
-        await c.redis.setex('permission', 600, JSON.stringify(permission));
-    }
+    // 缓存中没有权限列表，重新获取
+    permission = await getConfig()
 
     // 使用通配符匹配接口权限
     const accordPermission = permission.find((item: PermissionType) => {
@@ -77,7 +70,7 @@ export async function authMiddleware(c: Context, next: Next) {
             1: [0, 1],  // 普通用户和管理员
             2: [0],     // 仅管理员
             3: [2]      // 特殊权限
-        }; 
+        };
 
         if (permissionMap[apiRoles]?.includes(userInfo.power!)) {
             return await next();

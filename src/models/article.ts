@@ -1,14 +1,14 @@
 //文章接口
 import db from "@/utils/db";
-import {handleParamsWildcard} from "@/utils/helpers";
-import type {Articles, GetArticleListParams} from "@/domain/Articles";
+import { handleParamsWildcard } from "@/utils/helpers";
+import type { Articles, GetArticleListParams } from "@/domain/Articles";
 
 class ArticleMapper {
 
     //获取文章列表总数
     public async getArticleListTotal(search: GetArticleListParams): Promise<number> {
         try {
-            const {whereValue, params} = handleParamsWildcard(search);
+            const { whereValue, params } = handleParamsWildcard(search);
 
             const sql = `
                 SELECT COUNT(DISTINCT a.aid) as total
@@ -30,7 +30,7 @@ class ArticleMapper {
             const limitNum = Number(limit);
             const offset = (pageNum - 1) * limitNum;
 
-            const {whereValue, params} = handleParamsWildcard(search);
+            const { whereValue, params } = handleParamsWildcard(search);
             const whereClause = whereValue.replace('aid', 'a.aid');
 
             const sql = `
@@ -67,7 +67,8 @@ class ArticleMapper {
             const limitNum = Number(limit);
             const offset = (pageNum - 1) * limitNum;
 
-            const {whereValue, params} = handleParamsWildcard(search);
+            // 处理通配符参数 给参数添加 % %
+            const { whereValue, params } = handleParamsWildcard(search);
             const whereClause = whereValue.replace('aid', 'a.aid');
 
             const sql = `
@@ -86,7 +87,7 @@ class ArticleMapper {
                     FROM wb_comments
                     GROUP BY article_id
                     ) c ON a.aid = c.article_id
-                    ${whereClause}
+                    ${whereClause ? whereClause + 'and a.whether_use = 1' : 'WHERE a.whether_use = 1'} 
                 GROUP BY a.aid
                 ORDER BY a.aid DESC
                     LIMIT ?, ?
@@ -187,14 +188,14 @@ class ArticleMapper {
 
     //新增文章
     public async addArticle(params: any) {
-        try{
-            const {title, content, cover_img, main, partial_content, uid, create_date, access_count} = params;
+        try {
+            const { title, content, cover_img, main, partial_content, uid, create_date, access_count } = params;
             let sql: string = `
             INSERT INTO wb_articles (title, content, cover_img, main, partial_content, uid, create_date, access_count)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
         `;
             return await db.query(sql, [title, content, cover_img, main, partial_content, uid, create_date, access_count]);
-        }catch (e) {
+        } catch (e) {
             console.error('Error in addArticle:', e);
         }
     }
