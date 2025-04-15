@@ -39,7 +39,7 @@ redis.clearArticlesCache = (text) => {
     });
 
     stream.on('end', () => {
-      console.log('所有 articles_page 相关的缓存已清除');
+      console.log(`所有 ${text} 相关的缓存已清除`);
     });
   } catch (error) {
     console.error('清除缓存时出错:', error);

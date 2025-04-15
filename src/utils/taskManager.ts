@@ -1,6 +1,6 @@
 // src/utils/taskManager.ts
-import {Task} from "@/domain/Plantask";
-import {v4 as uuidv4} from 'uuid'
+import { Task } from "@/domain/Plantask";
+import { v4 as uuidv4 } from 'uuid'
 import PlantaskMapper from '@/models/plantask'
 import taskHandlers from "@/tools/taskHandleList";
 
@@ -12,6 +12,9 @@ class TaskManager {
 
     // 启动时加载任务
     async initTasks() {
+        if (process.env.TASKS_INITIALIZED) return;
+        process.env.TASKS_INITIALIZED = 'true';
+
         const enabledTasks = await PlantaskMapper.getPlantaskList()
         for (const task of enabledTasks) {
             this.scheduleTask(task)
@@ -64,8 +67,9 @@ class TaskManager {
                 //当天是否已经发送过
                 const today = new Date();
                 const todayStr = today.toLocaleDateString();
+                
                 const lastExecutedAt = taskConfig.last_executed_at?.toLocaleDateString();
-                console.log('lastExecutedAt', lastExecutedAt, todayStr)
+                // console.log('lastExecutedAt', lastExecutedAt, todayStr)
 
                 if (lastExecutedAt == todayStr) {
                     return console.log('今天已经发送过了')

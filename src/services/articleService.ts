@@ -16,11 +16,13 @@ import { User } from '@/domain/User';
 import md5 from 'md5';
 import dayjs from 'dayjs';
 
-const clearCache = (c: Context) => {
+const clearCache = async (c: Context) => {
   /* 删除缓存 */
   c.redis.clearArticlesCache('articles_page')
   c.redis.clearArticlesCache('articles_page_web')
   c.redis.clearArticlesCache('articles_info')
+  //延迟1秒
+  await new Promise(resolve => setTimeout(resolve, 1000));
 }
 
 
@@ -143,7 +145,7 @@ class ArticleService {
       }
     }
 
-    clearCache(c)
+    await clearCache(c)
     return apiConfig.success('文章添加成功');
   }
 
@@ -228,7 +230,7 @@ class ArticleService {
       }
     }
 
-    clearCache(c)
+    await clearCache(c)
     return apiConfig.success('文章修改成功');
   }
 
@@ -292,7 +294,7 @@ class ArticleService {
     const apiConfig = new ApiConfig(c);
     if (result.affectedRows === 1) {
       /* 删除缓存 */
-      clearCache(c)
+      await clearCache(c)
       return apiConfig.success('文章删除成功');
     } else {
       return apiConfig.fail(result);
@@ -310,7 +312,7 @@ class ArticleService {
     const apiConfig = new ApiConfig(c);
     if (result.affectedRows === 1) {
       //删除缓存
-      clearCache(c)
+      await clearCache(c)
       return apiConfig.success('文章禁用成功');
     } else {
       return apiConfig.fail(result);
