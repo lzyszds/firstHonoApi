@@ -33,9 +33,21 @@ class ArticleMapper {
             const whereClause = whereValue.replace('aid', 'a.aid');
 
             const sql = `
-                SELECT a.aid, a.title, a.content, u.uname, u.head_img,
-                        GROUP_CONCAT(DISTINCT at.name) AS tags,
-                        COUNT(wc.article_id) AS comment_count
+                SELECT a.aid,
+                       a.title,
+                       a.main,
+                       a.uid,
+                       a.whether_use,
+                       a.partial_content,
+                       a.create_date,
+                       a.access_count,
+                       a.cover_img,
+                       a.modified_date, 
+                       a.content,
+                       u.uname, 
+                       u.head_img,
+                       GROUP_CONCAT(DISTINCT at.name) AS tags,
+                       COUNT(wc.article_id) AS comment_count
                 FROM wb_articles a
                         INNER JOIN wb_users u ON a.uid = u.uid
                         LEFT JOIN wb_articles_types art ON a.aid = art.aid

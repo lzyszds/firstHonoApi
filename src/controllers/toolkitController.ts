@@ -42,6 +42,11 @@ class ToolkitController {
   async deletePictureBedImage(c: Context) {
     return c.json(await ToolkitService.deletePictureBedImage(c));
   }
+
+  // 清空redis中所有缓存
+  async clearRedisCacheAll(c: Context) {
+    return c.json(await ToolkitService.clearRedisCacheAll(c));
+  }
 }
 
 export default new ToolkitController();

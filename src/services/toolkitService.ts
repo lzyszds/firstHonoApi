@@ -228,6 +228,22 @@ class ToolkotService {
             return apiConfig.fail('删除图库图片失败')
         }
     }
+
+    // 清空redis中所有缓存
+    public async clearRedisCacheAll(c: Context): Promise<ApiConfig<string>> {
+        const apiConfig: ApiConfig<string> = new ApiConfig(c);
+        try {
+            const result = await c.redis.flushall();
+            if (result === "OK") {
+                return apiConfig.success("清空缓存成功");
+            } else {
+                return apiConfig.fail("清空缓存失败");
+            }
+        } catch (e: any) {
+            Logger.error("Error in clearReidsCacheAll:", e);
+            return apiConfig.fail('清空redis缓存失败')
+        }
+    }
 }
 
 

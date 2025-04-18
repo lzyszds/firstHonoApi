@@ -1,4 +1,4 @@
-import {Hono} from "hono";
+import { Hono } from "hono";
 import toolkitController from "../../controllers/toolkitController";
 
 interface Routes {
@@ -24,12 +24,15 @@ const routes: Routes = {
     "/getPoetry": toolkitController.getPoetry,
     // 获取已存进图库中的图片
     "/getPictureBedImageList": toolkitController.getPictureBedImageList,
+    // 清空redis中所有缓存
+    "/clearRedisCacheAll": toolkitController.clearRedisCacheAll,
   },
   post: {
     // 将图片上传至图库
     "/uploadImageToPictureBed": toolkitController.uploadImageToPictureBed,
     // 删除图库中的图片以及数据库存储中的记录
     "/deletePictureBedImage": toolkitController.deletePictureBedImage,
+
   }
 }
 
