@@ -13,7 +13,7 @@ const redis = new Redis({
   host: Config.dbConfig.host, // Redis 服务地址，默认为 localhost
   port: 6379,                 // Redis 服务端口，默认为 6379
   // 如果你有密码设置，可以加上 password 字段
-  // password: 'your_password',
+  password: 'a395878870',
   db: 1,                      // 使用的 Redis 数据库，默认为 0
 });
 

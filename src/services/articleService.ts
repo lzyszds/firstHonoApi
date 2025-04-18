@@ -45,6 +45,7 @@ class ArticleService {
     const cacheKey = `articles_page?pages=${pages}&limit=${limit}&params=` + md5(JSON.stringify(params))
     // 现在可以通过 c.redis 访问 Redis 客户端
     const cachedData = await c.redis.get(cacheKey);
+    
     // 如果缓存存在，直接返回缓存数据
     if (cachedData) {
       return apiConfig.success(useUserInfoGetData(cachedData, userInfo));
@@ -73,14 +74,13 @@ class ArticleService {
     }
 
     const total: number = await ArticleMapper.getArticleListTotal(params as any);
-    console.log("测试缓存是否走缓存");
 
     const data: Articles[] = await ArticleMapper.findArticleList({
       title: '',
       content: '',
       aid: ''
     }, pages, limit);
-
+    
     const result = { total: total, data }
     await c.redis.setex(cacheKey, 600, JSON.stringify(result));
 

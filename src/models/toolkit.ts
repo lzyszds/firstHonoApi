@@ -42,7 +42,7 @@ class ToolkitMapper {
     for (let key in sqlObjeck) {
       result[key] = await db.query(sqlObjeck[key], [])
     }
-
+    
     return result;
   }
 

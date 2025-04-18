@@ -15,7 +15,6 @@ class ArticleMapper {
                 FROM wb_articles a
                     ${whereValue}
             `;
-
             const [result] = await db.query<[{ total: number }]>(sql, params);
             return result.total;
         } catch (error) {
@@ -34,27 +33,19 @@ class ArticleMapper {
             const whereClause = whereValue.replace('aid', 'a.aid');
 
             const sql = `
-                SELECT a.*,
-                       u.uname,
-                       u.head_img,
-                       GROUP_CONCAT(DISTINCT at.name) AS tags,
-                       COALESCE(c.comment_count, 0)   AS comment_count
+                SELECT a.aid, a.title, a.content, u.uname, u.head_img,
+                        GROUP_CONCAT(DISTINCT at.name) AS tags,
+                        COUNT(wc.article_id) AS comment_count
                 FROM wb_articles a
-                         INNER JOIN wb_users u ON a.uid = u.uid
-                         LEFT JOIN wb_articles_types art ON a.aid = art.aid
-                         LEFT JOIN wb_articlestype at
-                ON art.type_id = at.type_id
-                    LEFT JOIN (
-                    SELECT article_id, COUNT (*) as comment_count
-                    FROM wb_comments
-                    GROUP BY article_id
-                    ) c ON a.aid = c.article_id
-                    ${whereClause}
-                GROUP BY a.aid
+                        INNER JOIN wb_users u ON a.uid = u.uid
+                        LEFT JOIN wb_articles_types art ON a.aid = art.aid
+                        LEFT JOIN wb_articlestype at ON art.type_id = at.type_id
+                        LEFT JOIN wb_comments wc ON a.aid = wc.article_id
+                ${whereClause}
+                GROUP BY a.aid, u.uname, u.head_img
                 ORDER BY a.aid DESC
-                    LIMIT ?, ?
+                LIMIT ?, ?;
             `;
-
             return await db.query<Articles[]>(sql, [...params, offset, limitNum]);
         } catch (error) {
             throw error;
@@ -72,27 +63,42 @@ class ArticleMapper {
             const whereClause = whereValue.replace('aid', 'a.aid');
 
             const sql = `
-                SELECT a.*,
-                       u.uname,
-                       u.head_img,
-                       GROUP_CONCAT(DISTINCT at.name) AS tags,
-                       COALESCE(c.comment_count, 0)   AS comment_count
-                FROM wb_articles a
-                         INNER JOIN wb_users u ON a.uid = u.uid
-                         LEFT JOIN wb_articles_types art ON a.aid = art.aid
-                         LEFT JOIN wb_articlestype at
-                ON art.type_id = at.type_id
-                    LEFT JOIN (
-                    SELECT article_id, COUNT (*) as comment_count
-                    FROM wb_comments
-                    GROUP BY article_id
-                    ) c ON a.aid = c.article_id
-                    ${whereClause ? whereClause + 'and a.whether_use = 1' : 'WHERE a.whether_use = 1'} 
-                GROUP BY a.aid
-                ORDER BY a.aid DESC
-                    LIMIT ?, ?
+            SELECT
+                a.aid,
+                a.title,
+                a.main,
+                a.uid,
+                a.whether_use,
+                a.partial_content,
+                a.create_date,
+                a.access_count,
+                a.cover_img,
+                a.modified_date,
+                u.uname,
+                u.head_img,
+                GROUP_CONCAT(DISTINCT at.name) AS tags,
+                COALESCE(MAX(c.comment_count), 0) AS comment_count
+            FROM
+                wb_articles a
+                INNER JOIN wb_users u ON a.uid = u.uid
+                LEFT JOIN wb_articles_types art ON a.aid = art.aid
+                LEFT JOIN wb_articlestype at ON art.type_id = at.type_id
+                LEFT JOIN (
+                    SELECT
+                        article_id,
+                        COUNT(*) as comment_count
+                    FROM
+                     wb_comments 
+                    GROUP BY
+                        article_id
+                ) c ON a.aid = c.article_id
+            ${whereClause ? whereClause + 'and a.whether_use = 1' : 'WHERE a.whether_use = 1'} 
+            GROUP BY
+                a.aid, a.title, a.content, a.uid, a.whether_use, u.uname, u.head_img
+            ORDER BY
+                a.aid DESC
+            LIMIT ?, ?
             `;
-
             return await db.query<Articles[]>(sql, [...params, offset, limitNum]);
         } catch (error) {
             throw error;

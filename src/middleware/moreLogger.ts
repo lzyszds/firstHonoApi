@@ -93,7 +93,7 @@ export const moreLogger = async (c: Context, next: () => Promise<void>) => {
       status: 2,
       error_message: error.message
     }
-    console.log('moreLogger -> errorLogData', errorLogData)
+    // console.log('moreLogger -> errorLogData', errorLogData)
     // 异步写入日志到日志文件
     logger.error(JSON.stringify(errorLogData))
   }
