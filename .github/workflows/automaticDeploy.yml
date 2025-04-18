@@ -35,4 +35,4 @@ jobs:
                   # 用户
                   REMOTE_USER: 'root'
                   # 目标地址
-                  TARGET: '/www/wwwroot/firstHonoApi/src'
+                  TARGET: '/opt/1panel/apps/openresty/openresty/www/sever/src'
