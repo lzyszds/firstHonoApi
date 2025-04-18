@@ -20,6 +20,10 @@ import websocketRouter from './routes/api/websocket';
 import { initializeConfig } from './config';
 import { initPermissionConfig } from './config/permission';
 import { scanApiFiles } from './tools/autoCreateInterface'
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
+
 // 扩展 Context 类型
 declare module 'hono' {
     interface Context {
@@ -87,6 +91,15 @@ app.onError((err, c) => {
 
 // Initialize tasks
 taskManager.initTasks();
+
+
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+
+// 设置默认时区
+dayjs.tz.setDefault('Asia/Shanghai');
+
 
 // Server Configuration
 export default {

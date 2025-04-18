@@ -3,12 +3,12 @@ import SystemMapper from '../models/system';
 import path from 'path';
 import fs from 'fs';
 
-import {Footer, FooterSecondary} from '@/domain/FooterType';
-import {Context} from 'hono';
-import {checkObj, parseLogString} from '@/utils/helpers';
+import { Footer, FooterSecondary } from '@/domain/FooterType';
+import { Context } from 'hono';
+import { checkObj, parseLogString } from '@/utils/helpers';
 import logger from '@/middleware/logger';
 import dayjs from 'dayjs';
-import {fileURLToPath} from 'url';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -173,7 +173,7 @@ class SystemService {
     const apiConfig: ApiConfig<string> = new ApiConfig(c);
 
     try {
-      const {children} = await c.req.json()
+      const { children } = await c.req.json()
       if (checkObj(await c.req.json(), ['children'])) {
         return apiConfig.fail('参数不能为空 children')
       }
@@ -217,21 +217,38 @@ class SystemService {
     }
   }
 
-  //获取系统日志
+  // 获取系统日志
   public async getSystemLog(c: any): Promise<ApiConfig<any>> {
     const apiConfig: ApiConfig<any> = new ApiConfig(c);
-    const newDate = dayjs().format('YYYY-MM-DD')
-    const params = await c.req.query()
-    const {type = 'info', date = newDate, page, limit} = params
-    try {
+    const newDate = dayjs().format('YYYY-MM-DD');
+    const params = await c.req.query();
+    const { type = 'info', date = newDate, page = '1', limit = '10' } = params;
 
-      const logDir = path.resolve(__dirname, '../../logs'); // 假设 logs 文件夹在你的源代码根目录下
-      const logFilePath = path.resolve(logDir, date);
-      if (!fs.existsSync(logFilePath)) {
-        return apiConfig.success([]);
+    try {
+      // 确保 page 和 limit 是数字
+      const pageNum = parseInt(page, 10);
+      const limitNum = parseInt(limit, 10);
+      if (isNaN(pageNum) || isNaN(limitNum) || pageNum < 1 || limitNum < 1) {
+        return apiConfig.fail('分页参数无效');
       }
 
-      let data: any = fs.readFileSync(logFilePath + `\\${type}.log`, 'utf-8');
+      // 日志目录和文件路径
+      const logDir = path.resolve(__dirname, '../../logs'); // 例如 /app/logs
+      const logSubDir = path.resolve(logDir, date); // 例如 /app/logs/2025-04-18
+      const logFilePath = path.resolve(logSubDir, `${type}.log`); // 例如 /app/logs/2025-04-18/info.log
+
+      // 检查日志子目录是否存在
+      if (!fs.existsSync(logSubDir)) {
+        return apiConfig.success({ total: 0, data: [] });
+      }
+
+      // 检查日志文件是否存在
+      if (!fs.existsSync(logFilePath)) {
+        return apiConfig.success({ total: 0, data: [] });
+      }
+
+      // 读取日志文件
+      let data: any = fs.readFileSync(logFilePath, 'utf-8');
       data = parseLogString(data)
         .filter((item: any): boolean => !!item)
         .reverse()
@@ -242,27 +259,27 @@ class SystemService {
               time: item.timestamp,
               level: item.level,
               message: JSON.parse(item.message),
-            }
+            };
           } catch {
             return {
               ...item,
               time: item.timestamp,
               level: item.level,
               message: item.message,
-            }
+            };
           }
-        })
+        });
 
       // 分页
       const result = {
         total: data.length,
-        data: data.slice((page - 1) * limit, page * limit)
-      }
+        data: data.slice((pageNum - 1) * limitNum, pageNum * limitNum),
+      };
 
       return apiConfig.success(result);
     } catch (e: any) {
-      logger.error(e);
-      return apiConfig.fail('获取日志失败')
+      logger.error(`获取日志失败: ${e.message}`);
+      return apiConfig.fail('获取日志失败');
     }
   }
 }
