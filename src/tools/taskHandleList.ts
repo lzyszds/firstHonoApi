@@ -23,7 +23,6 @@ export function sendEmailWarn(body: string): Promise<string> {
 
             // 读取GitHub数据文件
             const data = JSON.parse(await getGithubInfo())
-            console.log(data)
 
             // 获取最近一周的贡献数据
             const weeks = data.data.user.contributionsCollection.contributionCalendar.weeks

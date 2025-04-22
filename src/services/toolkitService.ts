@@ -1,17 +1,17 @@
 import ApiConfig from "@/domain/ApiCongfigType";
-import {AdminHomeType, ProcessAdminHomeType} from "@/domain/AdminHomeType";
+import { AdminHomeType, ProcessAdminHomeType } from "@/domain/AdminHomeType";
 import ToolkotMapper from "@/models/toolkit";
 import ArticleMapper from "@/models/article";
-import IP2Region, {IP2RegionResult} from "ip2region";
+import IP2Region, { IP2RegionResult } from "ip2region";
 import Config from "../../config";
-import {WeatherDataType, WeatherDataTypeResponse} from "@/domain/ToolkitType";
+import { WeatherDataType, WeatherDataTypeResponse } from "@/domain/ToolkitType";
 import dayjs from "dayjs";
 import axios from "axios";
-import {Context} from "hono";
+import { Context } from "hono";
 import imageUploadResponse from "@/utils/imageUploadResponse";
-import {PictureBedType} from "@/domain/PictureBedType";
-import {dailyGithub, getGithubCommitHandle} from "@/tools/taskHandleList";
-import {getIpAddress} from "@/utils/getIpAddress";
+import { PictureBedType } from "@/domain/PictureBedType";
+import { dailyGithub, getGithubCommitHandle } from "@/tools/taskHandleList";
+import { getIpAddress } from "@/utils/getIpAddress";
 import fs from "fs";
 import path from "path";
 import Joi from "joi";
@@ -60,9 +60,17 @@ class ToolkotService {
                 return apiConfig.success(DEFAULT_IP_INFO);
             }
 
+            if (res.country != "中国") {
+                DEFAULT_IP_INFO.ip = ipAddress
+                DEFAULT_IP_INFO.province = res.country
+                DEFAULT_IP_INFO.city = res.country
+                return apiConfig.success(DEFAULT_IP_INFO);
+            }
 
-            const {adcode} = await ToolkotMapper.getCityCodeByIp(res.city!);
-            const weatherCacheKey = "ipAddress" + adcode;
+
+            const cityData = await ToolkotMapper.getCityCodeByIp(res.city!);
+
+            const weatherCacheKey = "ipAddress" + cityData.adcode;
             const weatherCacheTime = 1800
             let weatherInfo = await c.redis.get(weatherCacheKey);
 
@@ -72,8 +80,8 @@ class ToolkotService {
             }
 
 
-            const {data} = await axios(
-                `https://restapi.amap.com/v3/weather/weatherInfo?city=${adcode}&key=${Config.weatherKey}`
+            const { data } = await axios(
+                `https://restapi.amap.com/v3/weather/weatherInfo?city=${cityData.adcode}&key=${Config.weatherKey}`
             );
             const weatherData: WeatherDataTypeResponse = data;
             weatherData.lives[0].ip = ipAddress;
@@ -101,7 +109,7 @@ class ToolkotService {
         try {
             const [data, newArticle] = await Promise.all([
                 ToolkotMapper.getAdminHomeData(),
-                ArticleMapper.findAll({title: "", content: "", aid: ""}, 1, 6),
+                ArticleMapper.findAll({ title: "", content: "", aid: "" }, 1, 6),
             ]);
             // 处理数据 不需要返回所有数据 删除对象中的content属性
             newArticle.forEach((item: any) => {
@@ -165,7 +173,7 @@ class ToolkotService {
     public async getPoetry(c: Context): Promise<ApiConfig<string>> {
         const apiConfig: ApiConfig<any> = new ApiConfig<any>(c);
         try {
-            const {data} = await axios({
+            const { data } = await axios({
                 url: "https://v2.jinrishici.com/sentence",
                 method: "get",
                 headers: {
@@ -184,13 +192,13 @@ class ToolkotService {
     public async getPictureBedImageList(c: Context): Promise<ApiConfig<PictureBedType[]>> {
         const apiConfig: ApiConfig<PictureBedType[]> = new ApiConfig(c);
         try {
-            const {value, error} = pictureBedSchema.validate(c.req.query());
+            const { value, error } = pictureBedSchema.validate(c.req.query());
             if (error) {
                 return apiConfig.fail(error)
             }
-            let {page, limit, type} = value;
+            let { page, limit, type } = value;
             if (type === "all") type = "%%";
-            const result = await ToolkotMapper.getImageInfo({page, limit, type});
+            const result = await ToolkotMapper.getImageInfo({ page, limit, type });
             return apiConfig.success(result);
         } catch (e: any) {
             Logger.error("Error in getPictureBedImageList:", e);
@@ -209,7 +217,7 @@ class ToolkotService {
     public async deletePictureBedImage(c: Context): Promise<ApiConfig<string>> {
         const apiConfig: ApiConfig<string> = new ApiConfig(c);
         try {
-            const {id} = await c.req.json();
+            const { id } = await c.req.json();
             const result = await ToolkotMapper.deleteImage(id);
             if (result.affectedRows === 0) {
                 return apiConfig.fail("删除失败");

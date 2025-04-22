@@ -6,7 +6,6 @@ interface Routes {
   post: { [key: string]: (c: any) => any };
 }
 const router = new Hono();
-console.log()
 const routes: Routes = {
   get: {
     // 获取文章列表(后台)

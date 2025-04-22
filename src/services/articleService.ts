@@ -69,7 +69,7 @@ class ArticleService {
     const cachedData = await c.redis.get(cacheKey);
     // 如果缓存存在，直接返回缓存数据
     if (cachedData) {
-      console.log("走缓存数据");
+      // console.log("走缓存数据");
       return apiConfig.success(JSON.parse(cachedData));
     }
 
