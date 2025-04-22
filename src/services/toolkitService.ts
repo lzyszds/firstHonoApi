@@ -2,6 +2,7 @@ import ApiConfig from "@/domain/ApiCongfigType";
 import { AdminHomeType, ProcessAdminHomeType } from "@/domain/AdminHomeType";
 import ToolkotMapper from "@/models/toolkit";
 import ArticleMapper from "@/models/article";
+import CommentMapper from "@/models/comment";
 import IP2Region, { IP2RegionResult } from "ip2region";
 import Config from "../../config";
 import { WeatherDataType, WeatherDataTypeResponse } from "@/domain/ToolkitType";

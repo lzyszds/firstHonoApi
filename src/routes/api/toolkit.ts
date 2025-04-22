@@ -32,7 +32,6 @@ const routes: Routes = {
     "/uploadImageToPictureBed": toolkitController.uploadImageToPictureBed,
     // 删除图库中的图片以及数据库存储中的记录
     "/deletePictureBedImage": toolkitController.deletePictureBedImage,
-
   }
 }
 

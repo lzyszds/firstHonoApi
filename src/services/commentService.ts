@@ -9,13 +9,18 @@ import CommentMapper from "../models/comment";
 import { CommentType } from "../domain/CommentType";
 import { Context } from "hono";
 import logger from "@/middleware/logger";
+import { getIpAddress } from "@/utils/getIpAddress";
 
 class CommentService {
 
   //获取文章评论
   public async getArticleComment(c: Context) {
-    const { id } = c.req.query();
-    const data: Articles = await CommentMapper.getArticleComment(id);
+    const { aid } = c.req.query();
+    if (!aid) {
+      return new ApiConfig(c).fail("缺少参数");
+    }
+    const data: Articles = await CommentMapper.getArticleComment(aid);
+
     const apiConfig: ApiConfig<Articles> = new ApiConfig(c);
     return apiConfig.success(data);
   }
@@ -54,7 +59,7 @@ class CommentService {
       // 获取前端传入的参数
       let { content, aid, replyId, replyPeople, groundId, email, name, imgIndex } = await c.req.json()
       // 获取用户ip
-      const userIp = c.req.header('x-real-ip') || ""
+      const userIp = await getIpAddress(c);
       // 根据用户ip获取用户地址
       // 创建一个 IP2Region 对象
       const query: IP2Region = new IP2Region();
@@ -76,7 +81,7 @@ class CommentService {
       replyId = replyId || "0";
       groundId = groundId || "0";
       //@ts-ignore 头像地址
-      const img: string = `/img/comments/${imgs[imgIndex]}`;
+      const img: string = `/static/img/comments/${imgs[imgIndex]}`;
       const nowDate: number = getCurrentUnixTime();
       // 添加评论进数据库
       await CommentMapper.addComment({

@@ -30,6 +30,11 @@ class AiController {
     return c.json(await openAI.deleteAiKey(c));
   }
 
+  //根据文章id来生成相关的ai评论内容
+  async getAiComment(c: Context) {
+    return openAI.getAiComment(c)
+  }
+
 }
 
 export default new AiController();

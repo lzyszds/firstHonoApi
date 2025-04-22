@@ -1,14 +1,15 @@
 import ApiConfig from "@/domain/ApiCongfigType";
 import ArticleMapper from "@/models/article";
+import CommentMapper from "@/models/comment";
 import AiMapper from "@/models/openAI";
-import {AiUc, AiUcKeys} from "@/domain/AiType";
-import {DataTotal} from "@/domain/DataTotal";
+import { AiUc, AiUcKeys } from "@/domain/AiType";
+import { DataTotal } from "@/domain/DataTotal";
 import dayjs from "dayjs";
 import handleAiFox from "@/utils/handleAiFox";
-import {Context} from "hono";
-import {streamSSE} from 'hono/streaming'
+import { Context } from "hono";
+import { streamSSE } from 'hono/streaming'
 import CONFIG from "../../config";
-import {OpenAI} from "openai";
+import { OpenAI } from "openai";
 import logger from "@/middleware/logger";
 
 
@@ -68,7 +69,7 @@ class openAI {
         role: "system",
         content: "你是一个专业的博客文章研究分析师。你将从以下文章中总结出一段不要超出100个字的简洁的内容。请不要使用编号列出信息点"
       },
-      {role: "user", content: content}
+      { role: "user", content: content }
     ];
     // 配置 OpenAI 客户端
     const client = new OpenAI({
@@ -92,7 +93,7 @@ class openAI {
             fullResponse += content;
             // 逐字输出
             for (const char of content) {
-              await stream.writeSSE({data: char});
+              await stream.writeSSE({ data: char });
             }
           }
         }
@@ -101,7 +102,7 @@ class openAI {
         // await handleAiFox.writeAiTextStore(fullResponse, aid);
       } catch (error) {
         console.error('AI处理错误:', error);
-        await stream.writeSSE({data: '处理过程中发生错误，请稍后重试。'});
+        await stream.writeSSE({ data: '处理过程中发生错误，请稍后重试。' });
       }
     });
   }
@@ -110,7 +111,7 @@ class openAI {
   public async getAiList(c: Context): Promise<ApiConfig<DataTotal<AiUc>>> {
 
     const apiConfig = new ApiConfig<DataTotal<AiUc>>(c);
-    const {pages, limit} = c.req.query();
+    const { pages, limit } = c.req.query();
     const total = await AiMapper.findAiListTotal();
     const list = await AiMapper.findAiList(Number(pages), Number(limit));
     apiConfig.success({
@@ -123,7 +124,7 @@ class openAI {
   //获取指定Ai的key
   public async getAiKeysList(c: Context): Promise<ApiConfig<AiUcKeys[]>> {
     const apiConfig = new ApiConfig<AiUcKeys[]>(c);
-    let {search = "", pages = "1", limit = "10"} = c.req.query();
+    let { search = "", pages = "1", limit = "10" } = c.req.query();
     const list = await AiMapper.findAiKey(search, Number(pages), Number(limit));
     return apiConfig.success(list)
   }
@@ -143,7 +144,7 @@ class openAI {
   //修改Ai的key
   public async updateAiKey(c: Context): Promise<ApiConfig<string>> {
     const apiConfig = new ApiConfig<string>(c);
-    const {id, ...params} = await c.req.json()
+    const { id, ...params } = await c.req.json()
     if (!id) return apiConfig.fail("Id不能为空,当前接口是修改不是新增")
     const list = await AiMapper.updateAiKey(id, params);
     if (list.affectedRows > 0) {
@@ -157,7 +158,7 @@ class openAI {
   //删除Ai的key
   public async deleteAiKey(c: Context): Promise<ApiConfig<any>> {
     const apiConfig = new ApiConfig<any>(c);
-    const {id} = await c.req.json()
+    const { id } = await c.req.json()
     const list = await AiMapper.deleteAiKey(id);
     if (list.affectedRows > 0) {
       return apiConfig.success("删除成功")
@@ -166,7 +167,80 @@ class openAI {
     }
   }
 
+  // 根据文章id来生成相关的ai评论内容
+  public async getAiComment(c: Context) {
+    // 获取文章 ID
+    const aid: any = c.req.query('aid')
+    const cid: any = c.req.query('cid') || 0;
+    let articleInfo: any, commentInfo: any;
 
+    try {
+      // 根据文章 ID 获取文章内容
+      articleInfo = await ArticleMapper.findArticleInfo(aid);
+      if (!articleInfo) {
+        return c.text("文章不存在", 404);
+      }
+      // 根据评论id获取评论内容
+      if (cid != 0) {
+        commentInfo = await CommentMapper.getCommentInfo(cid);
+        if (!commentInfo) {
+          return c.text("评论不存在", 404);
+        }
+      }
+    } catch (e) {
+      return c.text("获取失败", 404);
+    }
+
+
+    const key = await getAiKey("阿里云硅基Ai");
+
+    const content = '' + articleInfo.content
+    let commentContent = '';
+    if (cid != 0) {
+      commentContent += commentInfo[0].content
+    }
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+      {
+        role: "system",
+        content: `请根据以下文章内容和评论内容:（${commentContent}）生成一段简洁的评论。请不要使用编号列出信息点,要更加人性化一点，不用加以总结，不要超过30个字符`
+      },
+      { role: "user", content: content }
+    ];
+    // 配置 OpenAI 客户端
+    const client = new OpenAI({
+      apiKey: key,
+      baseURL: "https://api.siliconflow.cn/v1", // 使用阿里云硅基AI的基础URL
+    });
+
+    return streamSSE(c, async (stream) => {
+      let fullResponse = '';
+
+      try {
+        const completion = await client.chat.completions.create({
+          model: "Qwen/Qwen2-7B-Instruct", // 使用阿里云硅基AI的模型
+          messages: messages,
+          stream: true,
+        });
+
+        for await (const chunk of completion) {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            fullResponse += content;
+            // 逐字输出
+            for (const char of content) {
+              await stream.writeSSE({ data: char });
+            }
+          }
+        }
+
+        // 将完整结果写入文件
+        // await handleAiFox.writeAiTextStore(fullResponse, aid);
+      } catch (error) {
+        console.error('AI处理错误:', error);
+        await stream.writeSSE({ data: '处理过程中发生错误，请稍后重试。' });
+      }
+    });
+  }
 }
 
 export default new openAI();

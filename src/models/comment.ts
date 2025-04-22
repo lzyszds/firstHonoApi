@@ -90,6 +90,15 @@ class CommentMapper {
     return await db.query(sql, [limit]);
   }
 
+  // 根据评论id拿到评论的所有信息
+  public async getCommentInfo(id: string): Promise<CommentType[]> {
+    let sql: string = `
+            SELECT *
+            FROM wb_comments
+            WHERE comment_id = ?
+        `;
+    return await db.query(sql, [id]);
+  }
 }
 
 export default new CommentMapper();

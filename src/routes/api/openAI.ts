@@ -15,7 +15,9 @@ const routes: Routes = {
     //  获取ai key列表
     "/getAiKeysList": openAIController.getAiKeysList,
     //  询问阿里云的硅基ai
-    "/getSiliconflowiAi": openAIController.getSiliconflowiAi
+    "/getSiliconflowiAi": openAIController.getSiliconflowiAi,
+    // 根据文章id来生成相关的ai评论内容
+    "/getAiComment": openAIController.getAiComment,
   },
   post: {
     //  新增ai key
