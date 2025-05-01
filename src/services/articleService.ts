@@ -15,6 +15,7 @@ import { decodeToken } from '@/utils/authUtils';
 import { User } from '@/domain/User';
 import md5 from 'md5';
 import dayjs from 'dayjs';
+import { log } from 'console';
 
 const clearCache = async (c: Context) => {
   /* 删除缓存 */
@@ -61,7 +62,8 @@ class ArticleService {
   }
 
 
-  public async findArticleList(c: Context) {
+  public async getArticleListForWeb(c: Context) {
+    console.log('web端获取文章列表');
     const apiConfig: ApiConfig<ArticleData<Articles[]>> = new ApiConfig(c);
     const { pages = 1, limit = 10, ...params } = c.req.query();
     const cacheKey = `articles_page_web?pages=${pages}&limit=${limit}&params=` + md5(JSON.stringify(params))

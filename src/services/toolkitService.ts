@@ -141,7 +141,8 @@ class ToolkotService {
         const apiConfig: ApiConfig<any> = new ApiConfig(c);
         try {
             let afterGithubData = await c.redis.get('afterGithubData') || {}
-            if (afterGithubData) {
+            
+            if (!afterGithubData) {
                 await dailyGithub()
                 afterGithubData = (await c.redis.get('afterGithubData'))!
             }

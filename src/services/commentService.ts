@@ -100,6 +100,7 @@ class CommentService {
     const apiConfig = new ApiConfig(c);
     try {
       const { ids } = await c.req.json()
+
       // 删除评论
       await CommentMapper.deleteComment(ids);
       return apiConfig.success("删除成功");

@@ -10,8 +10,8 @@ class ArticleController {
         return c.json(await ArticleService.findAll(c));
     }
     //获取文章列表(前台版本)
-    async findArticleList(c: Context) {
-        return c.json(await ArticleService.findArticleList(c));
+    async getArticleListForWeb(c: Context) {
+        return c.json(await ArticleService.getArticleListForWeb(c));
     }
 
     //根据id获取文章详情

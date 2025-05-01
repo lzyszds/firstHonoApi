@@ -74,9 +74,10 @@ class CommentMapper {
   public async deleteComment(ids: string) {
     let sql: string = `
             DELETE FROM wb_comments
-            WHERE comment_id in (?) or reply_id in (?)
+            WHERE comment_id in (?)  
         `;
-    return await db.query(sql, [ids, ids]);
+    console.log(ids)
+    return await db.query(sql, [ids]);
   }
 
   //获取最新评论
