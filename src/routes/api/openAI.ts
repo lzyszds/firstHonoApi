@@ -1,4 +1,4 @@
-import {Hono} from "hono";
+import { Hono } from "hono";
 import openAIController from "../../controllers/openAIController";
 
 interface Routes {
@@ -12,20 +12,22 @@ const router = new Hono();
 
 const routes: Routes = {
   get: {
-    //  获取ai key列表
+    // 获取ai key列表
     "/getAiKeysList": openAIController.getAiKeysList,
-    //  询问阿里云的硅基ai
+    // 询问阿里云的硅基ai
     "/getSiliconflowiAi": openAIController.getSiliconflowiAi,
     // 根据文章id来生成相关的ai评论内容
     "/getAiComment": openAIController.getAiComment,
   },
   post: {
-    //  新增ai key
+    // 新增ai key
     "/addAiKey": openAIController.addAiKey,
-    //  更新ai key
+    // 更新ai key
     "/updateAiKey": openAIController.updateAiKey,
-    //  删除ai key
-    "/deleteAiKey": openAIController.deleteAiKey
+    // 删除ai key
+    "/deleteAiKey": openAIController.deleteAiKey,
+    // Ai chat 
+    "/sendChat": openAIController.sendChat,
   }
 }
 

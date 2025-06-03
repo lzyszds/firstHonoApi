@@ -241,6 +241,57 @@ class openAI {
       }
     });
   }
+
+  // Ai chat
+  public async sendChat(c: Context) {
+    const apiConfig = new ApiConfig<string>(c);
+    const { message, messages, baseURL, model } = await c.req.json()
+    console.log('messages:', message);
+
+    if (!message || message.length === 0) {
+      return apiConfig.fail("消息不能为空");
+    }
+
+    const key = await getAiKey("阿里云硅基Ai");
+
+
+    // 配置 OpenAI 客户端
+    const client = new OpenAI({
+      apiKey: key,
+      baseURL: baseURL || "https://api.siliconflow.cn/v1", // 使用阿里云硅基AI的基础URL
+    });
+
+    return streamSSE(c, async (stream) => {
+      let fullResponse = '';
+
+      try {
+        const completion = await client.chat.completions.create({
+          model: model || "Qwen/Qwen2-7B-Instruct", // 使用阿里云硅基AI的模型
+          messages: messages,
+          stream: true,
+        });
+
+        // 后端：发送整个内容块
+        for await (const chunk of completion) {
+          const content = chunk.choices[0]?.delta?.content || '';
+          if (content) {
+            fullResponse += content;
+            // 直接发送内容，让前端CSS处理换行
+            await stream.writeSSE({ data: JSON.stringify(content) });
+          }
+        }
+
+        console.log(fullResponse);
+
+
+        // 将完整结果写入文件
+        // await handleAiFox.writeAiTextStore(fullResponse, aid);
+      } catch (error) {
+        console.error('AI处理错误:', error);
+        await stream.writeSSE({ data: '处理过程中发生错误，请稍后重试。' });
+      }
+    });
+  }
 }
 
 export default new openAI();

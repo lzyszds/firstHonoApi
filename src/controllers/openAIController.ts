@@ -35,6 +35,11 @@ class AiController {
     return openAI.getAiComment(c)
   }
 
+  // Ai chat
+  async sendChat(c: Context) {
+    return openAI.sendChat(c);
+  }
+
 }
 
 export default new AiController();
