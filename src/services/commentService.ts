@@ -10,6 +10,7 @@ import { CommentType } from "../domain/CommentType";
 import { Context } from "hono";
 import logger from "@/middleware/logger";
 import { getIpAddress } from "@/utils/getIpAddress";
+import openAI from "@/services/openAIService";
 
 class CommentService {
 
@@ -58,6 +59,18 @@ class CommentService {
 
       // 获取前端传入的参数
       let { content, aid, replyId, replyPeople, groundId, email, name, imgIndex } = await c.req.json()
+
+
+      // 通过ai进行评论内容审核
+      if (!content || !aid || !email || !name) {
+        return apiConfig.fail("缺少必要参数");
+      }
+      const result = await openAI.getAiReviewComment(c, content) as ApiConfig<string>;
+      console.log(result);
+      if (result.data === "不符合规范") {
+        return apiConfig.fail("评论内容不符合规范，请修改后再提交");
+      }
+
       // 获取用户ip
       const userIp = await getIpAddress(c);
       // 根据用户ip获取用户地址

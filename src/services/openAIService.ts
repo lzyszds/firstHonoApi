@@ -281,9 +281,6 @@ class openAI {
           }
         }
 
-        console.log(fullResponse);
-
-
         // 将完整结果写入文件
         // await handleAiFox.writeAiTextStore(fullResponse, aid);
       } catch (error) {
@@ -292,6 +289,53 @@ class openAI {
       }
     });
   }
+
+  // 使用ai来审核评论内容是否符合规范
+  public async getAiReviewComment(c: Context, content: string = '') {
+    // 获取评论内容
+    content = c.req.query('content') || content;
+    if (!content) {
+      return c.text("评论内容不能为空", 400);
+    }
+
+    const key = await getAiKey("阿里云硅基Ai");
+
+    const messages: OpenAI.Chat.ChatCompletionMessageParam[] = [
+      {
+        role: "system",
+        content: "你是一个专业的评论审核员。请判断以下评论内容是否符合规范，规范是指评论内容不包含任何敏感词汇、广告、恶意攻击等不当内容。请回答“符合规范”或“不符合规范”。"
+      },
+      { role: "user", content: content }
+    ];
+
+    // 配置 OpenAI 客户端
+    const client = new OpenAI({
+      apiKey: key,
+      baseURL: "https://api.siliconflow.cn/v1", // 使用阿里云硅基AI的基础URL
+    });
+
+    const completion = await client.chat.completions.create({
+      model: "Qwen/Qwen2-7B-Instruct", // 使用阿里云硅基AI的模型
+      messages: messages,
+    });
+
+    const apiConfig = new ApiConfig<string>(c);
+    const responseContent = completion.choices[0].message.content;
+
+    if (!responseContent) {
+      return apiConfig.fail("无法判断评论内容是否符合规范");
+    }
+
+    if (responseContent.includes("不符合规范")) {
+      return apiConfig.success("不符合规范");
+    } else if (responseContent.includes("符合规范")) {
+      return apiConfig.success("符合规范");
+    } else {
+      return apiConfig.success("不符合规范");
+    }
+  }
 }
+
+
 
 export default new openAI();

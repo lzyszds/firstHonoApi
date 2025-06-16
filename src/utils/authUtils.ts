@@ -1,5 +1,5 @@
-import jwt, {JwtPayload} from 'jsonwebtoken';
-import {User} from "@/domain/User";
+import jwt, { JwtPayload } from 'jsonwebtoken';
+import { User } from "@/domain/User";
 
 // 用于签名JWT的密钥，保持私密, 建议从环境变量读取
 const secretKey = process.env.JWT_SECRET || '395878870lzyszds878870';
@@ -17,7 +17,7 @@ function generateToken(user: User, expiresIn = '1h') {
       signature: user.signature,
       whether_use: user.whether_use,
     };
-    return jwt.sign(payload, secretKey, {expiresIn});
+    return jwt.sign(payload, secretKey, { expiresIn });
   } catch (error) {
     console.error('Error generating token:', error);
     throw new Error('Failed to generate token');
@@ -42,10 +42,10 @@ function verifyToken(token: string): JwtPayload | null {
 // 验证并解码JWT
 function decodeToken(token: string): User {
   try {
-    const decoded = jwt.verify(token, secretKey);
+    const decoded = jwt.verify(token, secretKey) as User;
     return typeof decoded === 'string' ? JSON.parse(decoded) : decoded;
   } catch (error: any) {
-    console.error('Error verifying and decoding token:', error);
+    console.error('验证和解码令牌时出错:', error);
     if (error.name === 'TokenExpiredError') {
       throw new Error('Token expired');
     } else {
@@ -54,4 +54,4 @@ function decodeToken(token: string): User {
   }
 }
 
-export {generateToken, verifyToken, decodeToken};
+export { generateToken, verifyToken, decodeToken };

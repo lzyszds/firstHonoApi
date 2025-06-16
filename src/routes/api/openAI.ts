@@ -18,6 +18,8 @@ const routes: Routes = {
     "/getSiliconflowiAi": openAIController.getSiliconflowiAi,
     // 根据文章id来生成相关的ai评论内容
     "/getAiComment": openAIController.getAiComment,
+    // 使用ai来审核评论内容是否符合规范
+    "/getAiReviewComment": openAIController.getAiReviewComment,
   },
   post: {
     // 新增ai key

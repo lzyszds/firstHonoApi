@@ -1,4 +1,4 @@
-import {Context} from "hono";
+import { Context } from "hono";
 import openAI from "../services/openAIService";
 
 // import openAI from "../service/ai.service";
@@ -38,6 +38,11 @@ class AiController {
   // Ai chat
   async sendChat(c: Context) {
     return openAI.sendChat(c);
+  }
+
+  // 使用ai来审核评论内容是否符合规范
+  async getAiReviewComment(c: Context) {
+    return c.json(await openAI.getAiReviewComment(c));
   }
 
 }

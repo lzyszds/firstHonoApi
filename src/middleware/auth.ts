@@ -55,11 +55,15 @@ export async function authMiddleware(c: Context, next: Next) {
 
     if (!accordPermission) return next()
 
+
     const apiRoles = accordPermission.interface_permissions
+
     if (apiRoles === 0) {
+        // console.log(`接口: ${url} 是公开接口，无需权限验证`);
         // 公开接口
         return await next()
     } else {
+        // console.log(`接口: ${url} 需要权限验证，权限级别: ${apiRoles}`);
         // 需要权限的接口
         const userInfo = await verifyAccount(c)
         if (isErrorResponse(userInfo)) {
