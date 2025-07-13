@@ -141,7 +141,7 @@ class ToolkotService {
         const apiConfig: ApiConfig<any> = new ApiConfig(c);
         try {
             let afterGithubData = await c.redis.get('afterGithubData') || {}
-            
+
             if (!afterGithubData) {
                 await dailyGithub()
                 afterGithubData = (await c.redis.get('afterGithubData'))!
@@ -220,16 +220,16 @@ class ToolkotService {
         const apiConfig: ApiConfig<string> = new ApiConfig(c);
         try {
             const { id } = await c.req.json();
-            const result = await ToolkotMapper.deleteImage(id);
-            if (result.affectedRows === 0) {
+            const [queryResult, delResult] = await ToolkotMapper.deleteImage(id);
+            if (delResult.affectedRows === 0) {
                 return apiConfig.fail("删除失败");
             }
 
-
             try {
                 // 将图片从本地删除
-                fs.unlinkSync(path.join(__dirname, "../../static/img/cacheImage", result.resource_id));
+                fs.unlinkSync(path.join(__dirname, "../../static/img/cacheImage", queryResult.name));
             } catch (e: any) {
+                console.log(path.join(__dirname, "../../static/img/cacheImage", queryResult.name));
                 Logger.error("Error in deletePictureBedImage delete file fail:", e)
             }
             return apiConfig.success("删除成功");

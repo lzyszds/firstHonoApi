@@ -1,6 +1,6 @@
-import {AdminHomeType, AdminHomeTypeSql} from "@/domain/AdminHomeType";
+import { AdminHomeType, AdminHomeTypeSql } from "@/domain/AdminHomeType";
 import db from "../utils/db";
-import {PictureBedCreate, PictureBedImageListParams, PictureBedType} from "@/domain/PictureBedType";
+import { PictureBedCreate, PictureBedImageListParams, PictureBedType } from "@/domain/PictureBedType";
 
 class ToolkitMapper {
 
@@ -42,7 +42,7 @@ class ToolkitMapper {
     for (let key in sqlObjeck) {
       result[key] = await db.query(sqlObjeck[key], [])
     }
-    
+
     return result;
   }
 
@@ -66,11 +66,15 @@ class ToolkitMapper {
 
   //删除图片
   public async deleteImage(id: number): Promise<any> {
-    const sql: string = `
-        DELETE
-        FROM wb_picture_bed
+    const querySql: string = `
+        SELECT * FROM wb_picture_bed
         WHERE id = ? `
-    return await db.query(sql, [id]);
+    const result = await db.query(querySql, [id])
+    const sql: string = `
+        DELETE FROM wb_picture_bed
+        WHERE id = ? `
+
+    return [result[0], await db.query(sql, [id])];
   }
 
 }

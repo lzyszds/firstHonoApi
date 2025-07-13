@@ -16,6 +16,7 @@ import { User } from '@/domain/User';
 import md5 from 'md5';
 import dayjs from 'dayjs';
 import { log } from 'console';
+import sharp from 'sharp';
 
 const clearCache = async (c: Context) => {
   /* 删除缓存 */
@@ -46,7 +47,7 @@ class ArticleService {
     const cacheKey = `articles_page?pages=${pages}&limit=${limit}&params=` + md5(JSON.stringify(params))
     // 现在可以通过 c.redis 访问 Redis 客户端
     const cachedData = await c.redis.get(cacheKey);
-    
+
     // 如果缓存存在，直接返回缓存数据
     if (cachedData) {
       return apiConfig.success(useUserInfoGetData(cachedData, userInfo));
@@ -63,7 +64,6 @@ class ArticleService {
 
 
   public async getArticleListForWeb(c: Context) {
-    console.log('web端获取文章列表');
     const apiConfig: ApiConfig<ArticleData<Articles[]>> = new ApiConfig(c);
     const { pages = 1, limit = 10, ...params } = c.req.query();
     const cacheKey = `articles_page_web?pages=${pages}&limit=${limit}&params=` + md5(JSON.stringify(params))
@@ -82,7 +82,7 @@ class ArticleService {
       content: '',
       aid: ''
     }, pages, limit);
-    
+
     const result = { total: total, data }
     await c.redis.setex(cacheKey, 600, JSON.stringify(result));
 
@@ -262,23 +262,17 @@ class ArticleService {
     let file = formData['upload-image'] as File;
     let buffer = await file.arrayBuffer();
 
-    // 允许上传的文件类型
-    const ALLOWED_FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml'];
-    result = await uploadFileLimit(file, 10, ALLOWED_FILE_TYPES)
-    if (typeof result === 'string') {
-      return apiConfig.fail(result);
-    } else {
-      buffer = result;
-    }
-
     // 使用 nanoid 生成唯一文件名
     const filename = nanoid() + path.extname(file.name) + '.webp';
     const articleImagesPath = `/static/img/articleImages/`
     const uploadPath = path.join(__dirname, '../..', articleImagesPath + filename);
 
+    const processedBuffer = Buffer.from(buffer)
+    //获取file的Buffer
+    const webpBuffer = await sharp(processedBuffer).toFormat('webp').toBuffer()
 
     //@ts-ignore
-    fs.writeFileSync(uploadPath, Buffer.from(buffer));
+    fs.writeFileSync(uploadPath, webpBuffer);
     result = { message: '文件上传成功', filename: articleImagesPath + filename }
 
     return apiConfig.success(result);

@@ -1,4 +1,4 @@
-import {Context} from "hono";
+import { Context } from "hono";
 import Logger from "@/middleware/logger";
 
 interface ApiConfig<T> {
@@ -74,6 +74,13 @@ class ApiConfig<T> {
         this.msg = 'success';
         this.data = url;
         this.url = url
+        return this
+    }
+
+    imageResulting(data: T) {
+        this.code = 200;
+        this.msg = "ongoing"
+        this.data = data
         return this
     }
 

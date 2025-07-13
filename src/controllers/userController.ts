@@ -1,36 +1,37 @@
 // src/controllers/userController.ts
-import {Context} from "hono";
+import { Context } from "hono";
 import userService from "../services/userService";
-import ApiConfig, {DataTotal} from "../domain/ApiCongfigType";
-import {GetUserListParams, User, UserRole} from "@/domain/User";
+import ApiConfig, { DataTotal } from "../domain/ApiCongfigType";
+import { GetUserListParams, User, UserRole } from "@/domain/User";
 import fs from "fs";
 import path from "path";
-import {checkObj, randomUnique, uploadFileLimit} from "@/utils/helpers";
-import {getCookie, setCookie} from "hono/cookie";
-import {comparePasswords, hashPassword} from "@/utils/passwordUtils";
+import { checkObj, randomUnique, uploadFileLimit } from "@/utils/helpers";
+import { getCookie, setCookie } from "hono/cookie";
+import { comparePasswords, hashPassword } from "@/utils/passwordUtils";
 import dayjs from "dayjs";
-import {decodeToken, generateToken} from "@/utils/authUtils";
-import {nanoid} from "nanoid";
-import {getIpAddress} from "@/utils/getIpAddress";
+import { decodeToken, generateToken } from "@/utils/authUtils";
+import { nanoid } from "nanoid";
+import { getIpAddress } from "@/utils/getIpAddress";
 import ToolkotMapper from "@/models/toolkit";
-import {PictureBedType} from "@/domain/PictureBedType";
+import { PictureBedType } from "@/domain/PictureBedType";
+import sharp from "sharp";
 
 
 class UserController {
   //获取用户列表
   async getUserList(c: Context) {
-    const {name = '', username = '', power = '', signature = '', pages = "1", limit = "10"} = c.req.query();
-    const search: GetUserListParams = {username, uname: name, power, signature}
+    const { name = '', username = '', power = '', signature = '', pages = "1", limit = "10" } = c.req.query();
+    const search: GetUserListParams = { username, uname: name, power, signature }
     const total = await userService.getUserListTotal(search);
     const userList = await userService.getUserList(search, pages, limit);
     const apiConfig: ApiConfig<DataTotal<UserRole>> = new ApiConfig(c);
-    const result = apiConfig.success({total, data: userList});
+    const result = apiConfig.success({ total, data: userList });
     return c.json(result);
   }
 
   //根据id获取用户信息
   async getUserInfo(c: Context) {
-    const {id} = c.req.query();
+    const { id } = c.req.query();
     const userInfo = await userService.findById(id);
     const apiConfig: ApiConfig<UserRole> = new ApiConfig<UserRole>(c);
     const result = apiConfig.success(userInfo[0]);
@@ -59,7 +60,7 @@ class UserController {
     let random = randomUnique(1, files.length - 1, Number(randomName));
     const img = files[random];
     // 记录当前返回的图片的随机数，以便下次不重复
-    setCookie(c, "randomName", random.toString(), {maxAge: 60 * 60});
+    setCookie(c, "randomName", random.toString(), { maxAge: 60 * 60 });
     // 返回一个成功的 ApiConfig 对象，包含图片的路径
     const apiConfig = new ApiConfig<string>(c);
     const result = apiConfig.success("/img/updateImg/" + img);
@@ -83,7 +84,7 @@ class UserController {
   //登陆
   async login(c: Context) {
 
-    const {username, password, remember} = await c.req.json()
+    const { username, password, remember } = await c.req.json()
     // 创建一个 ApiConfig 对象
     const apiConfig = new ApiConfig<string>(c);
 
@@ -117,7 +118,7 @@ class UserController {
       const ip = await getIpAddress(c);
       //修改用户最后登录时间
       const last_login_date = dayjs().format("YYYY-MM-DD HH:mm:ss");
-      await userService.updateUser({uid: user.uid, last_login_date, last_login_ip: ip});
+      await userService.updateUser({ uid: user.uid, last_login_date, last_login_ip: ip });
 
       // 返回一个成功的 ApiConfig 对象，包含提示信息
       result = apiConfig.success(activation_key)
@@ -158,7 +159,7 @@ class UserController {
     const apiConfig = new ApiConfig<string>(c);
     try {
       // 调用 userMapper.addUser 方法获取用户信息
-      const addInfo = await userService.addUser(Object.assign(params, {create_date,}));
+      const addInfo = await userService.addUser(Object.assign(params, { create_date, }));
       if (addInfo.affectedRows >= 0) {
         // 返回一个成功的 ApiConfig 对象，包含提示信息
         result = apiConfig.success("添加用户成功");
@@ -255,25 +256,19 @@ class UserController {
     let file = formData['upload-image'] as File;
     let buffer = await file.arrayBuffer();
 
-
-    // 允许上传的文件类型
-    const ALLOWED_FILE_TYPES = ['image/jpg', 'image/jpeg', 'image/png', 'image/gif', 'image/bmp', 'image/webp', 'image/svg+xml'];
-    result = await uploadFileLimit(file, 10, ALLOWED_FILE_TYPES)
-    if (typeof result === 'string') {
-      return c.json(result);
-    } else {
-      buffer = result;
-    }
-
     // 使用 nanoid 生成唯一文件名
     const filename = nanoid() + path.extname(file.name) + '.webp';
     const articleImagesPath = `/static/img/articleImages/`
     const uploadPath = path.join(__dirname, '../..', articleImagesPath + filename);
 
 
+    const processedBuffer = Buffer.from(buffer)
+    //获取file的Buffer
+    const webpBuffer = await sharp(processedBuffer).toFormat('webp').toBuffer()
+
     //@ts-ignore
-    fs.writeFileSync(uploadPath, Buffer.from(buffer));
-    result = {message: '文件上传成功', filename: articleImagesPath + filename}
+    fs.writeFileSync(uploadPath, webpBuffer);
+    result = { message: '文件上传成功', filename: articleImagesPath + filename }
 
     return c.json(result);
   }

@@ -3,7 +3,8 @@ import * as https from "https";
 import path from "node:path";
 import dayjs from "dayjs";
 import sharp from "sharp";
-import {UserRole} from "@/domain/User";
+import { UserRole } from "@/domain/User";
+import { fileTypeFromBuffer } from "file-type";
 
 const rootPath = path.resolve(__dirname, '../../');
 
@@ -47,7 +48,7 @@ const sliceData = <T>(data: T[], pages: number, limit: number): { data: T[], tot
     // 截取当前页数的数据
     data = data.slice(start, end);
 
-    return {data, total};
+    return { data, total };
 };
 
 /**
@@ -194,7 +195,7 @@ function parseUserAgent(userAgent: any) {
     var browserName = "Unknown";
     var browserVersion = "Unknown";
     var os = "Unknown";
-    if (!userAgent) return {browserSystem: "Unknown", browserVersion, deviceSystem: os};
+    if (!userAgent) return { browserSystem: "Unknown", browserVersion, deviceSystem: os };
     // 浏览器信息
     if (userAgent.indexOf("Firefox") > -1) {
         browserName = "Firefox";
@@ -220,7 +221,7 @@ function parseUserAgent(userAgent: any) {
         // 可以进一步解析iOS的版本
     }
 
-    return {browserSystem: browserName + browserVersion, deviceSystem: os};
+    return { browserSystem: browserName + browserVersion, deviceSystem: os };
 }
 
 // 读取 JSON 文件
@@ -279,31 +280,25 @@ const uploadFileLimit = async (
 
     REDUCE_SIZE = REDUCE_SIZE * 1024 * 1024; // 转换为 KB
     const buffer = await file.arrayBuffer(); // 转换为 ArrayBuffer
-    const nodeBuffer = Buffer.from(buffer);  // 转换为 Node.js 的 Buffer
+    let nodeBuffer = Buffer.from(buffer);  // 转换为 Node.js 的 Buffer
 
     if (file.size > REDUCE_SIZE) {
         try {
-            // 使用 sharp 压缩图片
-            let compressedBuffer = await sharp(nodeBuffer)
-                .jpeg({quality: 100}) // 调整质量以压缩图片
-                .toBuffer();
 
+            // 验证文件类型
+            const detectedType = await fileTypeFromBuffer(nodeBuffer as any);
+            const type = detectedType?.mime === 'image/png' ? 'png' : 'jpeg'
+            let quality = 100
+            nodeBuffer = await sharp(nodeBuffer)[type]({ quality }).toBuffer();
             // 如果压缩后的文件仍然超过 REDUCE_SIZE，继续调整质量压缩
-            if (compressedBuffer.length > REDUCE_SIZE) {
-                let quality = 80;
-                while (compressedBuffer.length > REDUCE_SIZE && quality > 10) {
-                    quality -= 10;
-                    //如果质量小于50，直接返回
-                    if (quality < 50) {
-                        return compressedBuffer
-                    }
-                    compressedBuffer = await sharp(compressedBuffer)
-                        .jpeg({quality})
-                        .toBuffer();
+            while (nodeBuffer.length > REDUCE_SIZE) {
+                quality -= 10;
+                nodeBuffer = await sharp(nodeBuffer)[type]({ quality }).toBuffer();
+                //如果质量小于50，直接返回
+                if (quality <= 70) {
+                    return nodeBuffer
                 }
             }
-
-            return compressedBuffer;
         } catch (error) {
             console.error('压缩图片时发生错误:', error);
             return '压缩图片失败';
@@ -331,7 +326,7 @@ const handleParamsWildcard = (obj: any) => {
             params.push(obj[key])
         }
     }
-    return {whereValue, params}
+    return { whereValue, params }
 }
 
 
